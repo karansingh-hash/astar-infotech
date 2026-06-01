@@ -1205,7 +1205,7 @@ export default function Home() {
                           Email Address
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          hello@astarinfotech.com
+                          karansinghmeertiya@gmail.com
                         </div>
                       </div>
                     </div>
@@ -1411,7 +1411,7 @@ export default function Home() {
                 <li className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span className="text-sm text-emerald-300/70">
-                    hello@astarinfotech.com
+                    karansinghmeertiya@gmail.com
                   </span>
                 </li>
               </ul>

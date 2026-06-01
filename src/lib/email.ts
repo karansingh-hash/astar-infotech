@@ -137,7 +137,7 @@ export async function sendAutoReply(data: ContactFormData) {
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #6b7280; font-size: 14px;">📧</td>
-              <td style="padding: 4px 0;"><a href="mailto:hello@astarinfotech.com" style="color: #059669; font-size: 14px;">hello@astarinfotech.com</a></td>
+              <td style="padding: 4px 0;"><a href="mailto:karansinghmeertiya@gmail.com" style="color: #059669; font-size: 14px;">karansinghmeertiya@gmail.com</a></td>
             </tr>
           </table>
         </div>
