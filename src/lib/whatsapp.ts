@@ -1,15 +1,22 @@
 /**
- * Generate a WhatsApp notification URL that sends a message to the business owner
- * when someone submits the contact form.
+ * WhatsApp notification utilities for A-Star Infotech
  *
- * This opens WhatsApp Web/App with a pre-filled message containing the form details.
+ * Supports multiple methods:
+ * 1. CallMeBot API (free, requires setup)
+ * 2. Fallback: WhatsApp Click-to-Chat link generation
  */
-export function generateWhatsAppNotification(data: {
+
+interface ContactData {
   name: string
   email: string
   phone?: string
   message: string
-}): string {
+}
+
+/**
+ * Generate a WhatsApp Click-to-Chat URL with pre-filled message
+ */
+export function generateWhatsAppNotification(data: ContactData): string {
   const businessPhone = process.env.BUSINESS_PHONE || '918560074448'
 
   const text = [
@@ -31,19 +38,22 @@ export function generateWhatsAppNotification(data: {
 }
 
 /**
- * Send a WhatsApp notification via the CallMeBot API (free service)
- * This sends a WhatsApp message directly to the business phone without user interaction.
+ * Send WhatsApp notification via CallMeBot API
  *
- * Setup: Visit https://www.callmebot.com/blog/free-api-whatsapp-messages/
- * and follow the steps to activate your phone number.
+ * Setup Instructions:
+ * 1. Add +34 644 52 74 88 to your WhatsApp contacts
+ * 2. Send "I allow callmebot to send me messages" to that number
+ * 3. You'll receive a 6-digit API key (e.g., "470123")
+ * 4. Add the key to .env as CALLMEBOT_API_KEY
  */
-export async function sendWhatsAppNotification(data: {
-  name: string
-  email: string
-  phone?: string
-  message: string
-}): Promise<{ success: boolean; method: string; error?: string }> {
+export async function sendWhatsAppNotification(data: ContactData): Promise<{
+  success: boolean
+  method: string
+  error?: string
+  waLink?: string
+}> {
   const businessPhone = process.env.BUSINESS_PHONE || '918560074448'
+  const callMeBotApiKey = process.env.CALLMEBOT_API_KEY
 
   const text = [
     `🔔 New Website Inquiry`,
@@ -51,37 +61,76 @@ export async function sendWhatsAppNotification(data: {
     `📧 ${data.email}`,
     data.phone ? `📞 ${data.phone}` : '',
     `💬 ${data.message}`,
+    ``,
+    `From: A-Star Infotech Website`,
   ]
     .filter(Boolean)
     .join('\n')
 
-  try {
-    // Try CallMeBot WhatsApp API (free, requires one-time setup)
-    const callMeBotApiKey = process.env.CALLMEBOT_API_KEY
+  // Method 1: Try CallMeBot API (if API key is configured and valid format)
+  if (callMeBotApiKey && callMeBotApiKey !== 'your-callmebot-api-key') {
+    try {
+      const url = `https://api.callmebot.com/whatsapp.php?phone=${businessPhone}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(callMeBotApiKey)}`
 
-    if (callMeBotApiKey) {
-      const url = `https://api.callmebot.com/whatsapp.php?phone=${businessPhone}&text=${encodeURIComponent(text)}&apikey=${callMeBotApiKey}`
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      })
 
-      const response = await fetch(url)
+      const responseText = await response.text()
 
-      if (response.ok) {
+      // CallMeBot returns the message ID on success
+      if (response.ok && !responseText.toLowerCase().includes('error')) {
+        console.log('✅ WhatsApp notification sent via CallMeBot')
         return { success: true, method: 'callmebot' }
       }
-    }
 
-    // Fallback: Return the WhatsApp URL for manual notification
-    const waUrl = generateWhatsAppNotification(data)
-    return {
-      success: true,
-      method: 'whatsapp_link',
-      error: 'WhatsApp API key not configured. Using link method. Set CALLMEBOT_API_KEY in .env for automatic WhatsApp notifications.',
+      console.log('⚠️ CallMeBot response:', responseText)
+    } catch (error) {
+      console.error('❌ CallMeBot request failed:', error)
     }
-  } catch (error) {
-    const waUrl = generateWhatsAppNotification(data)
-    return {
-      success: false,
-      method: 'fallback_link',
-      error: `WhatsApp notification failed: ${error instanceof Error ? error.message : 'Unknown error'}. Manual link: ${waUrl}`,
+  }
+
+  // Method 2: Try WhatsApp Cloud API (if configured)
+  const whatsappToken = process.env.WHATSAPP_CLOUD_TOKEN
+  const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID
+
+  if (whatsappToken && whatsappPhoneId) {
+    try {
+      const response = await fetch(
+        `https://graph.facebook.com/v17.0/${whatsappPhoneId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${whatsappToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to: businessPhone,
+            type: 'text',
+            text: { body: text },
+          }),
+          signal: AbortSignal.timeout(10000),
+        }
+      )
+
+      if (response.ok) {
+        console.log('✅ WhatsApp notification sent via Cloud API')
+        return { success: true, method: 'whatsapp_cloud' }
+      }
+    } catch (error) {
+      console.error('❌ WhatsApp Cloud API request failed:', error)
     }
+  }
+
+  // Fallback: Return WhatsApp link for manual notification
+  const waLink = generateWhatsAppNotification(data)
+  console.log('⚠️ No working WhatsApp API configured. Generated link for manual use.')
+
+  return {
+    success: false,
+    method: 'fallback_link',
+    waLink,
+    error: 'WhatsApp API not configured. Please set up CallMeBot (see instructions in whatsapp.ts) or provide a valid API key.',
   }
 }
