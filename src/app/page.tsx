@@ -1005,7 +1005,7 @@ export default function Home() {
               </Button>
             </a>
             <a
-              href="https://wa.me/919876543210"
+              href="https://wa.me/918560074448"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -1101,7 +1101,7 @@ export default function Home() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+91 98765 43210"
+                        placeholder="+91 8560074448"
                         value={formData.phone}
                         onChange={(e) =>
                           setFormData({ ...formData, phone: e.target.value })
@@ -1166,9 +1166,9 @@ export default function Home() {
                           Office Address
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          123 Tech Park, Sector 5
+                          D-49, Shiv Marg, Balaji Sagar-15,
                           <br />
-                          Ahmedabad, Gujarat 380001
+                          Jaipur, Rajasthan
                         </div>
                       </div>
                     </div>
@@ -1181,7 +1181,7 @@ export default function Home() {
                           Phone Number
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          +91 98765 43210
+                          +91 8560074448
                         </div>
                       </div>
                     </div>
@@ -1224,7 +1224,7 @@ export default function Home() {
                       A-Star Infotech
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Ahmedabad, Gujarat
+                      Jaipur, Rajasthan
                     </p>
                   </div>
                 </div>
@@ -1386,13 +1386,13 @@ export default function Home() {
                 <li className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span className="text-sm text-emerald-300/70">
-                    123 Tech Park, Sector 5, Ahmedabad, Gujarat 380001
+                    D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span className="text-sm text-emerald-300/70">
-                    +91 98765 43210
+                    +91 8560074448
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
@@ -1424,7 +1424,7 @@ export default function Home() {
 
       {/* ─── WhatsApp Floating Button ─── */}
       <a
-        href="https://wa.me/919876543210?text=Hello%20A-Star%20Infotech!%20I%20am%20interested%20in%20your%20web%20development%20services."
+        href="https://wa.me/918560074448?text=Hello%20A-Star%20Infotech!%20I%20am%20interested%20in%20your%20web%20development%20services."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 whatsapp-pulse"
