@@ -148,6 +148,7 @@ const PORTFOLIO = [
       'A fully-featured online grocery store with real-time inventory, secure checkout, and delivery tracking.',
     tech: ['Next.js', 'Stripe', 'PostgreSQL'],
     color: 'from-emerald-500 to-emerald-700',
+    image: '/portfolio-freshmart.png',
   },
   {
     title: 'HealthPlus Clinic',
@@ -156,6 +157,7 @@ const PORTFOLIO = [
       'A responsive website for a multi-specialty clinic with appointment booking and patient portal.',
     tech: ['React', 'Node.js', 'MongoDB'],
     color: 'from-amber-500 to-amber-700',
+    image: '/portfolio-healthplus.png',
   },
   {
     title: 'UrbanBite Restaurant',
@@ -164,6 +166,7 @@ const PORTFOLIO = [
       'A beautiful restaurant website with online ordering, table reservations, and menu management.',
     tech: ['Next.js', 'Prisma', 'Tailwind'],
     color: 'from-emerald-600 to-teal-700',
+    image: '/portfolio-urbanbite.png',
   },
   {
     title: 'EduSpark Academy',
@@ -172,6 +175,7 @@ const PORTFOLIO = [
       'An e-learning platform with course management, video streaming, and student progress tracking.',
     tech: ['React', 'Firebase', 'TypeScript'],
     color: 'from-orange-500 to-amber-700',
+    image: '/portfolio-eduspark.png',
   },
   {
     title: 'GreenLeaf Landscaping',
@@ -180,6 +184,7 @@ const PORTFOLIO = [
       'A lead-generating website for a landscaping company with gallery, quote requests, and service pages.',
     tech: ['Next.js', 'Sanity CMS', 'Vercel'],
     color: 'from-teal-500 to-emerald-700',
+    image: '/portfolio-greenleaf.png',
   },
   {
     title: 'TechVault IT Solutions',
@@ -188,6 +193,7 @@ const PORTFOLIO = [
       'A corporate website for an IT firm with service pages, case studies, and a knowledge base.',
     tech: ['React', 'GraphQL', 'AWS'],
     color: 'from-amber-600 to-orange-700',
+    image: '/portfolio-techvault.png',
   },
 ]
 
@@ -859,19 +865,20 @@ export default function Home() {
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
               >
                 <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
-                  {/* Gradient header */}
-                  <div
-                    className={`h-48 bg-gradient-to-br ${project.color} p-6 flex flex-col justify-end relative overflow-hidden`}
-                  >
+                  {/* Project Image */}
+                  <div className="h-48 relative overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     <div className="absolute top-4 right-4">
                       <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm">
                         {project.category}
                       </Badge>
                     </div>
-                    {/* Decorative circles */}
-                    <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full" />
-                    <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/5 rounded-full" />
-                    <h3 className="text-xl font-bold text-white relative z-10">
+                    <h3 className="absolute bottom-4 left-6 text-xl font-bold text-white z-10">
                       {project.title}
                     </h3>
                   </div>
