@@ -356,9 +356,11 @@ export default function Home() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo */}
             <a href="#home" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                <span className="text-white font-bold text-lg sm:text-xl">A</span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="A-Star Infotech Logo"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain shadow-md group-hover:shadow-lg transition-shadow"
+              />
               <div className="flex flex-col">
                 <span
                   className={`font-bold text-base sm:text-lg leading-tight transition-colors ${
@@ -1289,9 +1291,11 @@ export default function Home() {
             {/* Brand */}
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">A</span>
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="A-Star Infotech Logo"
+                  className="w-9 h-9 rounded-lg object-contain"
+                />
                 <div>
                   <div className="font-bold text-white text-lg leading-tight">
                     A-Star

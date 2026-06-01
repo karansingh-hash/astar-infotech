@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "A-Star Infotech" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/logo.png",
   },
   openGraph: {
     title: "A-Star Infotech | Building Smart Websites for Growing Businesses",
