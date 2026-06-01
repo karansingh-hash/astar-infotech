@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { sendContactNotification, sendAutoReply } from '@/lib/email'
+import { sendWhatsAppNotification } from '@/lib/whatsapp'
 
 export async function POST(request: Request) {
   try {
@@ -35,21 +37,67 @@ export async function POST(request: Request) {
       )
     }
 
+    const contactData = {
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone?.trim() || '',
+      message: message.trim(),
+    }
+
     // Save to database
     const contact = await db.contact.create({
       data: {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone?.trim() || null,
-        message: message.trim(),
+        name: contactData.name,
+        email: contactData.email,
+        phone: contactData.phone || null,
+        message: contactData.message,
       },
     })
+
+    // Send notifications in the background (don't block the response)
+    const notificationResults = {
+      email: false,
+      autoReply: false,
+      whatsapp: false,
+    }
+
+    // 1. Send email notification to business owner
+    try {
+      await sendContactNotification(contactData)
+      notificationResults.email = true
+      console.log('✅ Email notification sent to business owner')
+    } catch (error) {
+      console.error('❌ Failed to send email notification:', error)
+    }
+
+    // 2. Send auto-reply email to the customer
+    try {
+      await sendAutoReply(contactData)
+      notificationResults.autoReply = true
+      console.log('✅ Auto-reply email sent to customer')
+    } catch (error) {
+      console.error('❌ Failed to send auto-reply email:', error)
+    }
+
+    // 3. Send WhatsApp notification to business owner
+    try {
+      const waResult = await sendWhatsAppNotification(contactData)
+      notificationResults.whatsapp = waResult.success
+      if (waResult.error) {
+        console.log('⚠️ WhatsApp notification:', waResult.error)
+      } else {
+        console.log('✅ WhatsApp notification sent')
+      }
+    } catch (error) {
+      console.error('❌ Failed to send WhatsApp notification:', error)
+    }
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Thank you for your message! We will get back to you soon.',
+        message: 'Thank you for your message! We will get back to you within 24 hours.',
         id: contact.id,
+        notifications: notificationResults,
       },
       { status: 201 }
     )

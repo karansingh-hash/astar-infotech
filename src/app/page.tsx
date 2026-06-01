@@ -324,10 +324,12 @@ export default function Home() {
         throw new Error(data.error || 'Something went wrong')
       }
 
+      const data = await res.json()
+
       toast({
-        title: 'Message Sent!',
+        title: 'Message Sent Successfully!',
         description:
-          "Thank you for reaching out. We'll get back to you within 24 hours.",
+          "Thank you for reaching out! We've received your message and will get back to you within 24 hours. A confirmation email has been sent to your inbox.",
       })
 
       setFormData({ name: '', email: '', phone: '', message: '' })
