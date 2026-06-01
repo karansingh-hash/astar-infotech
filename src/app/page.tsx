@@ -533,7 +533,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-emerald-400/30 text-emerald-100 hover:bg-emerald-800/50 hover:text-white px-8 h-13 text-base"
+                  className="border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white hover:border-white/60 px-8 h-13 text-base backdrop-blur-sm"
                 >
                   View Our Work
                   <ExternalLink className="ml-2 w-4 h-4" />
