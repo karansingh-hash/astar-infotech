@@ -35,6 +35,10 @@ import {
   Target,
   Shield,
   Rocket,
+  Eye,
+  Trash2,
+  Inbox,
+  XCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,6 +46,13 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 /* ────────────────────────────────────────────
    Data
@@ -279,6 +290,132 @@ function AnimatedSection({
         {children}
       </motion.div>
     </section>
+  )
+}
+
+/* ────────────────────────────────────────────
+   Admin Panel Component
+   ──────────────────────────────────────────── */
+
+function AdminPanel() {
+  const [contacts, setContacts] = useState<Array<{
+    id: string
+    name: string
+    email: string
+    phone: string | null
+    message: string
+    createdAt: string
+  }>>([])
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+
+  const fetchContacts = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/contacts')
+      const data = await res.json()
+      setContacts(data.contacts || [])
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (open) fetchContacts()
+  }, [open])
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+          className="fixed bottom-6 left-20 z-50 w-12 h-12 bg-gray-800 hover:bg-gray-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+          aria-label="View Inquiries"
+          title="View Inquiries"
+        >
+          <Inbox className="w-5 h-5" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Inbox className="w-5 h-5 text-emerald-600" />
+            Contact Form Inquiries
+            {contacts.length > 0 && (
+              <Badge className="bg-emerald-100 text-emerald-700">{contacts.length}</Badge>
+            )}
+          </DialogTitle>
+        </DialogHeader>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full" />
+          </div>
+        ) : contacts.length === 0 ? (
+          <div className="text-center py-12">
+            <Inbox className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-muted-foreground">No inquiries yet.</p>
+          </div>
+        ) : (
+          <div className="overflow-y-auto max-h-[60vh] space-y-3 pr-1">
+            {contacts.map((contact) => (
+              <Card key={contact.id} className="border-border/50">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-foreground">{contact.name}</span>
+                        {contact.phone && (
+                          <a
+                            href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            WhatsApp
+                          </a>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Mail className="w-3 h-3" />
+                          <a href={`mailto:${contact.email}`} className="hover:text-emerald-600">{contact.email}</a>
+                        </span>
+                        {contact.phone && (
+                          <span className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {contact.phone}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-sm text-foreground/80 bg-muted/50 rounded-md p-2">
+                        {contact.message}
+                      </p>
+                      <p className="mt-1.5 text-[11px] text-muted-foreground/70">
+                        {new Date(contact.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchContacts}
+            disabled={loading}
+          >
+            Refresh
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -1447,6 +1584,9 @@ export default function Home() {
           <MessageCircle className="w-7 h-7 text-white" />
         </div>
       </a>
+
+      {/* ─── Admin Panel (View Inquiries) ─── */}
+      <AdminPanel />
 
       {/* ─── Scroll to Top Button ─── */}
       <AnimatePresence>
