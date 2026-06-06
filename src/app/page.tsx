@@ -46,6 +46,11 @@ import {
   Calendar,
   MailCheck,
   PhoneCall,
+  Briefcase,
+  Plus,
+  Pencil,
+  Wrench,
+  Save,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -53,6 +58,15 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 /* ────────────────────────────────────────────
    Data
@@ -294,8 +308,85 @@ function AnimatedSection({
 }
 
 /* ────────────────────────────────────────────
-   Admin Panel Component
+   Admin Panel Component (Enhanced)
    ──────────────────────────────────────────── */
+
+type AdminTab = 'dashboard' | 'inquiries' | 'services' | 'portfolio' | 'testimonials' | 'statistics' | 'settings'
+
+interface ContactItem {
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  message: string
+  createdAt: string
+}
+
+interface ServiceItem {
+  id: string
+  title: string
+  description: string
+  icon: string
+  color: string
+  bgColor: string
+  order: number
+}
+
+interface PortfolioItem {
+  id: string
+  title: string
+  category: string
+  description: string
+  tech: string
+  color: string
+  image: string
+  order: number
+}
+
+interface TestimonialItem {
+  id: string
+  name: string
+  company: string
+  review: string
+  rating: number
+  order: number
+}
+
+interface StatItem {
+  id: string
+  value: string
+  label: string
+  order: number
+}
+
+interface DashboardData {
+  totalContacts: number
+  totalServices: number
+  totalPortfolio: number
+  totalTestimonials: number
+  todayContacts: number
+  weekContacts: number
+  monthContacts: number
+  recentContacts: ContactItem[]
+}
+
+interface SiteSettings {
+  companyName: string
+  address: string
+  phone: string
+  email: string
+  hours: string
+}
+
+const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = [
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { key: 'inquiries', label: 'Inquiries', icon: Inbox },
+  { key: 'services', label: 'Services', icon: Globe },
+  { key: 'portfolio', label: 'Portfolio', icon: Briefcase },
+  { key: 'testimonials', label: 'Testimonials', icon: Star },
+  { key: 'statistics', label: 'Statistics', icon: BarChart3 },
+  { key: 'settings', label: 'Site Settings', icon: Wrench },
+]
 
 function AdminPanel() {
   const { toast } = useToast()
@@ -303,17 +394,48 @@ function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'contacts' | 'statistics' | 'settings'>('contacts')
-  const [contacts, setContacts] = useState<Array<{
-    id: string
-    name: string
-    email: string
-    phone: string | null
-    message: string
-    createdAt: string
-  }>>([])
+  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Data states
+  const [contacts, setContacts] = useState<ContactItem[]>([])
+  const [services, setServices] = useState<ServiceItem[]>([])
+  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([])
+  const [stats, setStats] = useState<StatItem[]>([])
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null)
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({
+    companyName: '',
+    address: '',
+    phone: '',
+    email: '',
+    hours: '',
+  })
+
+  // Loading states
   const [contactsLoading, setContactsLoading] = useState(false)
+  const [servicesLoading, setServicesLoading] = useState(false)
+  const [portfolioLoading, setPortfolioLoading] = useState(false)
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false)
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
+  const [settingsLoading, setSettingsLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  // Delete states
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Dialog states
+  const [serviceDialog, setServiceDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: ServiceItem | null }>({ open: false, mode: 'add', item: null })
+  const [portfolioDialog, setPortfolioDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: PortfolioItem | null }>({ open: false, mode: 'add', item: null })
+  const [testimonialDialog, setTestimonialDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: TestimonialItem | null }>({ open: false, mode: 'add', item: null })
+  const [statDialog, setStatDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: StatItem | null }>({ open: false, mode: 'add', item: null })
+
+  // Form states
+  const [serviceForm, setServiceForm] = useState({ title: '', description: '', icon: '', color: '', bgColor: '', order: 0 })
+  const [portfolioForm, setPortfolioForm] = useState({ title: '', category: '', description: '', tech: '', color: '', image: '', order: 0 })
+  const [testimonialForm, setTestimonialForm] = useState({ name: '', company: '', review: '', rating: 5, order: 0 })
+  const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 })
 
   // Check sessionStorage on mount
   useEffect(() => {
@@ -323,6 +445,19 @@ function AdminPanel() {
     }
   }, [])
 
+  // Fetch data when tab changes
+  useEffect(() => {
+    if (!isOpen || !isAuthenticated) return
+    if (activeTab === 'dashboard') fetchDashboard()
+    if (activeTab === 'inquiries') fetchContacts()
+    if (activeTab === 'services') fetchServices()
+    if (activeTab === 'portfolio') fetchPortfolio()
+    if (activeTab === 'testimonials') fetchTestimonials()
+    if (activeTab === 'statistics') { fetchDashboard(); fetchStats() }
+    if (activeTab === 'settings') fetchSettings()
+  }, [isOpen, isAuthenticated, activeTab])
+
+  // ─── Auth ───
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     if (!password.trim()) return
@@ -353,9 +488,29 @@ function AdminPanel() {
     setIsAuthenticated(false)
     sessionStorage.removeItem('admin_auth')
     setIsOpen(false)
-    setActiveTab('contacts')
+    setActiveTab('dashboard')
+    setSidebarOpen(false)
     setContacts([])
+    setServices([])
+    setPortfolio([])
+    setTestimonials([])
+    setStats([])
+    setDashboard(null)
     toast({ title: 'Logged Out', description: 'You have been logged out successfully.' })
+  }
+
+  // ─── Fetch Functions ───
+  const fetchDashboard = async () => {
+    setDashboardLoading(true)
+    try {
+      const res = await fetch('/api/dashboard')
+      const data = await res.json()
+      setDashboard(data)
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch dashboard data.', variant: 'destructive' })
+    } finally {
+      setDashboardLoading(false)
+    }
   }
 
   const fetchContacts = async () => {
@@ -371,6 +526,80 @@ function AdminPanel() {
     }
   }
 
+  const fetchServices = async () => {
+    setServicesLoading(true)
+    try {
+      const res = await fetch('/api/services')
+      const data = await res.json()
+      setServices(data.services || [])
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch services.', variant: 'destructive' })
+    } finally {
+      setServicesLoading(false)
+    }
+  }
+
+  const fetchPortfolio = async () => {
+    setPortfolioLoading(true)
+    try {
+      const res = await fetch('/api/portfolio')
+      const data = await res.json()
+      setPortfolio(data.portfolio || [])
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch portfolio.', variant: 'destructive' })
+    } finally {
+      setPortfolioLoading(false)
+    }
+  }
+
+  const fetchTestimonials = async () => {
+    setTestimonialsLoading(true)
+    try {
+      const res = await fetch('/api/testimonials')
+      const data = await res.json()
+      setTestimonials(data.testimonials || [])
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch testimonials.', variant: 'destructive' })
+    } finally {
+      setTestimonialsLoading(false)
+    }
+  }
+
+  const fetchStats = async () => {
+    setStatsLoading(true)
+    try {
+      const res = await fetch('/api/stats')
+      const data = await res.json()
+      setStats(data.stats || [])
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch stats.', variant: 'destructive' })
+    } finally {
+      setStatsLoading(false)
+    }
+  }
+
+  const fetchSettings = async () => {
+    setSettingsLoading(true)
+    try {
+      const res = await fetch('/api/settings')
+      const data = await res.json()
+      if (data.settings) {
+        setSiteSettings({
+          companyName: data.settings.companyName || '',
+          address: data.settings.address || '',
+          phone: data.settings.phone || '',
+          email: data.settings.email || '',
+          hours: data.settings.hours || '',
+        })
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch settings.', variant: 'destructive' })
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
+  // ─── Delete Contact ───
   const handleDeleteContact = async (id: string) => {
     setDeletingId(id)
     try {
@@ -384,7 +613,7 @@ function AdminPanel() {
         toast({ title: 'Deleted', description: 'Contact has been deleted.' })
       } else {
         const data = await res.json()
-        toast({ title: 'Error', description: data.error || 'Failed to delete contact.', variant: 'destructive' })
+        toast({ title: 'Error', description: data.error || 'Failed to delete.', variant: 'destructive' })
       }
     } catch {
       toast({ title: 'Error', description: 'Failed to delete contact.', variant: 'destructive' })
@@ -393,24 +622,204 @@ function AdminPanel() {
     }
   }
 
-  useEffect(() => {
-    if (isOpen && isAuthenticated) {
-      fetchContacts()
+  // ─── Generic CRUD helpers ───
+  const apiCall = async (url: string, method: string, body?: unknown) => {
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Request failed')
+    return data
+  }
+
+  // ─── Services CRUD ───
+  const openServiceDialog = (mode: 'add' | 'edit', item?: ServiceItem) => {
+    if (mode === 'edit' && item) {
+      setServiceForm({ title: item.title, description: item.description, icon: item.icon, color: item.color, bgColor: item.bgColor, order: item.order })
+      setServiceDialog({ open: true, mode: 'edit', item })
+    } else {
+      setServiceForm({ title: '', description: '', icon: 'Globe', color: 'text-emerald-600', bgColor: 'bg-emerald-50', order: services.length })
+      setServiceDialog({ open: true, mode: 'add', item: null })
     }
-  }, [isOpen, isAuthenticated])
+  }
 
-  // Statistics calculations
-  const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const weekStart = new Date(now)
-  weekStart.setDate(now.getDate() - now.getDay())
-  weekStart.setHours(0, 0, 0, 0)
+  const handleSaveService = async () => {
+    setSaving(true)
+    try {
+      if (serviceDialog.mode === 'add') {
+        await apiCall('/api/services', 'POST', serviceForm)
+        toast({ title: 'Service Added', description: 'New service has been created.' })
+      } else {
+        await apiCall('/api/services', 'PUT', { id: serviceDialog.item?.id, ...serviceForm })
+        toast({ title: 'Service Updated', description: 'Service has been updated.' })
+      }
+      setServiceDialog({ open: false, mode: 'add', item: null })
+      fetchServices()
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save service.', variant: 'destructive' })
+    } finally {
+      setSaving(false)
+    }
+  }
 
-  const totalContacts = contacts.length
-  const todayContacts = contacts.filter((c) => new Date(c.createdAt) >= todayStart).length
-  const weekContacts = contacts.filter((c) => new Date(c.createdAt) >= weekStart).length
+  const handleDeleteService = async (id: string) => {
+    setDeletingId(id)
+    try {
+      await apiCall('/api/services', 'DELETE', { id })
+      setServices((prev) => prev.filter((s) => s.id !== id))
+      toast({ title: 'Deleted', description: 'Service has been deleted.' })
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
-  // Floating trigger button
+  // ─── Portfolio CRUD ───
+  const openPortfolioDialog = (mode: 'add' | 'edit', item?: PortfolioItem) => {
+    if (mode === 'edit' && item) {
+      setPortfolioForm({ title: item.title, category: item.category, description: item.description, tech: item.tech, color: item.color, image: item.image, order: item.order })
+      setPortfolioDialog({ open: true, mode: 'edit', item })
+    } else {
+      setPortfolioForm({ title: '', category: '', description: '', tech: '', color: 'from-emerald-500 to-emerald-700', image: '', order: portfolio.length })
+      setPortfolioDialog({ open: true, mode: 'add', item: null })
+    }
+  }
+
+  const handleSavePortfolio = async () => {
+    setSaving(true)
+    try {
+      if (portfolioDialog.mode === 'add') {
+        await apiCall('/api/portfolio', 'POST', portfolioForm)
+        toast({ title: 'Portfolio Item Added', description: 'New portfolio item has been created.' })
+      } else {
+        await apiCall('/api/portfolio', 'PUT', { id: portfolioDialog.item?.id, ...portfolioForm })
+        toast({ title: 'Portfolio Updated', description: 'Portfolio item has been updated.' })
+      }
+      setPortfolioDialog({ open: false, mode: 'add', item: null })
+      fetchPortfolio()
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save portfolio item.', variant: 'destructive' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeletePortfolio = async (id: string) => {
+    setDeletingId(id)
+    try {
+      await apiCall('/api/portfolio', 'DELETE', { id })
+      setPortfolio((prev) => prev.filter((p) => p.id !== id))
+      toast({ title: 'Deleted', description: 'Portfolio item has been deleted.' })
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  // ─── Testimonials CRUD ───
+  const openTestimonialDialog = (mode: 'add' | 'edit', item?: TestimonialItem) => {
+    if (mode === 'edit' && item) {
+      setTestimonialForm({ name: item.name, company: item.company, review: item.review, rating: item.rating, order: item.order })
+      setTestimonialDialog({ open: true, mode: 'edit', item })
+    } else {
+      setTestimonialForm({ name: '', company: '', review: '', rating: 5, order: testimonials.length })
+      setTestimonialDialog({ open: true, mode: 'add', item: null })
+    }
+  }
+
+  const handleSaveTestimonial = async () => {
+    setSaving(true)
+    try {
+      if (testimonialDialog.mode === 'add') {
+        await apiCall('/api/testimonials', 'POST', testimonialForm)
+        toast({ title: 'Testimonial Added', description: 'New testimonial has been created.' })
+      } else {
+        await apiCall('/api/testimonials', 'PUT', { id: testimonialDialog.item?.id, ...testimonialForm })
+        toast({ title: 'Testimonial Updated', description: 'Testimonial has been updated.' })
+      }
+      setTestimonialDialog({ open: false, mode: 'add', item: null })
+      fetchTestimonials()
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save testimonial.', variant: 'destructive' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteTestimonial = async (id: string) => {
+    setDeletingId(id)
+    try {
+      await apiCall('/api/testimonials', 'DELETE', { id })
+      setTestimonials((prev) => prev.filter((t) => t.id !== id))
+      toast({ title: 'Deleted', description: 'Testimonial has been deleted.' })
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  // ─── Stats CRUD ───
+  const openStatDialog = (mode: 'add' | 'edit', item?: StatItem) => {
+    if (mode === 'edit' && item) {
+      setStatForm({ value: item.value, label: item.label, order: item.order })
+      setStatDialog({ open: true, mode: 'edit', item })
+    } else {
+      setStatForm({ value: '', label: '', order: stats.length })
+      setStatDialog({ open: true, mode: 'add', item: null })
+    }
+  }
+
+  const handleSaveStat = async () => {
+    setSaving(true)
+    try {
+      if (statDialog.mode === 'add') {
+        await apiCall('/api/stats', 'POST', statForm)
+        toast({ title: 'Stat Added', description: 'New stat has been created.' })
+      } else {
+        await apiCall('/api/stats', 'PUT', { id: statDialog.item?.id, ...statForm })
+        toast({ title: 'Stat Updated', description: 'Stat has been updated.' })
+      }
+      setStatDialog({ open: false, mode: 'add', item: null })
+      fetchStats()
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save stat.', variant: 'destructive' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteStat = async (id: string) => {
+    setDeletingId(id)
+    try {
+      await apiCall('/api/stats', 'DELETE', { id })
+      setStats((prev) => prev.filter((s) => s.id !== id))
+      toast({ title: 'Deleted', description: 'Stat has been deleted.' })
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  // ─── Save Settings ───
+  const handleSaveSettings = async () => {
+    setSaving(true)
+    try {
+      await apiCall('/api/settings', 'PUT', { settings: siteSettings })
+      toast({ title: 'Settings Saved', description: 'Business information has been updated.' })
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save settings.', variant: 'destructive' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // ─── Floating trigger button ───
   const triggerButton = (
     <button
       onClick={() => setIsOpen(true)}
@@ -489,12 +898,35 @@ function AdminPanel() {
     )
   }
 
+  // ─── Helper: Loading Spinner ───
+  const Spinner = () => (
+    <div className="flex items-center justify-center py-20">
+      <div className="animate-spin w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full" />
+    </div>
+  )
+
+  // ─── Helper: Section header ───
+  const SectionHeader = ({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) => (
+    <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+      </div>
+      {action}
+    </div>
+  )
+
   // ─── Admin Dashboard ───
   return (
     <>
       <div className="fixed inset-0 z-[9999] bg-white flex">
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
+
         {/* Sidebar */}
-        <aside className="w-64 bg-gradient-to-b from-emerald-900 to-emerald-950 text-white flex flex-col shrink-0">
+        <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-emerald-900 to-emerald-950 text-white flex flex-col shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           {/* Sidebar Header */}
           <div className="p-5 border-b border-emerald-800/50">
             <div className="flex items-center gap-3">
@@ -509,15 +941,11 @@ function AdminPanel() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-3 space-y-1">
-            {[
-              { key: 'contacts' as const, label: 'Contacts', icon: Users },
-              { key: 'statistics' as const, label: 'Statistics', icon: BarChart3 },
-              { key: 'settings' as const, label: 'Settings', icon: Settings },
-            ].map((tab) => (
+          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+            {TAB_CONFIG.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => { setActiveTab(tab.key); setSidebarOpen(false) }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeTab === tab.key
                     ? 'bg-emerald-700/60 text-white shadow-sm'
@@ -526,9 +954,9 @@ function AdminPanel() {
               >
                 <tab.icon className="w-5 h-5" />
                 {tab.label}
-                {tab.key === 'contacts' && contacts.length > 0 && (
+                {tab.key === 'inquiries' && dashboard && dashboard.totalContacts > 0 && (
                   <Badge className="ml-auto bg-emerald-500/30 text-emerald-200 border-0 text-xs px-1.5 py-0.5 min-w-[20px] text-center">
-                    {contacts.length}
+                    {dashboard.totalContacts}
                   </Badge>
                 )}
               </button>
@@ -538,7 +966,7 @@ function AdminPanel() {
           {/* Sidebar Footer */}
           <div className="p-3 border-t border-emerald-800/50 space-y-1">
             <button
-              onClick={() => { setIsOpen(false) }}
+              onClick={() => { setIsOpen(false); setSidebarOpen(false) }}
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-emerald-200/70 hover:bg-emerald-800/40 hover:text-white transition-colors"
             >
               <Eye className="w-5 h-5" />
@@ -557,16 +985,23 @@ function AdminPanel() {
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0">
           {/* Top Bar */}
-          <header className="h-16 border-b border-border bg-white shrink-0 flex items-center justify-between px-6">
+          <header className="h-16 border-b border-border bg-white shrink-0 flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab}</h1>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="md:hidden p-2 rounded-md hover:bg-muted transition-colors"
+                aria-label="Open sidebar"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab === 'inquiries' ? 'Inquiries' : activeTab}</h1>
             </div>
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(false)}
-                className="text-muted-foreground"
+                className="text-muted-foreground hidden sm:flex"
               >
                 <Eye className="w-4 h-4 mr-1.5" />
                 View Website
@@ -575,34 +1010,191 @@ function AdminPanel() {
           </header>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-6 bg-muted/30">
-            {/* ─── Contacts Tab ─── */}
-            {activeTab === 'contacts' && (
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-semibold text-foreground">Contact Submissions</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Manage all contact form inquiries</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={fetchContacts}
-                    disabled={contactsLoading}
-                    className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                  >
-                    {contactsLoading ? (
-                      <span className="animate-spin mr-1.5 inline-block w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full" />
-                    ) : null}
-                    Refresh
-                  </Button>
-                </div>
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/30">
 
-                {contactsLoading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <div className="animate-spin w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full" />
-                  </div>
-                ) : contacts.length === 0 ? (
+            {/* ─── Dashboard Tab ─── */}
+            {activeTab === 'dashboard' && (
+              <div>
+                <SectionHeader title="Dashboard" subtitle="Overview of your website activity" />
+                {dashboardLoading ? <Spinner /> : (
+                  <>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Total Contacts</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.totalContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <Users className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Today</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.todayContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                              <Calendar className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">This Week</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.weekContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">This Month</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.monthContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                              <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Services</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.totalServices ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <Globe className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Portfolio</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.totalPortfolio ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50 col-span-2 lg:col-span-1">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Testimonials</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.totalTestimonials ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <Star className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Recent Contacts */}
+                    <Card className="border-border/50 mb-6">
+                      <CardContent className="p-4 md:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Recent Contacts</h3>
+                        {!dashboard?.recentContacts || dashboard.recentContacts.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-8">No contact activity yet</p>
+                        ) : (
+                          <div className="space-y-3 max-h-64 overflow-y-auto">
+                            {dashboard.recentContacts.map((contact) => (
+                              <div key={contact.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-xs shrink-0">
+                                  {contact.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-foreground truncate">{contact.name}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground shrink-0">
+                                  {new Date(contact.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Quick Actions */}
+                    <Card className="border-border/50">
+                      <CardContent className="p-4 md:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                            { label: 'View Inquiries', icon: Inbox, tab: 'inquiries' as AdminTab },
+                            { label: 'Manage Services', icon: Globe, tab: 'services' as AdminTab },
+                            { label: 'Manage Portfolio', icon: Briefcase, tab: 'portfolio' as AdminTab },
+                            { label: 'Edit Settings', icon: Wrench, tab: 'settings' as AdminTab },
+                          ].map((action) => (
+                            <button
+                              key={action.tab}
+                              onClick={() => setActiveTab(action.tab)}
+                              className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-200"
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                <action.icon className="w-5 h-5 text-emerald-600" />
+                              </div>
+                              <span className="text-xs font-medium text-foreground text-center">{action.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* ─── Inquiries Tab ─── */}
+            {activeTab === 'inquiries' && (
+              <div>
+                <SectionHeader
+                  title="Contact Submissions"
+                  subtitle="Manage all contact form inquiries"
+                  action={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchContacts}
+                      disabled={contactsLoading}
+                      className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                    >
+                      {contactsLoading ? (
+                        <span className="animate-spin mr-1.5 inline-block w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full" />
+                      ) : null}
+                      Refresh
+                    </Button>
+                  }
+                />
+
+                {contactsLoading ? <Spinner /> : contacts.length === 0 ? (
                   <div className="text-center py-20">
                     <Inbox className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-muted-foreground">No contacts yet</h3>
@@ -674,150 +1266,629 @@ function AdminPanel() {
               </div>
             )}
 
-            {/* ─── Statistics Tab ─── */}
-            {activeTab === 'statistics' && (
+            {/* ─── Services Tab ─── */}
+            {activeTab === 'services' && (
               <div>
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-foreground">Dashboard Statistics</h2>
-                  <p className="text-sm text-muted-foreground mt-1">Overview of contact form activity</p>
-                </div>
+                <SectionHeader
+                  title="Services"
+                  subtitle="Manage your service offerings"
+                  action={
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => openServiceDialog('add')}
+                    >
+                      <Plus className="w-4 h-4 mr-1.5" />
+                      Add Service
+                    </Button>
+                  }
+                />
 
-                <div className="grid sm:grid-cols-3 gap-6 mb-8">
-                  <Card className="border-border/50">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Total Contacts</p>
-                          <p className="text-3xl font-bold text-foreground mt-1">{totalContacts}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                          <Users className="w-6 h-6 text-emerald-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border/50">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Today</p>
-                          <p className="text-3xl font-bold text-foreground mt-1">{todayContacts}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                          <Calendar className="w-6 h-6 text-amber-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border/50">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-muted-foreground">This Week</p>
-                          <p className="text-3xl font-bold text-foreground mt-1">{weekContacts}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                          <BarChart3 className="w-6 h-6 text-emerald-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Recent Activity */}
-                <Card className="border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">Recent Contacts</h3>
-                    {contacts.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-8">No contact activity yet</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {contacts.slice(0, 10).map((contact) => (
-                          <div key={contact.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-xs shrink-0">
-                              {contact.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                            </div>
+                {servicesLoading ? <Spinner /> : services.length === 0 ? (
+                  <div className="text-center py-20">
+                    <Globe className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">No services yet</h3>
+                    <p className="text-sm text-muted-foreground/70 mt-1">Add your first service item</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                    {services.sort((a, b) => a.order - b.order).map((service) => (
+                      <Card key={service.id} className="border-border/50 hover:border-emerald-200 transition-colors">
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">{contact.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-xl ${service.bgColor} flex items-center justify-center shrink-0`}>
+                                  <Globe className={`w-5 h-5 ${service.color}`} />
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-foreground">{service.title}</h3>
+                                  <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{service.description}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 mt-2 ml-13 text-xs text-muted-foreground">
+                                <Badge variant="secondary" className="text-xs bg-emerald-50 text-emerald-700">Icon: {service.icon}</Badge>
+                                <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground">Order: {service.order}</Badge>
+                              </div>
                             </div>
-                            <p className="text-xs text-muted-foreground shrink-0">
-                              {new Date(contact.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}
-                            </p>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openServiceDialog('edit', service)}
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteService(service.id)}
+                                disabled={deletingId === service.id}
+                                className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                              >
+                                {deletingId === service.id ? (
+                                  <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
                           </div>
-                        ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Service Dialog */}
+                <Dialog open={serviceDialog.open} onOpenChange={(open) => setServiceDialog((prev) => ({ ...prev, open }))}>
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{serviceDialog.mode === 'add' ? 'Add Service' : 'Edit Service'}</DialogTitle>
+                      <DialogDescription>
+                        {serviceDialog.mode === 'add' ? 'Create a new service item.' : 'Update the service details.'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="svc-title">Title</Label>
+                        <Input id="svc-title" value={serviceForm.title} onChange={(e) => setServiceForm((p) => ({ ...p, title: e.target.value }))} placeholder="Service title" />
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
+                      <div className="space-y-2">
+                        <Label htmlFor="svc-desc">Description</Label>
+                        <Textarea id="svc-desc" value={serviceForm.description} onChange={(e) => setServiceForm((p) => ({ ...p, description: e.target.value }))} placeholder="Service description" rows={3} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="svc-icon">Icon Name</Label>
+                          <Input id="svc-icon" value={serviceForm.icon} onChange={(e) => setServiceForm((p) => ({ ...p, icon: e.target.value }))} placeholder="Globe" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="svc-order">Order</Label>
+                          <Input id="svc-order" type="number" value={serviceForm.order} onChange={(e) => setServiceForm((p) => ({ ...p, order: parseInt(e.target.value) || 0 }))} />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="svc-color">Color Class</Label>
+                          <Input id="svc-color" value={serviceForm.color} onChange={(e) => setServiceForm((p) => ({ ...p, color: e.target.value }))} placeholder="text-emerald-600" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="svc-bg">Background Class</Label>
+                          <Input id="svc-bg" value={serviceForm.bgColor} onChange={(e) => setServiceForm((p) => ({ ...p, bgColor: e.target.value }))} placeholder="bg-emerald-50" />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setServiceDialog((prev) => ({ ...prev, open: false }))}>Cancel</Button>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSaveService} disabled={saving || !serviceForm.title.trim()}>
+                        {saving ? <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : null}
+                        {serviceDialog.mode === 'add' ? 'Add Service' : 'Save Changes'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
 
-            {/* ─── Settings Tab ─── */}
-            {activeTab === 'settings' && (
+            {/* ─── Portfolio Tab ─── */}
+            {activeTab === 'portfolio' && (
               <div>
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-foreground">Business Settings</h2>
-                  <p className="text-sm text-muted-foreground mt-1">Manage your business information</p>
+                <SectionHeader
+                  title="Portfolio"
+                  subtitle="Manage your portfolio items"
+                  action={
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => openPortfolioDialog('add')}
+                    >
+                      <Plus className="w-4 h-4 mr-1.5" />
+                      Add Portfolio Item
+                    </Button>
+                  }
+                />
+
+                {portfolioLoading ? <Spinner /> : portfolio.length === 0 ? (
+                  <div className="text-center py-20">
+                    <Briefcase className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">No portfolio items yet</h3>
+                    <p className="text-sm text-muted-foreground/70 mt-1">Add your first portfolio item</p>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-4 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                    {portfolio.sort((a, b) => a.order - b.order).map((item) => (
+                      <Card key={item.id} className="border-border/50 hover:border-emerald-200 transition-colors overflow-hidden">
+                        <div className={`h-24 bg-gradient-to-r ${item.color} flex items-end p-4 relative`}>
+                          {item.image && (
+                            <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-30" />
+                          )}
+                          <div className="relative z-10">
+                            <Badge className="bg-white/20 text-white border-0 text-xs mb-1">{item.category}</Badge>
+                            <h3 className="font-bold text-white text-sm">{item.title}</h3>
+                          </div>
+                          <div className="absolute top-2 right-2 flex gap-1 z-10">
+                            <button
+                              onClick={() => openPortfolioDialog('edit', item)}
+                              className="w-7 h-7 rounded-md bg-white/20 hover:bg-white/40 flex items-center justify-center text-white transition-colors"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePortfolio(item.id)}
+                              disabled={deletingId === item.id}
+                              className="w-7 h-7 rounded-md bg-red-500/30 hover:bg-red-500/60 flex items-center justify-center text-white transition-colors"
+                            >
+                              {deletingId === item.id ? (
+                                <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                          {item.tech && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {item.tech.split(',').map((t) => (
+                                <Badge key={t.trim()} variant="secondary" className="text-xs bg-emerald-50 text-emerald-700">{t.trim()}</Badge>
+                              ))}
+                            </div>
+                          )}
+                          <div className="mt-2 text-xs text-muted-foreground">Order: {item.order}</div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Portfolio Dialog */}
+                <Dialog open={portfolioDialog.open} onOpenChange={(open) => setPortfolioDialog((prev) => ({ ...prev, open }))}>
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{portfolioDialog.mode === 'add' ? 'Add Portfolio Item' : 'Edit Portfolio Item'}</DialogTitle>
+                      <DialogDescription>
+                        {portfolioDialog.mode === 'add' ? 'Create a new portfolio item.' : 'Update the portfolio item.'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="pf-title">Title</Label>
+                          <Input id="pf-title" value={portfolioForm.title} onChange={(e) => setPortfolioForm((p) => ({ ...p, title: e.target.value }))} placeholder="Project title" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="pf-category">Category</Label>
+                          <Input id="pf-category" value={portfolioForm.category} onChange={(e) => setPortfolioForm((p) => ({ ...p, category: e.target.value }))} placeholder="E-Commerce" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="pf-desc">Description</Label>
+                        <Textarea id="pf-desc" value={portfolioForm.description} onChange={(e) => setPortfolioForm((p) => ({ ...p, description: e.target.value }))} placeholder="Project description" rows={3} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="pf-tech">Tech (comma-separated)</Label>
+                          <Input id="pf-tech" value={portfolioForm.tech} onChange={(e) => setPortfolioForm((p) => ({ ...p, tech: e.target.value }))} placeholder="Next.js, React, Node.js" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="pf-image">Image URL</Label>
+                          <Input id="pf-image" value={portfolioForm.image} onChange={(e) => setPortfolioForm((p) => ({ ...p, image: e.target.value }))} placeholder="/portfolio-image.png" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="pf-color">Gradient Class</Label>
+                          <Input id="pf-color" value={portfolioForm.color} onChange={(e) => setPortfolioForm((p) => ({ ...p, color: e.target.value }))} placeholder="from-emerald-500 to-emerald-700" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="pf-order">Order</Label>
+                          <Input id="pf-order" type="number" value={portfolioForm.order} onChange={(e) => setPortfolioForm((p) => ({ ...p, order: parseInt(e.target.value) || 0 }))} />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setPortfolioDialog((prev) => ({ ...prev, open: false }))}>Cancel</Button>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSavePortfolio} disabled={saving || !portfolioForm.title.trim()}>
+                        {saving ? <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : null}
+                        {portfolioDialog.mode === 'add' ? 'Add Item' : 'Save Changes'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* ─── Testimonials Tab ─── */}
+            {activeTab === 'testimonials' && (
+              <div>
+                <SectionHeader
+                  title="Testimonials"
+                  subtitle="Manage client testimonials"
+                  action={
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => openTestimonialDialog('add')}
+                    >
+                      <Plus className="w-4 h-4 mr-1.5" />
+                      Add Testimonial
+                    </Button>
+                  }
+                />
+
+                {testimonialsLoading ? <Spinner /> : testimonials.length === 0 ? (
+                  <div className="text-center py-20">
+                    <Star className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">No testimonials yet</h3>
+                    <p className="text-sm text-muted-foreground/70 mt-1">Add your first testimonial</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                    {testimonials.sort((a, b) => a.order - b.order).map((item) => (
+                      <Card key={item.id} className="border-border/50 hover:border-emerald-200 transition-colors">
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-xs shrink-0">
+                                  {item.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-foreground">{item.name}</span>
+                                  <span className="text-sm text-muted-foreground ml-2">{item.company}</span>
+                                </div>
+                              </div>
+                              <div className="flex gap-0.5 mb-2">
+                                {Array.from({ length: item.rating }).map((_, i) => (
+                                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                ))}
+                              </div>
+                              <p className="text-sm text-muted-foreground italic line-clamp-3">&ldquo;{item.review}&rdquo;</p>
+                              <div className="mt-2 text-xs text-muted-foreground">Order: {item.order}</div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openTestimonialDialog('edit', item)}
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteTestimonial(item.id)}
+                                disabled={deletingId === item.id}
+                                className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                              >
+                                {deletingId === item.id ? (
+                                  <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Testimonial Dialog */}
+                <Dialog open={testimonialDialog.open} onOpenChange={(open) => setTestimonialDialog((prev) => ({ ...prev, open }))}>
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{testimonialDialog.mode === 'add' ? 'Add Testimonial' : 'Edit Testimonial'}</DialogTitle>
+                      <DialogDescription>
+                        {testimonialDialog.mode === 'add' ? 'Create a new testimonial.' : 'Update the testimonial.'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="tm-name">Name</Label>
+                          <Input id="tm-name" value={testimonialForm.name} onChange={(e) => setTestimonialForm((p) => ({ ...p, name: e.target.value }))} placeholder="Client name" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tm-company">Company</Label>
+                          <Input id="tm-company" value={testimonialForm.company} onChange={(e) => setTestimonialForm((p) => ({ ...p, company: e.target.value }))} placeholder="Company name" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tm-review">Review</Label>
+                        <Textarea id="tm-review" value={testimonialForm.review} onChange={(e) => setTestimonialForm((p) => ({ ...p, review: e.target.value }))} placeholder="Client review text" rows={4} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="tm-rating">Rating (1-5)</Label>
+                          <Input id="tm-rating" type="number" min={1} max={5} value={testimonialForm.rating} onChange={(e) => setTestimonialForm((p) => ({ ...p, rating: parseInt(e.target.value) || 5 }))} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tm-order">Order</Label>
+                          <Input id="tm-order" type="number" value={testimonialForm.order} onChange={(e) => setTestimonialForm((p) => ({ ...p, order: parseInt(e.target.value) || 0 }))} />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setTestimonialDialog((prev) => ({ ...prev, open: false }))}>Cancel</Button>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSaveTestimonial} disabled={saving || !testimonialForm.name.trim()}>
+                        {saving ? <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : null}
+                        {testimonialDialog.mode === 'add' ? 'Add Testimonial' : 'Save Changes'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* ─── Statistics Tab ─── */}
+            {activeTab === 'statistics' && (
+              <div>
+                <SectionHeader title="Statistics" subtitle="Contact statistics and editable site stats" />
+
+                {/* Contact Statistics */}
+                <div className="mb-8">
+                  <h3 className="text-base font-semibold text-foreground mb-4">Contact Statistics</h3>
+                  {dashboardLoading ? <Spinner /> : (
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Total Contacts</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.totalContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <Users className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">Today</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.todayContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                              <Calendar className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">This Week</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.weekContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                              <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardContent className="p-4 md:p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs md:text-sm text-muted-foreground">This Month</p>
+                              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{dashboard?.monthContacts ?? 0}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                              <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
                 </div>
 
-                <Card className="border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-6">Business Information</h3>
-                    <div className="space-y-5">
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                          <Globe className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Company Name</p>
-                          <p className="text-sm font-medium text-foreground mt-0.5">A-Star Infotech</p>
-                        </div>
+                {/* Site Stats CRUD */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base font-semibold text-foreground">Site Stats</h3>
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => openStatDialog('add')}
+                    >
+                      <Plus className="w-4 h-4 mr-1.5" />
+                      Add Stat
+                    </Button>
+                  </div>
+                  {statsLoading ? <Spinner /> : stats.length === 0 ? (
+                    <div className="text-center py-12">
+                      <BarChart3 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">No site stats yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {stats.sort((a, b) => a.order - b.order).map((stat) => (
+                        <Card key={stat.id} className="border-border/50 hover:border-emerald-200 transition-colors">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                                  <span className="text-xl font-bold text-emerald-700">{stat.value}</span>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-foreground">{stat.label}</p>
+                                  <p className="text-xs text-muted-foreground">Order: {stat.order}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => openStatDialog('edit', stat)}
+                                  className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteStat(stat.id)}
+                                  disabled={deletingId === stat.id}
+                                  className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                                >
+                                  {deletingId === stat.id ? (
+                                    <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
+                                  ) : (
+                                    <Trash2 className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Stat Dialog */}
+                <Dialog open={statDialog.open} onOpenChange={(open) => setStatDialog((prev) => ({ ...prev, open }))}>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>{statDialog.mode === 'add' ? 'Add Stat' : 'Edit Stat'}</DialogTitle>
+                      <DialogDescription>
+                        {statDialog.mode === 'add' ? 'Create a new site stat.' : 'Update the stat.'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="st-value">Value</Label>
+                        <Input id="st-value" value={statForm.value} onChange={(e) => setStatForm((p) => ({ ...p, value: e.target.value }))} placeholder="150+" />
                       </div>
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                          <MapPin className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Address</p>
-                          <p className="text-sm font-medium text-foreground mt-0.5">D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan</p>
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="st-label">Label</Label>
+                        <Input id="st-label" value={statForm.label} onChange={(e) => setStatForm((p) => ({ ...p, label: e.target.value }))} placeholder="Projects Delivered" />
                       </div>
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                          <Phone className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Phone</p>
-                          <p className="text-sm font-medium text-foreground mt-0.5">+91 8560074448</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                          <Mail className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Email</p>
-                          <p className="text-sm font-medium text-foreground mt-0.5">karansinghmeertiya@gmail.com</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-100 flex items-center justify-center">
-                          <Clock className="w-5 h-5 text-amber-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Business Hours</p>
-                          <p className="text-sm font-medium text-foreground mt-0.5">Mon – Sat: 10:00 AM – 7:00 PM</p>
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="st-order">Order</Label>
+                        <Input id="st-order" type="number" value={statForm.order} onChange={(e) => setStatForm((p) => ({ ...p, order: parseInt(e.target.value) || 0 }))} />
                       </div>
                     </div>
-                    <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <p className="text-sm text-amber-800">
-                        <strong>Note:</strong> Editing business information is coming soon. Contact your developer to update these details.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setStatDialog((prev) => ({ ...prev, open: false }))}>Cancel</Button>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSaveStat} disabled={saving || !statForm.value.trim() || !statForm.label.trim()}>
+                        {saving ? <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : null}
+                        {statDialog.mode === 'add' ? 'Add Stat' : 'Save Changes'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* ─── Site Settings Tab ─── */}
+            {activeTab === 'settings' && (
+              <div>
+                <SectionHeader title="Site Settings" subtitle="Manage your business information" />
+
+                {settingsLoading ? <Spinner /> : (
+                  <Card className="border-border/50">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-6">Business Information</h3>
+                      <div className="space-y-5">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <Globe className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-company" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Company Name</Label>
+                            <Input id="set-company" value={siteSettings.companyName} onChange={(e) => setSiteSettings((p) => ({ ...p, companyName: e.target.value }))} placeholder="A-Star Infotech" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <MapPin className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-address" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Address</Label>
+                            <Textarea id="set-address" value={siteSettings.address} onChange={(e) => setSiteSettings((p) => ({ ...p, address: e.target.value }))} placeholder="Full business address" rows={2} />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <Phone className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-phone" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Phone</Label>
+                            <Input id="set-phone" value={siteSettings.phone} onChange={(e) => setSiteSettings((p) => ({ ...p, phone: e.target.value }))} placeholder="+91 8560074448" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <Mail className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-email" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Email</Label>
+                            <Input id="set-email" type="email" value={siteSettings.email} onChange={(e) => setSiteSettings((p) => ({ ...p, email: e.target.value }))} placeholder="contact@example.com" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-100 flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-amber-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-hours" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Business Hours</Label>
+                            <Input id="set-hours" value={siteSettings.hours} onChange={(e) => setSiteSettings((p) => ({ ...p, hours: e.target.value }))} placeholder="Mon – Sat: 10:00 AM – 7:00 PM" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-8">
+                        <Button
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                          onClick={handleSaveSettings}
+                          disabled={saving}
+                        >
+                          {saving ? (
+                            <>
+                              <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-4 h-4 mr-2" />
+                              Save Settings
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </div>
@@ -1993,7 +3064,7 @@ export default function Home() {
         </div>
       </a>
 
-      {/* ─── Admin Panel (View Inquiries) ─── */}
+      {/* ─── Admin Panel ─── */}
       <AdminPanel />
 
       {/* ─── Scroll to Top Button ─── */}

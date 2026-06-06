@@ -19,3 +19,54 @@ model Contact {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String   @default("Globe")
+  color       String   @default("text-emerald-600")
+  bgColor     String   @default("bg-emerald-50")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Portfolio {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  description String
+  tech        String   @default("")
+  color       String   @default("from-emerald-500 to-emerald-700")
+  image       String   @default("/portfolio-freshmart.png")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  company   String
+  review    String
+  rating    Int      @default(5)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  value     String
+  label     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
