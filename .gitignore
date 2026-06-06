@@ -66,3 +66,6 @@ server.log
 # Large/unnecessary files for deployment
 *.db
 *.db-journal
+bun.lock
+upload/
+worklog.md
