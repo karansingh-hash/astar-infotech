@@ -42,3 +42,45 @@ export async function GET(request: Request) {
     )
   }
 }
+
+/**
+ * DELETE /api/contacts
+ * Delete a contact submission by ID
+ *
+ * Body: { id: string }
+ */
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json()
+    const { id } = body
+
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(
+        { error: 'Contact ID is required.' },
+        { status: 400 }
+      )
+    }
+
+    const existing = await db.contact.findUnique({ where: { id } })
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Contact not found.' },
+        { status: 404 }
+      )
+    }
+
+    await db.contact.delete({ where: { id } })
+
+    return NextResponse.json({
+      success: true,
+      message: 'Contact deleted successfully.',
+    })
+  } catch (error) {
+    console.error('Delete contact error:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete contact.' },
+      { status: 500 }
+    )
+  }
+}

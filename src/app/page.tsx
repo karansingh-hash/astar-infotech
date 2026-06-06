@@ -39,6 +39,13 @@ import {
   Trash2,
   Inbox,
   XCircle,
+  Lock,
+  LayoutDashboard,
+  BarChart3,
+  LogOut,
+  Calendar,
+  MailCheck,
+  PhoneCall,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -46,13 +53,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 
 /* ────────────────────────────────────────────
    Data
@@ -298,6 +298,12 @@ function AnimatedSection({
    ──────────────────────────────────────────── */
 
 function AdminPanel() {
+  const { toast } = useToast()
+  const [isOpen, setIsOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'contacts' | 'statistics' | 'settings'>('contacts')
   const [contacts, setContacts] = useState<Array<{
     id: string
     name: string
@@ -306,116 +312,518 @@ function AdminPanel() {
     message: string
     createdAt: string
   }>>([])
-  const [loading, setLoading] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [contactsLoading, setContactsLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Check sessionStorage on mount
+  useEffect(() => {
+    const saved = sessionStorage.getItem('admin_auth')
+    if (saved === 'true') {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!password.trim()) return
+    setAuthLoading(true)
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setIsAuthenticated(true)
+        sessionStorage.setItem('admin_auth', 'true')
+        setPassword('')
+        toast({ title: 'Login Successful', description: 'Welcome to the Admin Panel!' })
+      } else {
+        toast({ title: 'Login Failed', description: data.error || 'Invalid password.', variant: 'destructive' })
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Failed to connect to server.', variant: 'destructive' })
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    sessionStorage.removeItem('admin_auth')
+    setIsOpen(false)
+    setActiveTab('contacts')
+    setContacts([])
+    toast({ title: 'Logged Out', description: 'You have been logged out successfully.' })
+  }
 
   const fetchContacts = async () => {
-    setLoading(true)
+    setContactsLoading(true)
     try {
       const res = await fetch('/api/contacts')
       const data = await res.json()
       setContacts(data.contacts || [])
     } catch {
-      // silently fail
+      toast({ title: 'Error', description: 'Failed to fetch contacts.', variant: 'destructive' })
     } finally {
-      setLoading(false)
+      setContactsLoading(false)
+    }
+  }
+
+  const handleDeleteContact = async (id: string) => {
+    setDeletingId(id)
+    try {
+      const res = await fetch('/api/contacts', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (res.ok) {
+        setContacts((prev) => prev.filter((c) => c.id !== id))
+        toast({ title: 'Deleted', description: 'Contact has been deleted.' })
+      } else {
+        const data = await res.json()
+        toast({ title: 'Error', description: data.error || 'Failed to delete contact.', variant: 'destructive' })
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Failed to delete contact.', variant: 'destructive' })
+    } finally {
+      setDeletingId(null)
     }
   }
 
   useEffect(() => {
-    if (open) fetchContacts()
-  }, [open])
+    if (isOpen && isAuthenticated) {
+      fetchContacts()
+    }
+  }, [isOpen, isAuthenticated])
 
+  // Statistics calculations
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const weekStart = new Date(now)
+  weekStart.setDate(now.getDate() - now.getDay())
+  weekStart.setHours(0, 0, 0, 0)
+
+  const totalContacts = contacts.length
+  const todayContacts = contacts.filter((c) => new Date(c.createdAt) >= todayStart).length
+  const weekContacts = contacts.filter((c) => new Date(c.createdAt) >= weekStart).length
+
+  // Floating trigger button
+  const triggerButton = (
+    <button
+      onClick={() => setIsOpen(true)}
+      className="fixed bottom-6 left-20 z-50 w-12 h-12 bg-gray-800 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
+      aria-label="Admin Panel"
+      title="Admin Panel"
+    >
+      <Lock className="w-5 h-5" />
+    </button>
+  )
+
+  if (!isOpen) return triggerButton
+
+  // ─── Login Screen ───
+  if (!isAuthenticated) {
+    return (
+      <>
+        {triggerButton}
+        <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 flex items-center justify-center p-4">
+          <div className="absolute top-20 right-20 w-72 h-72 bg-emerald-400/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 left-20 w-96 h-96 bg-amber-400/5 rounded-full blur-3xl" />
+          <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm shadow-2xl border-0 relative">
+            <CardContent className="p-8">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Lock className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">Admin Panel</h2>
+                <p className="text-sm text-muted-foreground mt-1">A-Star Infotech</p>
+              </div>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="admin-password" className="text-sm font-medium text-foreground">
+                    Password
+                  </label>
+                  <Input
+                    id="admin-password"
+                    type="password"
+                    placeholder="Enter admin password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoFocus
+                    disabled={authLoading}
+                    className="h-11"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-11"
+                  disabled={authLoading || !password.trim()}
+                >
+                  {authLoading ? (
+                    <>
+                      <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      Login
+                    </>
+                  )}
+                </Button>
+              </form>
+              <Button
+                variant="ghost"
+                className="w-full mt-3 text-muted-foreground"
+                onClick={() => { setIsOpen(false); setPassword('') }}
+              >
+                Cancel
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    )
+  }
+
+  // ─── Admin Dashboard ───
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          className="fixed bottom-6 left-20 z-50 w-12 h-12 bg-gray-800 hover:bg-gray-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
-          aria-label="View Inquiries"
-          title="View Inquiries"
-        >
-          <Inbox className="w-5 h-5" />
-        </button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Inbox className="w-5 h-5 text-emerald-600" />
-            Contact Form Inquiries
-            {contacts.length > 0 && (
-              <Badge className="bg-emerald-100 text-emerald-700">{contacts.length}</Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <div className="fixed inset-0 z-[9999] bg-white flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-gradient-to-b from-emerald-900 to-emerald-950 text-white flex flex-col shrink-0">
+          {/* Sidebar Header */}
+          <div className="p-5 border-b border-emerald-800/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-emerald-700 rounded-xl flex items-center justify-center">
+                <LayoutDashboard className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm">A-Star Infotech</div>
+                <div className="text-xs text-emerald-400">Admin Panel</div>
+              </div>
+            </div>
+          </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full" />
+          {/* Navigation */}
+          <nav className="flex-1 p-3 space-y-1">
+            {[
+              { key: 'contacts' as const, label: 'Contacts', icon: Users },
+              { key: 'statistics' as const, label: 'Statistics', icon: BarChart3 },
+              { key: 'settings' as const, label: 'Settings', icon: Settings },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  activeTab === tab.key
+                    ? 'bg-emerald-700/60 text-white shadow-sm'
+                    : 'text-emerald-200/70 hover:bg-emerald-800/40 hover:text-white'
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                {tab.label}
+                {tab.key === 'contacts' && contacts.length > 0 && (
+                  <Badge className="ml-auto bg-emerald-500/30 text-emerald-200 border-0 text-xs px-1.5 py-0.5 min-w-[20px] text-center">
+                    {contacts.length}
+                  </Badge>
+                )}
+              </button>
+            ))}
+          </nav>
+
+          {/* Sidebar Footer */}
+          <div className="p-3 border-t border-emerald-800/50 space-y-1">
+            <button
+              onClick={() => { setIsOpen(false) }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-emerald-200/70 hover:bg-emerald-800/40 hover:text-white transition-colors"
+            >
+              <Eye className="w-5 h-5" />
+              View Website
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-red-300/80 hover:bg-red-900/30 hover:text-red-300 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              Logout
+            </button>
           </div>
-        ) : contacts.length === 0 ? (
-          <div className="text-center py-12">
-            <Inbox className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground">No inquiries yet.</p>
-          </div>
-        ) : (
-          <div className="overflow-y-auto max-h-[60vh] space-y-3 pr-1">
-            {contacts.map((contact) => (
-              <Card key={contact.id} className="border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-foreground">{contact.name}</span>
-                        {contact.phone && (
-                          <a
-                            href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            WhatsApp
-                          </a>
-                        )}
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col min-w-0">
+          {/* Top Bar */}
+          <header className="h-16 border-b border-border bg-white shrink-0 flex items-center justify-between px-6">
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab}</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="text-muted-foreground"
+              >
+                <Eye className="w-4 h-4 mr-1.5" />
+                View Website
+              </Button>
+            </div>
+          </header>
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-6 bg-muted/30">
+            {/* ─── Contacts Tab ─── */}
+            {activeTab === 'contacts' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-semibold text-foreground">Contact Submissions</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Manage all contact form inquiries</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchContacts}
+                    disabled={contactsLoading}
+                    className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                  >
+                    {contactsLoading ? (
+                      <span className="animate-spin mr-1.5 inline-block w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full" />
+                    ) : null}
+                    Refresh
+                  </Button>
+                </div>
+
+                {contactsLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="animate-spin w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full" />
+                  </div>
+                ) : contacts.length === 0 ? (
+                  <div className="text-center py-20">
+                    <Inbox className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground">No contacts yet</h3>
+                    <p className="text-sm text-muted-foreground/70 mt-1">Contact form submissions will appear here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                    {contacts.map((contact) => (
+                      <Card key={contact.id} className="border-border/50 hover:border-emerald-200 transition-colors">
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-xs shrink-0">
+                                  {contact.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                </div>
+                                <span className="font-semibold text-foreground">{contact.name}</span>
+                                {contact.phone && (
+                                  <a
+                                    href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full"
+                                  >
+                                    <MessageCircle className="w-3 h-3" />
+                                    WhatsApp
+                                  </a>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-11">
+                                <span className="flex items-center gap-1">
+                                  <MailCheck className="w-3.5 h-3.5" />
+                                  <a href={`mailto:${contact.email}`} className="hover:text-emerald-600 transition-colors">{contact.email}</a>
+                                </span>
+                                {contact.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <PhoneCall className="w-3.5 h-3.5" />
+                                    {contact.phone}
+                                  </span>
+                                )}
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3.5 h-3.5" />
+                                  {new Date(contact.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' })}
+                                </span>
+                              </div>
+                              <p className="mt-3 text-sm text-foreground/80 bg-muted/50 rounded-lg p-3 ml-11 leading-relaxed">
+                                {contact.message}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteContact(contact.id)}
+                              disabled={deletingId === contact.id}
+                              className="text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0"
+                            >
+                              {deletingId === contact.id ? (
+                                <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ─── Statistics Tab ─── */}
+            {activeTab === 'statistics' && (
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-foreground">Dashboard Statistics</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Overview of contact form activity</p>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-6 mb-8">
+                  <Card className="border-border/50">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Contacts</p>
+                          <p className="text-3xl font-bold text-foreground mt-1">{totalContacts}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                          <Users className="w-6 h-6 text-emerald-600" />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          <a href={`mailto:${contact.email}`} className="hover:text-emerald-600">{contact.email}</a>
-                        </span>
-                        {contact.phone && (
-                          <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {contact.phone}
-                          </span>
-                        )}
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border/50">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Today</p>
+                          <p className="text-3xl font-bold text-foreground mt-1">{todayContacts}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                          <Calendar className="w-6 h-6 text-amber-600" />
+                        </div>
                       </div>
-                      <p className="mt-2 text-sm text-foreground/80 bg-muted/50 rounded-md p-2">
-                        {contact.message}
-                      </p>
-                      <p className="mt-1.5 text-[11px] text-muted-foreground/70">
-                        {new Date(contact.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border/50">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">This Week</p>
+                          <p className="text-3xl font-bold text-foreground mt-1">{weekContacts}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                          <BarChart3 className="w-6 h-6 text-emerald-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Recent Activity */}
+                <Card className="border-border/50">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">Recent Contacts</h3>
+                    {contacts.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-8">No contact activity yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {contacts.slice(0, 10).map((contact) => (
+                          <div key={contact.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-xs shrink-0">
+                              {contact.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{contact.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{contact.email}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground shrink-0">
+                              {new Date(contact.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* ─── Settings Tab ─── */}
+            {activeTab === 'settings' && (
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-foreground">Business Settings</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Manage your business information</p>
+                </div>
+
+                <Card className="border-border/50">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-foreground mb-6">Business Information</h3>
+                    <div className="space-y-5">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <Globe className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Company Name</p>
+                          <p className="text-sm font-medium text-foreground mt-0.5">A-Star Infotech</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <MapPin className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Address</p>
+                          <p className="text-sm font-medium text-foreground mt-0.5">D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <Phone className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Phone</p>
+                          <p className="text-sm font-medium text-foreground mt-0.5">+91 8560074448</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <Mail className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Email</p>
+                          <p className="text-sm font-medium text-foreground mt-0.5">karansinghmeertiya@gmail.com</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-100 flex items-center justify-center">
+                          <Clock className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Business Hours</p>
+                          <p className="text-sm font-medium text-foreground mt-0.5">Mon – Sat: 10:00 AM – 7:00 PM</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-sm text-amber-800">
+                        <strong>Note:</strong> Editing business information is coming soon. Contact your developer to update these details.
                       </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
-        )}
-
-        <div className="flex justify-end mt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchContacts}
-            disabled={loading}
-          >
-            Refresh
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </main>
+      </div>
+    </>
   )
 }
 
