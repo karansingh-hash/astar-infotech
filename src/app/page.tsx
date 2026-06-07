@@ -606,10 +606,10 @@ function AdminPanel() {
                       {stats.sort((a, b) => a.order - b.order).map(stat => (
                         <Card key={stat.id} className="glass-card border-neon/10 hover:border-neon/20 transition-colors">
                           <CardContent className="p-4">
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center shrink-0"><span className="text-xl font-bold text-neon">{stat.value}</span></div>
-                                <div><p className="font-semibold text-foreground">{stat.label}</p><p className="text-xs text-muted-foreground">Order: {stat.order}</p></div>
+                            <div className="flex items-center justify-between gap-3 sm:gap-4">
+                              <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center shrink-0"><span className="text-lg sm:text-xl font-bold text-neon">{stat.value}</span></div>
+                                <div><p className="font-semibold text-foreground text-sm sm:text-base">{stat.label}</p><p className="text-xs text-muted-foreground">Order: {stat.order}</p></div>
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <Button variant="ghost" size="sm" onClick={() => openStatDialog('edit', stat)} className="text-neon hover:text-neon/80 hover:bg-neon/10"><Pencil className="w-4 h-4" /></Button>
@@ -646,8 +646,8 @@ function AdminPanel() {
                 {settingsLoading ? <Spinner /> : (
                   <>
                     <Card className="glass-card border-neon/10">
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold text-foreground mb-6">Business Information</h3>
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Business Information</h3>
                         <div className="space-y-5">
                           {[
                             { icon: Globe, label: 'Company Name', key: 'companyName' as const, placeholder: 'A-Star Infotech', type: 'input' },
@@ -671,9 +671,9 @@ function AdminPanel() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="glass-card border-neon/10 mt-6">
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold text-foreground mb-6">Social Media Links</h3>
+                    <Card className="glass-card border-neon/10 mt-4 sm:mt-6">
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Social Media Links</h3>
                         <div className="space-y-5">
                           {[
                             { icon: Facebook, label: 'Facebook URL', key: 'facebook' as const, placeholder: 'https://facebook.com/yourpage', iconColor: 'text-blue-400', iconBg: 'bg-blue-500/10 border-blue-500/20' },
@@ -692,9 +692,9 @@ function AdminPanel() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="glass-card border-neon/10 mt-6">
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold text-foreground mb-6">Brand Color</h3>
+                    <Card className="glass-card border-neon/10 mt-4 sm:mt-6">
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Brand Color</h3>
                         <div className="space-y-5">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 shrink-0 rounded-xl border-2 border-neon/20 shadow-sm" style={{ backgroundColor: siteSettings.brandColor || '#059669' }} />
@@ -719,8 +719,8 @@ function AdminPanel() {
                         </div>
                       </CardContent>
                     </Card>
-                    <div className="mt-6">
-                      <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30" onClick={handleSaveSettings} disabled={saving}>
+                    <div className="mt-4 sm:mt-6">
+                      <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 min-h-[44px]" onClick={handleSaveSettings} disabled={saving}>
                         {saving ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save All Settings</>}
                       </Button>
                     </div>
@@ -852,30 +852,36 @@ export default function Home() {
 
       {/* ─── Hero ─── */}
       <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-[#06060f]">
+        {/* Coding computer background image */}
+        <div className="absolute inset-0">
+          <img src="/coding-bg.png" alt="" className="w-full h-full object-cover object-center hero-bg-image" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#06060f] via-[#06060f]/95 sm:via-[#06060fee] to-[#06060f]/80 sm:to-[#06060faa]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/40 sm:via-transparent to-[#06060f]/90 sm:to-[#06060fcc]" />
+        </div>
         <div className="absolute inset-0 hero-grid" />
         <div className="absolute inset-0 scanline-overlay" />
-        <div className="absolute top-20 right-10 w-72 h-72 bg-neon/5 rounded-full blur-3xl animate-neon-pulse" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
+        <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl animate-neon-pulse" />
+        <div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
           <div className="max-w-3xl">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-4 py-1.5 text-sm"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Building Smart Websites for Growing Businesses</Badge>
+              <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />Building Smart Websites for Growing Businesses</Badge>
             </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
               Transform Your <span className="gradient-text">Digital Presence</span> With Us
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-6 text-lg sm:text-xl text-white/60 max-w-2xl leading-relaxed">
+            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/60 max-w-2xl leading-relaxed">
               We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.
             </motion.p>
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-10 flex flex-col sm:flex-row gap-4">
-              <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 h-13 text-base shadow-lg shadow-amber-500/25">Start Your Project<ArrowRight className="ml-2 w-5 h-5" /></Button></a>
-              <a href="#portfolio"><Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/40 px-8 h-13 text-base backdrop-blur-sm">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25">Start Your Project<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
+              <a href="#portfolio"><Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-10 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 sm:gap-8">
               {statItems.map(stat => (
                 <div key={stat.label} className="text-center sm:text-left">
-                  <div className="text-2xl sm:text-3xl font-bold text-neon animate-neon-pulse">{stat.value}</div>
-                  <div className="text-xs sm:text-sm text-white/40 mt-1">{stat.label}</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-neon animate-neon-pulse">{stat.value}</div>
+                  <div className="text-[11px] sm:text-xs md:text-sm text-white/40 mt-0.5 sm:mt-1">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -893,29 +899,29 @@ export default function Home() {
       {/* ─── About ─── */}
       <AnimatedSection id="about" className="py-16 sm:py-20 md:py-28 bg-[#06060f] grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <div className="relative">
               <div className="rounded-2xl overflow-hidden border border-neon/20 shadow-xl shadow-neon/5">
-                <img src="/about-image.png" alt="A-Star Infotech team collaborating" className="w-full h-auto object-cover" />
+                <img src="/about-image.png" alt="A-Star Infotech team collaborating" className="w-full h-auto object-cover max-w-full" />
               </div>
-              <div className="absolute -bottom-6 right-2 sm:right-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center"><Award className="w-6 h-6 text-neon" /></div>
-                  <div><div className="font-bold text-lg text-foreground">5+ Years</div><div className="text-sm text-muted-foreground">Trusted Experience</div></div>
+              <div className="absolute -bottom-4 sm:-bottom-6 right-2 sm:right-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center"><Award className="w-5 h-5 sm:w-6 sm:h-6 text-neon" /></div>
+                  <div><div className="font-bold text-base sm:text-lg text-foreground">5+ Years</div><div className="text-xs sm:text-sm text-muted-foreground">Trusted Experience</div></div>
                 </div>
               </div>
             </div>
             <div>
               <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">About Us</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">We Build Digital Experiences <span className="gradient-text">That Matter</span></h2>
-              <p className="mt-5 text-muted-foreground text-base sm:text-lg leading-relaxed">A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don&apos;t just look great — they deliver measurable results.</p>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg leading-relaxed">From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.</p>
-              <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                <Card className="glass-card border-neon/20"><CardContent className="p-5"><div className="flex items-center gap-2 mb-2"><Target className="w-5 h-5 text-neon" /><h3 className="font-semibold text-foreground">Our Vision</h3></div><p className="text-sm text-muted-foreground">To be the most trusted digital partner for businesses seeking growth through innovative web solutions.</p></CardContent></Card>
-                <Card className="glass-card border-amber-500/20"><CardContent className="p-5"><div className="flex items-center gap-2 mb-2"><Rocket className="w-5 h-5 text-amber-400" /><h3 className="font-semibold text-foreground">Our Mission</h3></div><p className="text-sm text-muted-foreground">To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.</p></CardContent></Card>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">We Build Digital Experiences <span className="gradient-text">That Matter</span></h2>
+              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don&apos;t just look great — they deliver measurable results.</p>
+              <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.</p>
+              <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4">
+                <Card className="glass-card border-neon/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Target className="w-5 h-5 text-neon" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Vision</h3></div><p className="text-xs sm:text-sm text-muted-foreground">To be the most trusted digital partner for businesses seeking growth through innovative web solutions.</p></CardContent></Card>
+                <Card className="glass-card border-amber-500/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Rocket className="w-5 h-5 text-amber-400" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Mission</h3></div><p className="text-xs sm:text-sm text-muted-foreground">To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.</p></CardContent></Card>
               </div>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {['Innovation', 'Integrity', 'Excellence', 'Collaboration', 'Transparency'].map(v => <Badge key={v} variant="outline" className="px-3 py-1 text-neon border-neon/30">{v}</Badge>)}
+              <div className="mt-4 sm:mt-6 flex flex-wrap gap-1.5 sm:gap-2">
+                {['Innovation', 'Integrity', 'Excellence', 'Collaboration', 'Transparency'].map(v => <Badge key={v} variant="outline" className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm text-neon border-neon/30">{v}</Badge>)}
               </div>
             </div>
           </div>
@@ -929,22 +935,22 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Everything You Need to <span className="gradient-text">Succeed Online</span></h2>
-            <p className="mt-4 text-muted-foreground text-base sm:text-lg">From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Everything You Need to <span className="gradient-text">Succeed Online</span></h2>
+            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.</p>
           </div>
-          <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {services.map((service, idx) => {
               const IconComp = ICON_MAP[service.icon] || Globe
               return (
                 <motion.div key={service.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
                   <Card className="group h-full glass-card neon-border border-neon/10">
                     <CardContent className="p-4 sm:p-6 md:p-8">
-                      <div className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform border border-neon/10`}>
-                        <IconComp className={`w-6 h-6 ${service.color}`} />
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform border border-neon/10`}>
+                        <IconComp className={`w-5 h-5 sm:w-6 sm:h-6 ${service.color}`} />
                       </div>
-                      <h3 className="text-xl font-semibold text-foreground mb-3">{service.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{service.description}</p>
-                      <a href="#contact" className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-neon hover:text-neon/80 transition-colors">Learn More<ChevronRight className="w-4 h-4" /></a>
+                      <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">{service.title}</h3>
+                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{service.description}</p>
+                      <a href="#contact" className="inline-flex items-center gap-1 mt-3 sm:mt-4 text-sm font-medium text-neon hover:text-neon/80 transition-colors min-h-[44px]">Learn More<ChevronRight className="w-4 h-4" /></a>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -959,23 +965,23 @@ export default function Home() {
       {/* ─── Why Choose Us ─── */}
       <AnimatedSection className="py-16 sm:py-20 md:py-28 bg-[#06060f] hex-pattern">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <div>
               <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Why Choose Us</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">What Makes Us <span className="gradient-text">Stand Out</span></h2>
-              <p className="mt-5 text-muted-foreground text-base sm:text-lg leading-relaxed">We&apos;re not just another web development agency. We&apos;re your growth partners — committed to delivering solutions that make a real difference for your business.</p>
-              <div className="mt-8 grid sm:grid-cols-2 gap-5">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">What Makes Us <span className="gradient-text">Stand Out</span></h2>
+              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">We&apos;re not just another web development agency. We&apos;re your growth partners — committed to delivering solutions that make a real difference for your business.</p>
+              <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4 sm:gap-5">
                 {WHY_CHOOSE_US.map((item, idx) => (
-                  <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.4 }} className="flex gap-4">
+                  <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.4 }} className="flex gap-3 sm:gap-4">
                     <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><item.icon className="w-5 h-5 text-neon" /></div>
-                    <div><h3 className="font-semibold text-foreground">{item.title}</h3><p className="text-sm text-muted-foreground mt-1">{item.description}</p></div>
+                    <div><h3 className="font-semibold text-foreground text-sm sm:text-base">{item.title}</h3><p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{item.description}</p></div>
                   </motion.div>
                 ))}
               </div>
             </div>
             <div className="relative">
-              <div className="glass-card rounded-2xl p-8 sm:p-12 border-neon/20">
-                <div className="space-y-6">
+              <div className="glass-card rounded-2xl p-5 sm:p-8 md:p-12 border-neon/20">
+                <div className="space-y-5 sm:space-y-6">
                   {[
                     { label: 'Client Satisfaction', value: 99 },
                     { label: 'On-Time Delivery', value: 97 },
@@ -983,15 +989,15 @@ export default function Home() {
                     { label: 'Support Response', value: 98 },
                   ].map((item, idx) => (
                     <div key={item.label}>
-                      <div className="flex justify-between text-sm mb-2"><span className="font-medium text-foreground">{item.label}</span><span className="text-neon font-semibold">{item.value}%</span></div>
-                      <div className="h-2.5 bg-[#111128] rounded-full overflow-hidden border border-neon/5">
+                      <div className="flex justify-between text-xs sm:text-sm mb-2"><span className="font-medium text-foreground">{item.label}</span><span className="text-neon font-semibold">{item.value}%</span></div>
+                      <div className="h-2 sm:h-2.5 bg-[#111128] rounded-full overflow-hidden border border-neon/5">
                         <motion.div initial={{ width: 0 }} whileInView={{ width: `${item.value}%` }} viewport={{ once: true }} transition={{ delay: 0.3 + idx * 0.15, duration: 0.8, ease: 'easeOut' }} className="h-full bg-gradient-to-r from-neon to-cyan-400 rounded-full" />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-amber-500/20 border border-amber-500/30 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/10 rotate-6"><Users className="w-8 h-8 text-amber-400" /></div>
+              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-16 h-16 sm:w-20 sm:h-20 bg-amber-500/20 border border-amber-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/10 rotate-6"><Users className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400" /></div>
             </div>
           </div>
         </div>
@@ -1004,31 +1010,31 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Portfolio</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Projects That <span className="gradient-text">Speak for Themselves</span></h2>
-            <p className="mt-4 text-muted-foreground text-base sm:text-lg">Explore some of our recent work and see how we&apos;ve helped businesses across industries achieve their digital goals.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Projects That <span className="gradient-text">Speak for Themselves</span></h2>
+            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Explore some of our recent work and see how we&apos;ve helped businesses across industries achieve their digital goals.</p>
           </div>
-          <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {portfolioItems.map((project, idx) => (
               <motion.div key={project.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
                 <Card className="group overflow-hidden glass-card neon-border border-neon/10 h-full">
                   <div className="h-36 sm:h-48 relative overflow-hidden">
                     <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/40 to-transparent" />
-                    <div className="absolute top-4 right-4"><Badge className="bg-neon/20 text-neon border-neon/30 backdrop-blur-sm">{project.category}</Badge></div>
-                    <h3 className="absolute bottom-4 left-6 text-xl font-bold text-white z-10">{project.title}</h3>
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4"><Badge className="bg-neon/20 text-neon border-neon/30 backdrop-blur-sm text-xs">{project.category}</Badge></div>
+                    <h3 className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 text-base sm:text-xl font-bold text-white z-10">{project.title}</h3>
                   </div>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground text-sm leading-relaxed">{project.description}</p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {project.tech.split(',').map((t: string) => <Badge key={t.trim()} variant="secondary" className="text-xs bg-neon/10 text-neon border-neon/20">{t.trim()}</Badge>)}
+                  <CardContent className="p-4 sm:p-6">
+                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{project.description}</p>
+                    <div className="mt-3 sm:mt-4 flex flex-wrap gap-1 sm:gap-2">
+                      {project.tech.split(',').map((t: string) => <Badge key={t.trim()} variant="secondary" className="text-[10px] sm:text-xs bg-neon/10 text-neon border-neon/20">{t.trim()}</Badge>)}
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
           </div>
-          <div className="mt-12 text-center">
-            <a href="#contact"><Button size="lg" variant="outline" className="border-neon/30 text-neon hover:bg-neon/10">Discuss Your Project<ArrowRight className="ml-2 w-4 h-4" /></Button></a>
+          <div className="mt-10 sm:mt-12 text-center">
+            <a href="#contact"><Button size="lg" variant="outline" className="border-neon/30 text-neon hover:bg-neon/10 min-h-[44px]">Discuss Your Project<ArrowRight className="ml-2 w-4 h-4" /></Button></a>
           </div>
         </div>
       </AnimatedSection>
@@ -1040,19 +1046,19 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Testimonials</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">What Our Clients <span className="gradient-text">Say About Us</span></h2>
-            <p className="mt-4 text-muted-foreground text-base sm:text-lg">Don&apos;t just take our word for it — hear from the businesses we&apos;ve helped succeed.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">What Our Clients <span className="gradient-text">Say About Us</span></h2>
+            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Don&apos;t just take our word for it — hear from the businesses we&apos;ve helped succeed.</p>
           </div>
-          <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {testimonialItems.map((testimonial, idx) => (
               <motion.div key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
                 <Card className="h-full glass-card neon-border border-neon/10">
-                  <CardContent className="p-6">
-                    <div className="flex gap-0.5 mb-4">{Array.from({ length: testimonial.rating }).map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}</div>
-                    <p className="text-muted-foreground leading-relaxed text-sm sm:text-base italic">&ldquo;{testimonial.review}&rdquo;</p>
-                    <div className="mt-5 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center text-neon font-semibold text-sm">{testimonial.name.split(' ').map(n => n[0]).join('')}</div>
-                      <div><div className="font-semibold text-foreground text-sm">{testimonial.name}</div><div className="text-xs text-muted-foreground">{testimonial.company}</div></div>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex gap-0.5 mb-3 sm:mb-4">{Array.from({ length: testimonial.rating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />)}</div>
+                    <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm md:text-base italic">&ldquo;{testimonial.review}&rdquo;</p>
+                    <div className="mt-4 sm:mt-5 flex items-center gap-3">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center text-neon font-semibold text-xs sm:text-sm">{testimonial.name.split(' ').map(n => n[0]).join('')}</div>
+                      <div><div className="font-semibold text-foreground text-xs sm:text-sm">{testimonial.name}</div><div className="text-[11px] sm:text-xs text-muted-foreground">{testimonial.company}</div></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1063,18 +1069,18 @@ export default function Home() {
       </AnimatedSection>
 
       {/* ─── CTA Banner ─── */}
-      <AnimatedSection className="py-16 sm:py-20 relative overflow-hidden bg-[#0d0d1a]">
+      <AnimatedSection className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-[#0d0d1a]">
         <div className="absolute inset-0 hero-grid opacity-50" />
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-neon/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/4 w-48 sm:w-64 h-48 sm:h-64 bg-neon/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-36 sm:w-48 h-36 sm:h-48 bg-amber-500/5 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">Ready to Take Your Business Online?</h2>
-          <p className="mt-4 text-white/60 text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
-          <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 h-13 shadow-lg shadow-amber-500/25">Get Free Consultation<ArrowRight className="ml-2 w-5 h-5" /></Button></a>
-            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/40 px-8 h-13 backdrop-blur-sm"><MessageCircle className="mr-2 w-5 h-5" />Chat on WhatsApp</Button></a>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Ready to Take Your Business Online?</h2>
+          <p className="mt-3 sm:mt-4 text-white/60 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25 min-h-[44px]">Get Free Consultation<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
+            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm min-h-[44px]"><MessageCircle className="mr-2 w-4 sm:w-5 h-4 sm:h-5" />Chat on WhatsApp</Button></a>
           </div>
         </div>
       </AnimatedSection>
@@ -1086,56 +1092,56 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Contact Us</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Let&apos;s Start <span className="gradient-text">Your Project</span></h2>
-            <p className="mt-4 text-muted-foreground text-base sm:text-lg">Have a project in mind? We&apos;d love to hear from you. Fill out the form below or reach us directly.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Let&apos;s Start <span className="gradient-text">Your Project</span></h2>
+            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Have a project in mind? We&apos;d love to hear from you. Fill out the form below or reach us directly.</p>
           </div>
-          <div className="mt-14 grid lg:grid-cols-5 gap-10 lg:gap-12">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10 lg:gap-12">
             <div className="lg:col-span-3">
               <Card className="glass-card border-neon/20 shadow-lg shadow-neon/5">
-                <CardContent className="p-6 sm:p-8">
-                  <h3 className="text-xl font-semibold text-foreground mb-6">Send Us a Message</h3>
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-2"><label htmlFor="name" className="text-sm font-medium text-foreground">Full Name <span className="text-red-400">*</span></label><Input id="name" placeholder="John Doe" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="futuristic-input" /></div>
-                      <div className="space-y-2"><label htmlFor="email" className="text-sm font-medium text-foreground">Email Address <span className="text-red-400">*</span></label><Input id="email" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="futuristic-input" /></div>
+                <CardContent className="p-4 sm:p-6 md:p-8">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Send Us a Message</h3>
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="space-y-2"><label htmlFor="name" className="text-sm font-medium text-foreground">Full Name <span className="text-red-400">*</span></label><Input id="name" placeholder="John Doe" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="futuristic-input h-11" /></div>
+                      <div className="space-y-2"><label htmlFor="email" className="text-sm font-medium text-foreground">Email Address <span className="text-red-400">*</span></label><Input id="email" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="futuristic-input h-11" /></div>
                     </div>
-                    <div className="space-y-2"><label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label><Input id="phone" type="tel" placeholder="+91 8560074448" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input" /></div>
-                    <div className="space-y-2"><label htmlFor="message" className="text-sm font-medium text-foreground">Your Message <span className="text-red-400">*</span></label><Textarea id="message" placeholder="Tell us about your project..." rows={5} required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="futuristic-input" /></div>
-                    <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 px-8">
+                    <div className="space-y-2"><label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label><Input id="phone" type="tel" placeholder="+91 8560074448" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input h-11" /></div>
+                    <div className="space-y-2"><label htmlFor="message" className="text-sm font-medium text-foreground">Your Message <span className="text-red-400">*</span></label><Textarea id="message" placeholder="Tell us about your project..." rows={4} required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="futuristic-input" /></div>
+                    <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 px-6 sm:px-8 min-h-[44px]">
                       {isSubmitting ? <><span className="animate-spin mr-2">⏳</span>Sending...</> : <>Send Message<Send className="ml-2 w-4 h-4" /></>}
                     </Button>
                   </form>
                 </CardContent>
               </Card>
             </div>
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               <Card className="glass-card border-neon/20">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-5">Get In Touch</h3>
-                  <div className="space-y-5">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-5">Get In Touch</h3>
+                  <div className="space-y-4 sm:space-y-5">
                     {[
                       { icon: MapPin, label: 'Office Address', value: siteSettings.address },
                       { icon: Phone, label: 'Phone Number', value: siteSettings.phone },
                       { icon: Mail, label: 'Email Address', value: siteSettings.email },
                       { icon: Clock, label: 'Business Hours', value: siteSettings.hours },
                     ].map((item, i) => (
-                      <div key={i} className="flex items-start gap-4">
+                      <div key={i} className="flex items-start gap-3 sm:gap-4">
                         <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><item.icon className="w-5 h-5 text-neon" /></div>
-                        <div><div className="font-medium text-foreground text-sm">{item.label}</div><div className="text-sm text-muted-foreground mt-0.5">{item.value}</div></div>
+                        <div><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5">{item.value}</div></div>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
               <Card className="glass-card border-neon/20 overflow-hidden">
-                <div className="h-48 bg-[#0d0d1a] flex items-center justify-center border border-neon/10">
-                  <div className="text-center"><MapPin className="w-8 h-8 text-neon/40 mx-auto" /><p className="text-sm text-neon mt-2 font-medium">A-Star Infotech</p><p className="text-xs text-muted-foreground">Jaipur, Rajasthan</p></div>
+                <div className="h-36 sm:h-48 bg-[#0d0d1a] flex items-center justify-center border border-neon/10">
+                  <div className="text-center"><MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-neon/40 mx-auto" /><p className="text-xs sm:text-sm text-neon mt-2 font-medium">A-Star Infotech</p><p className="text-[11px] sm:text-xs text-muted-foreground">Jaipur, Rajasthan</p></div>
                 </div>
               </Card>
               <Card className="glass-card border-neon/20">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Follow Us</h3>
-                  <div className="flex gap-3">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Follow Us</h3>
+                  <div className="flex gap-3 flex-wrap">
                     {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
                     {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
                     {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
@@ -1151,14 +1157,14 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="bg-[#06060f] border-t border-neon/10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-12 sm:py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            <div className="sm:col-span-2 lg:col-span-1">
+          <div className="py-10 sm:py-12 md:py-16 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
+            <div className="col-span-2 sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 rounded-lg object-contain" />
                 <div><div className="font-bold text-white text-lg leading-tight">A-Star</div><div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div></div>
               </div>
-              <p className="text-white/40 text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
-              <div className="mt-4 flex gap-3">
+              <p className="text-white/40 text-xs sm:text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
+              <div className="mt-4 flex gap-3 flex-wrap">
                 {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-white/60" /></a>}
                 {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-white/60" /></a>}
                 {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-white/60" /></a>}
@@ -1166,25 +1172,25 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2.5">{NAV_LINKS.map(link => <li key={link.href}><a href={link.href} className="text-sm text-white/40 hover:text-neon transition-colors">{link.label}</a></li>)}</ul>
+              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Quick Links</h4>
+              <ul className="space-y-2 sm:space-y-2.5">{NAV_LINKS.map(link => <li key={link.href}><a href={link.href} className="text-xs sm:text-sm text-white/40 hover:text-neon transition-colors min-h-[44px] flex items-center">{link.label}</a></li>)}</ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Our Services</h4>
-              <ul className="space-y-2.5">{services.map(s => <li key={s.title}><a href="#services" className="text-sm text-white/40 hover:text-neon transition-colors">{s.title}</a></li>)}</ul>
+              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Our Services</h4>
+              <ul className="space-y-2 sm:space-y-2.5">{services.map(s => <li key={s.title}><a href="#services" className="text-xs sm:text-sm text-white/40 hover:text-neon transition-colors min-h-[44px] flex items-center">{s.title}</a></li>)}</ul>
             </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Contact Info</h4>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2.5"><MapPin className="w-4 h-4 text-neon/50 shrink-0 mt-0.5" /><span className="text-sm text-white/40">{siteSettings.address}</span></li>
-                <li className="flex items-center gap-2.5"><Phone className="w-4 h-4 text-neon/50 shrink-0" /><span className="text-sm text-white/40">{siteSettings.phone}</span></li>
-                <li className="flex items-center gap-2.5"><Mail className="w-4 h-4 text-neon/50 shrink-0" /><span className="text-sm text-white/40">{siteSettings.email}</span></li>
+            <div className="col-span-2 sm:col-span-1">
+              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Contact Info</h4>
+              <ul className="space-y-2 sm:space-y-3">
+                <li className="flex items-start gap-2 sm:gap-2.5"><MapPin className="w-4 h-4 text-neon/50 shrink-0 mt-0.5" /><span className="text-xs sm:text-sm text-white/40">{siteSettings.address}</span></li>
+                <li className="flex items-center gap-2 sm:gap-2.5"><Phone className="w-4 h-4 text-neon/50 shrink-0" /><span className="text-xs sm:text-sm text-white/40">{siteSettings.phone}</span></li>
+                <li className="flex items-center gap-2 sm:gap-2.5"><Mail className="w-4 h-4 text-neon/50 shrink-0" /><span className="text-xs sm:text-sm text-white/40 break-all">{siteSettings.email}</span></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-neon/10 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-white/30">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
-            <div className="flex gap-6 text-sm text-white/30"><a href="#" className="hover:text-neon transition-colors">Privacy Policy</a><a href="#" className="hover:text-neon transition-colors">Terms of Service</a></div>
+          <div className="border-t border-neon/10 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+            <p className="text-xs sm:text-sm text-white/30">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
+            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-white/30"><a href="#" className="hover:text-neon transition-colors">Privacy Policy</a><a href="#" className="hover:text-neon transition-colors">Terms of Service</a></div>
           </div>
         </div>
       </footer>
