@@ -73,6 +73,11 @@ export async function GET() {
           { key: 'hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
           { key: 'heroTitle', value: 'Building Smart Websites for Growing Businesses' },
           { key: 'heroSubtitle', value: 'We craft stunning, high-performance websites that help businesses establish a powerful online presence and drive real results.' },
+          { key: 'facebook', value: 'https://facebook.com/astarinfotech' },
+          { key: 'instagram', value: 'https://instagram.com/astarinfotech' },
+          { key: 'linkedin', value: 'https://linkedin.com/company/astarinfotech' },
+          { key: 'youtube', value: 'https://youtube.com/@astarinfotech' },
+          { key: 'brandColor', value: '#059669' },
         ],
       })
     }

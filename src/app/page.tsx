@@ -161,6 +161,11 @@ const DEFAULT_SETTINGS = {
   phone: '+91 8560074448',
   email: 'karansinghmeertiya@gmail.com',
   hours: 'Mon – Sat: 10:00 AM – 7:00 PM',
+  facebook: 'https://facebook.com/astarinfotech',
+  instagram: 'https://instagram.com/astarinfotech',
+  linkedin: 'https://linkedin.com/company/astarinfotech',
+  youtube: 'https://youtube.com/@astarinfotech',
+  brandColor: '#059669',
 }
 
 /* ────────────────────────────────────────────
@@ -265,6 +270,11 @@ interface SiteSettings {
   phone: string
   email: string
   hours: string
+  facebook: string
+  instagram: string
+  linkedin: string
+  youtube: string
+  brandColor: string
 }
 
 const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = [
@@ -298,6 +308,11 @@ function AdminPanel() {
     phone: '',
     email: '',
     hours: '',
+    facebook: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
+    brandColor: '',
   })
 
   // Loading states
@@ -478,6 +493,11 @@ function AdminPanel() {
           phone: data.settings.phone || '',
           email: data.settings.email || '',
           hours: data.settings.hours || '',
+          facebook: data.settings.facebook || '',
+          instagram: data.settings.instagram || '',
+          linkedin: data.settings.linkedin || '',
+          youtube: data.settings.youtube || '',
+          brandColor: data.settings.brandColor || '',
         })
       }
     } catch {
@@ -1705,6 +1725,7 @@ function AdminPanel() {
                 <SectionHeader title="Site Settings" subtitle="Manage your business information" />
 
                 {settingsLoading ? <Spinner /> : (
+                  <>
                   <Card className="border-border/50">
                     <CardContent className="p-6">
                       <h3 className="text-lg font-semibold text-foreground mb-6">Business Information</h3>
@@ -1755,27 +1776,141 @@ function AdminPanel() {
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8">
-                        <Button
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                          onClick={handleSaveSettings}
-                          disabled={saving}
-                        >
-                          {saving ? (
-                            <>
-                              <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save className="w-4 h-4 mr-2" />
-                              Save Settings
-                            </>
-                          )}
-                        </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Social Media Links */}
+                  <Card className="border-border/50 mt-6">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-6">Social Media Links</h3>
+                      <div className="space-y-5">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <Facebook className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-facebook" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Facebook URL</Label>
+                            <Input id="set-facebook" value={siteSettings.facebook} onChange={(e) => setSiteSettings((p) => ({ ...p, facebook: e.target.value }))} placeholder="https://facebook.com/yourpage" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-pink-100 flex items-center justify-center">
+                            <Instagram className="w-5 h-5 text-pink-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-instagram" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Instagram URL</Label>
+                            <Input id="set-instagram" value={siteSettings.instagram} onChange={(e) => setSiteSettings((p) => ({ ...p, instagram: e.target.value }))} placeholder="https://instagram.com/yourprofile" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-sky-100 flex items-center justify-center">
+                            <Linkedin className="w-5 h-5 text-sky-700" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-linkedin" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">LinkedIn URL</Label>
+                            <Input id="set-linkedin" value={siteSettings.linkedin} onChange={(e) => setSiteSettings((p) => ({ ...p, linkedin: e.target.value }))} placeholder="https://linkedin.com/company/yourcompany" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 shrink-0 rounded-lg bg-red-100 flex items-center justify-center">
+                            <Youtube className="w-5 h-5 text-red-600" />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-youtube" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">YouTube URL</Label>
+                            <Input id="set-youtube" value={siteSettings.youtube} onChange={(e) => setSiteSettings((p) => ({ ...p, youtube: e.target.value }))} placeholder="https://youtube.com/@yourchannel" />
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Brand Color */}
+                  <Card className="border-border/50 mt-6">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-6">Brand Color</h3>
+                      <div className="space-y-5">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className="w-12 h-12 shrink-0 rounded-xl border-2 border-border shadow-sm"
+                            style={{ backgroundColor: siteSettings.brandColor || '#059669' }}
+                          />
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="set-brandcolor" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Hex Color Code</Label>
+                            <div className="flex items-center gap-3">
+                              <Input
+                                id="set-brandcolor"
+                                value={siteSettings.brandColor}
+                                onChange={(e) => setSiteSettings((p) => ({ ...p, brandColor: e.target.value }))}
+                                placeholder="#059669"
+                                className="flex-1"
+                              />
+                              <input
+                                type="color"
+                                value={siteSettings.brandColor || '#059669'}
+                                onChange={(e) => setSiteSettings((p) => ({ ...p, brandColor: e.target.value }))}
+                                className="w-10 h-10 rounded-lg border border-border cursor-pointer p-0.5"
+                                aria-label="Color picker"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-3 block">Preset Colors</Label>
+                          <div className="flex flex-wrap gap-3">
+                            {[
+                              { color: '#059669', label: 'Emerald' },
+                              { color: '#2563eb', label: 'Blue' },
+                              { color: '#7c3aed', label: 'Violet' },
+                              { color: '#dc2626', label: 'Red' },
+                              { color: '#ea580c', label: 'Orange' },
+                              { color: '#ca8a04', label: 'Amber' },
+                              { color: '#0d9488', label: 'Teal' },
+                              { color: '#be185d', label: 'Pink' },
+                            ].map((preset) => (
+                              <button
+                                key={preset.color}
+                                type="button"
+                                onClick={() => setSiteSettings((p) => ({ ...p, brandColor: preset.color }))}
+                                className="group relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                                style={{
+                                  backgroundColor: preset.color,
+                                  borderColor: siteSettings.brandColor === preset.color ? '#1f2937' : 'transparent',
+                                }}
+                                aria-label={`Select ${preset.label} color`}
+                                title={preset.label}
+                              >
+                                {siteSettings.brandColor === preset.color && (
+                                  <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">✓</span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Save Button */}
+                  <div className="mt-6">
+                    <Button
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={handleSaveSettings}
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <>
+                          <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save All Settings
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  </>
                 )}
               </div>
             )}
@@ -1878,6 +2013,11 @@ export default function Home() {
               phone: data.settings.phone || DEFAULT_SETTINGS.phone,
               email: data.settings.email || DEFAULT_SETTINGS.email,
               hours: data.settings.hours || DEFAULT_SETTINGS.hours,
+              facebook: data.settings.facebook || DEFAULT_SETTINGS.facebook,
+              instagram: data.settings.instagram || DEFAULT_SETTINGS.instagram,
+              linkedin: data.settings.linkedin || DEFAULT_SETTINGS.linkedin,
+              youtube: data.settings.youtube || DEFAULT_SETTINGS.youtube,
+              brandColor: data.settings.brandColor || DEFAULT_SETTINGS.brandColor,
             })
           }
         }
@@ -1896,6 +2036,45 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // ── Brand color dynamic application ──
+  useEffect(() => {
+    const hex = siteSettings.brandColor || '#059669'
+    const root = document.documentElement
+
+    // Parse hex color
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+
+    // Mix with white (factor: 0 = white, 1 = original)
+    const lighten = (factor: number) => {
+      const mr = Math.round(r + (255 - r) * (1 - factor))
+      const mg = Math.round(g + (255 - g) * (1 - factor))
+      const mb = Math.round(b + (255 - b) * (1 - factor))
+      return `#${mr.toString(16).padStart(2, '0')}${mg.toString(16).padStart(2, '0')}${mb.toString(16).padStart(2, '0')}`
+    }
+
+    // Mix with black (factor: 0 = black, 1 = original)
+    const darken = (factor: number) => {
+      const mr = Math.round(r * factor)
+      const mg = Math.round(g * factor)
+      const mb = Math.round(b * factor)
+      return `#${mr.toString(16).padStart(2, '0')}${mg.toString(16).padStart(2, '0')}${mb.toString(16).padStart(2, '0')}`
+    }
+
+    root.style.setProperty('--brand-50', lighten(0.1))
+    root.style.setProperty('--brand-100', lighten(0.2))
+    root.style.setProperty('--brand-200', lighten(0.4))
+    root.style.setProperty('--brand-300', lighten(0.6))
+    root.style.setProperty('--brand-400', lighten(0.8))
+    root.style.setProperty('--brand-500', hex)
+    root.style.setProperty('--brand-600', hex)
+    root.style.setProperty('--brand-700', darken(0.85))
+    root.style.setProperty('--brand-800', darken(0.65))
+    root.style.setProperty('--brand-900', darken(0.45))
+    root.style.setProperty('--brand-950', darken(0.28))
+  }, [siteSettings.brandColor])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -1965,7 +2144,7 @@ export default function Home() {
                 </span>
                 <span
                   className={`text-[10px] sm:text-xs leading-tight font-medium tracking-wider uppercase transition-colors ${
-                    scrolled ? 'text-emerald-600' : 'text-emerald-300'
+                    scrolled ? 'text-brand-600' : 'text-brand-300'
                   }`}
                 >
                   Infotech
@@ -1979,7 +2158,7 @@ export default function Home() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className={`px-3 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-emerald-50 hover:text-emerald-700 ${
+                  className={`px-3 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-brand-50 hover:text-brand-700 ${
                     scrolled
                       ? 'text-muted-foreground'
                       : 'text-white/80 hover:text-white'
@@ -1991,7 +2170,7 @@ export default function Home() {
               <a href="#contact">
                 <Button
                   size="sm"
-                  className="ml-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="ml-2 bg-brand-600 hover:bg-brand-700 text-white"
                 >
                   Get a Quote
                 </Button>
@@ -2032,13 +2211,13 @@ export default function Home() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-3 rounded-md text-foreground font-medium hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                    className="block px-4 py-3 rounded-md text-foreground font-medium hover:bg-brand-50 hover:text-brand-700 transition-colors"
                   >
                     {link.label}
                   </a>
                 ))}
                 <a href="#contact" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Button className="w-full mt-2 bg-brand-600 hover:bg-brand-700 text-white">
                     Get a Quote
                   </Button>
                 </a>
@@ -2054,15 +2233,15 @@ export default function Home() {
         className="relative min-h-screen flex items-center overflow-hidden"
       >
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950" />
         <div
           className="absolute inset-0 opacity-20 bg-cover bg-center"
           style={{ backgroundImage: 'url(/hero-image.png)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/70 to-emerald-800/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-950/90 via-brand-900/70 to-brand-800/50" />
 
         {/* Decorative shapes */}
-        <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-400/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-10 w-72 h-72 bg-brand-400/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-amber-400/5 rounded-full blur-3xl" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
@@ -2072,7 +2251,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Badge className="mb-6 bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30 px-4 py-1.5 text-sm">
+              <Badge className="mb-6 bg-brand-500/20 text-brand-300 border-brand-500/30 hover:bg-brand-500/30 px-4 py-1.5 text-sm">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                 Building Smart Websites for Growing Businesses
               </Badge>
@@ -2085,7 +2264,7 @@ export default function Home() {
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight"
             >
               Transform Your{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-amber-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-amber-300">
                 Digital Presence
               </span>{' '}
               With Us
@@ -2095,7 +2274,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-6 text-lg sm:text-xl text-emerald-100/80 max-w-2xl leading-relaxed"
+              className="mt-6 text-lg sm:text-xl text-brand-100/80 max-w-2xl leading-relaxed"
             >
               We craft stunning, high-performance websites that help businesses
               grow. From design to development, SEO to e-commerce — we deliver
@@ -2141,7 +2320,7 @@ export default function Home() {
                   <div className="text-2xl sm:text-3xl font-bold text-white">
                     {stat.value}
                   </div>
-                  <div className="text-xs sm:text-sm text-emerald-300/70 mt-1">
+                  <div className="text-xs sm:text-sm text-brand-300/70 mt-1">
                     {stat.label}
                   </div>
                 </div>
@@ -2160,9 +2339,9 @@ export default function Home() {
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-6 h-10 border-2 border-emerald-400/40 rounded-full flex items-start justify-center p-1.5"
+            className="w-6 h-10 border-2 border-brand-400/40 rounded-full flex items-start justify-center p-1.5"
           >
-            <motion.div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+            <motion.div className="w-1.5 h-1.5 bg-brand-400 rounded-full" />
           </motion.div>
         </motion.div>
       </section>
@@ -2186,8 +2365,8 @@ export default function Home() {
               {/* Floating card */}
               <div className="absolute -bottom-6 -right-4 sm:right-4 bg-white rounded-xl shadow-xl p-4 sm:p-5 border border-border/50">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <Award className="w-6 h-6 text-emerald-600" />
+                  <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center">
+                    <Award className="w-6 h-6 text-brand-600" />
                   </div>
                   <div>
                     <div className="font-bold text-lg text-foreground">5+ Years</div>
@@ -2203,13 +2382,13 @@ export default function Home() {
             <div>
               <Badge
                 variant="secondary"
-                className="mb-4 bg-emerald-50 text-emerald-700 border-emerald-200"
+                className="mb-4 bg-brand-50 text-brand-700 border-brand-200"
               >
                 About Us
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
                 We Build Digital Experiences{' '}
-                <span className="text-emerald-600">That Matter</span>
+                <span className="text-brand-600">That Matter</span>
               </h2>
               <p className="mt-5 text-muted-foreground text-base sm:text-lg leading-relaxed">
                 A-Star Infotech is a forward-thinking web development agency
@@ -2226,10 +2405,10 @@ export default function Home() {
 
               {/* Vision & Mission */}
               <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                <Card className="border-emerald-200 bg-emerald-50/50">
+                <Card className="border-brand-200 bg-brand-50/50">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-2">
-                      <Target className="w-5 h-5 text-emerald-600" />
+                      <Target className="w-5 h-5 text-brand-600" />
                       <h3 className="font-semibold text-foreground">Our Vision</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -2259,7 +2438,7 @@ export default function Home() {
                     <Badge
                       key={value}
                       variant="outline"
-                      className="px-3 py-1 text-emerald-700 border-emerald-300"
+                      className="px-3 py-1 text-brand-700 border-brand-300"
                     >
                       {value}
                     </Badge>
@@ -2280,13 +2459,13 @@ export default function Home() {
           <div className="text-center max-w-2xl mx-auto">
             <Badge
               variant="secondary"
-              className="mb-4 bg-emerald-50 text-emerald-700 border-emerald-200"
+              className="mb-4 bg-brand-50 text-brand-700 border-brand-200"
             >
               Our Services
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
               Everything You Need to{' '}
-              <span className="text-emerald-600">Succeed Online</span>
+              <span className="text-brand-600">Succeed Online</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-base sm:text-lg">
               From concept to launch and beyond, we provide comprehensive web
@@ -2305,7 +2484,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
               >
-                <Card className="group h-full border-border/50 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <Card className="group h-full border-border/50 hover:border-brand-300 hover:shadow-lg transition-all duration-300">
                   <CardContent className="p-6 sm:p-8">
                     <div
                       className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
@@ -2320,7 +2499,7 @@ export default function Home() {
                     </p>
                     <a
                       href="#contact"
-                      className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                      className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
                     >
                       Learn More
                       <ChevronRight className="w-4 h-4" />
@@ -2347,7 +2526,7 @@ export default function Home() {
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
                 What Makes Us{' '}
-                <span className="text-emerald-600">Stand Out</span>
+                <span className="text-brand-600">Stand Out</span>
               </h2>
               <p className="mt-5 text-muted-foreground text-base sm:text-lg leading-relaxed">
                 We&apos;re not just another web development agency. We&apos;re your
@@ -2365,8 +2544,8 @@ export default function Home() {
                     transition={{ delay: idx * 0.1, duration: 0.4 }}
                     className="flex gap-4"
                   >
-                    <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <item.icon className="w-5 h-5 text-emerald-600" />
+                    <div className="w-10 h-10 shrink-0 rounded-lg bg-brand-100 flex items-center justify-center">
+                      <item.icon className="w-5 h-5 text-brand-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground">
@@ -2383,7 +2562,7 @@ export default function Home() {
 
             {/* Visual side */}
             <div className="relative">
-              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-8 sm:p-12">
+              <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-8 sm:p-12">
                 <div className="space-y-6">
                   {[
                     { label: 'Client Satisfaction', value: 99 },
@@ -2396,17 +2575,17 @@ export default function Home() {
                         <span className="font-medium text-foreground">
                           {item.label}
                         </span>
-                        <span className="text-emerald-600 font-semibold">
+                        <span className="text-brand-600 font-semibold">
                           {item.value}%
                         </span>
                       </div>
-                      <div className="h-2.5 bg-emerald-200 rounded-full overflow-hidden">
+                      <div className="h-2.5 bg-brand-200 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           whileInView={{ width: `${item.value}%` }}
                           viewport={{ once: true }}
                           transition={{ delay: 0.3 + idx * 0.15, duration: 0.8, ease: 'easeOut' }}
-                          className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
+                          className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full"
                         />
                       </div>
                     </div>
@@ -2432,13 +2611,13 @@ export default function Home() {
           <div className="text-center max-w-2xl mx-auto">
             <Badge
               variant="secondary"
-              className="mb-4 bg-emerald-50 text-emerald-700 border-emerald-200"
+              className="mb-4 bg-brand-50 text-brand-700 border-brand-200"
             >
               Our Portfolio
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
               Projects That{' '}
-              <span className="text-emerald-600">Speak for Themselves</span>
+              <span className="text-brand-600">Speak for Themselves</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-base sm:text-lg">
               Explore some of our recent work and see how we&apos;ve helped
@@ -2482,7 +2661,7 @@ export default function Home() {
                         <Badge
                           key={t.trim()}
                           variant="secondary"
-                          className="text-xs bg-emerald-50 text-emerald-700"
+                          className="text-xs bg-brand-50 text-brand-700"
                         >
                           {t.trim()}
                         </Badge>
@@ -2499,7 +2678,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                className="border-brand-600 text-brand-600 hover:bg-brand-50"
               >
                 Discuss Your Project
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -2524,7 +2703,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
               What Our Clients{' '}
-              <span className="text-emerald-600">Say About Us</span>
+              <span className="text-brand-600">Say About Us</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-base sm:text-lg">
               Don&apos;t just take our word for it — hear from the businesses
@@ -2556,7 +2735,7 @@ export default function Home() {
                       &ldquo;{testimonial.review}&rdquo;
                     </p>
                     <div className="mt-5 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-sm">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-semibold text-sm">
                         {testimonial.name
                           .split(' ')
                           .map((n) => n[0])
@@ -2580,7 +2759,7 @@ export default function Home() {
       </AnimatedSection>
 
       {/* ─── CTA Banner ─── */}
-      <AnimatedSection className="py-16 sm:py-20 bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-800 relative overflow-hidden">
+      <AnimatedSection className="py-16 sm:py-20 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-800 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-1/4 w-64 h-64 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-amber-300 rounded-full blur-3xl" />
@@ -2589,7 +2768,7 @@ export default function Home() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white">
             Ready to Take Your Business Online?
           </h2>
-          <p className="mt-4 text-emerald-100/90 text-lg max-w-2xl mx-auto">
+          <p className="mt-4 text-brand-100/90 text-lg max-w-2xl mx-auto">
             Let&apos;s build something amazing together. Get in touch today for a
             free consultation and discover how we can transform your digital
             presence.
@@ -2631,13 +2810,13 @@ export default function Home() {
           <div className="text-center max-w-2xl mx-auto">
             <Badge
               variant="secondary"
-              className="mb-4 bg-emerald-50 text-emerald-700 border-emerald-200"
+              className="mb-4 bg-brand-50 text-brand-700 border-brand-200"
             >
               Contact Us
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
               Let&apos;s Start{' '}
-              <span className="text-emerald-600">Your Project</span>
+              <span className="text-brand-600">Your Project</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-base sm:text-lg">
               Have a project in mind? We&apos;d love to hear from you. Fill out
@@ -2730,7 +2909,7 @@ export default function Home() {
                       type="submit"
                       size="lg"
                       disabled={isSubmitting}
-                      className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                      className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white px-8"
                     >
                       {isSubmitting ? (
                         <>
@@ -2758,8 +2937,8 @@ export default function Home() {
                   </h3>
                   <div className="space-y-5">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-emerald-600" />
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-brand-100 flex items-center justify-center">
+                        <MapPin className="w-5 h-5 text-brand-600" />
                       </div>
                       <div>
                         <div className="font-medium text-foreground text-sm">
@@ -2771,8 +2950,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                        <Phone className="w-5 h-5 text-emerald-600" />
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-brand-100 flex items-center justify-center">
+                        <Phone className="w-5 h-5 text-brand-600" />
                       </div>
                       <div>
                         <div className="font-medium text-foreground text-sm">
@@ -2784,8 +2963,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                        <Mail className="w-5 h-5 text-emerald-600" />
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-brand-100 flex items-center justify-center">
+                        <Mail className="w-5 h-5 text-brand-600" />
                       </div>
                       <div>
                         <div className="font-medium text-foreground text-sm">
@@ -2797,8 +2976,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-100 flex items-center justify-center">
-                        <Clock className="w-5 h-5 text-emerald-600" />
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-brand-100 flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-brand-600" />
                       </div>
                       <div>
                         <div className="font-medium text-foreground text-sm">
@@ -2815,10 +2994,10 @@ export default function Home() {
 
               {/* Map placeholder */}
               <Card className="shadow-lg overflow-hidden">
-                <div className="h-48 bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center">
+                <div className="h-48 bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center">
                   <div className="text-center">
-                    <MapPin className="w-8 h-8 text-emerald-400 mx-auto" />
-                    <p className="text-sm text-emerald-600 mt-2 font-medium">
+                    <MapPin className="w-8 h-8 text-brand-400 mx-auto" />
+                    <p className="text-sm text-brand-600 mt-2 font-medium">
                       A-Star Infotech
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -2835,42 +3014,50 @@ export default function Home() {
                     Follow Us
                   </h3>
                   <div className="flex gap-3">
-                    <a
-                      href="https://facebook.com/astarinfotech"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition-colors"
-                      aria-label="Facebook"
-                    >
-                      <Facebook className="w-5 h-5 text-blue-600" />
-                    </a>
-                    <a
-                      href="https://instagram.com/astarinfotech"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg bg-pink-50 hover:bg-pink-100 flex items-center justify-center transition-colors"
-                      aria-label="Instagram"
-                    >
-                      <Instagram className="w-5 h-5 text-pink-600" />
-                    </a>
-                    <a
-                      href="https://linkedin.com/company/astarinfotech"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg bg-sky-50 hover:bg-sky-100 flex items-center justify-center transition-colors"
-                      aria-label="LinkedIn"
-                    >
-                      <Linkedin className="w-5 h-5 text-sky-700" />
-                    </a>
-                    <a
-                      href="https://youtube.com/@astarinfotech"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors"
-                      aria-label="YouTube"
-                    >
-                      <Youtube className="w-5 h-5 text-red-600" />
-                    </a>
+                    {siteSettings.facebook && (
+                      <a
+                        href={siteSettings.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition-colors"
+                        aria-label="Facebook"
+                      >
+                        <Facebook className="w-5 h-5 text-blue-600" />
+                      </a>
+                    )}
+                    {siteSettings.instagram && (
+                      <a
+                        href={siteSettings.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-lg bg-pink-50 hover:bg-pink-100 flex items-center justify-center transition-colors"
+                        aria-label="Instagram"
+                      >
+                        <Instagram className="w-5 h-5 text-pink-600" />
+                      </a>
+                    )}
+                    {siteSettings.linkedin && (
+                      <a
+                        href={siteSettings.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-lg bg-sky-50 hover:bg-sky-100 flex items-center justify-center transition-colors"
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="w-5 h-5 text-sky-700" />
+                      </a>
+                    )}
+                    {siteSettings.youtube && (
+                      <a
+                        href={siteSettings.youtube}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors"
+                        aria-label="YouTube"
+                      >
+                        <Youtube className="w-5 h-5 text-red-600" />
+                      </a>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -2880,7 +3067,7 @@ export default function Home() {
       </AnimatedSection>
 
       {/* ─── Footer ─── */}
-      <footer className="bg-emerald-950 text-emerald-100 mt-auto">
+      <footer className="bg-brand-950 text-brand-100 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main footer */}
           <div className="py-12 sm:py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
@@ -2896,52 +3083,60 @@ export default function Home() {
                   <div className="font-bold text-white text-lg leading-tight">
                     A-Star
                   </div>
-                  <div className="text-xs text-emerald-400 font-medium tracking-wider uppercase">
+                  <div className="text-xs text-brand-400 font-medium tracking-wider uppercase">
                     Infotech
                   </div>
                 </div>
               </div>
-              <p className="text-emerald-300/70 text-sm leading-relaxed max-w-xs">
+              <p className="text-brand-300/70 text-sm leading-relaxed max-w-xs">
                 Building smart websites for growing businesses. Your trusted
                 partner for all digital solutions.
               </p>
               <div className="mt-4 flex gap-3">
-                <a
-                  href="https://facebook.com/astarinfotech"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-emerald-900 hover:bg-emerald-800 flex items-center justify-center transition-colors"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://instagram.com/astarinfotech"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-emerald-900 hover:bg-emerald-800 flex items-center justify-center transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://linkedin.com/company/astarinfotech"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-emerald-900 hover:bg-emerald-800 flex items-center justify-center transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://youtube.com/@astarinfotech"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-emerald-900 hover:bg-emerald-800 flex items-center justify-center transition-colors"
-                  aria-label="YouTube"
-                >
-                  <Youtube className="w-4 h-4" />
-                </a>
+                {siteSettings.facebook && (
+                  <a
+                    href={siteSettings.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg bg-brand-900 hover:bg-brand-800 flex items-center justify-center transition-colors"
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                )}
+                {siteSettings.instagram && (
+                  <a
+                    href={siteSettings.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg bg-brand-900 hover:bg-brand-800 flex items-center justify-center transition-colors"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                )}
+                {siteSettings.linkedin && (
+                  <a
+                    href={siteSettings.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg bg-brand-900 hover:bg-brand-800 flex items-center justify-center transition-colors"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                  </a>
+                )}
+                {siteSettings.youtube && (
+                  <a
+                    href={siteSettings.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg bg-brand-900 hover:bg-brand-800 flex items-center justify-center transition-colors"
+                    aria-label="YouTube"
+                  >
+                    <Youtube className="w-4 h-4" />
+                  </a>
+                )}
               </div>
             </div>
 
@@ -2953,7 +3148,7 @@ export default function Home() {
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="text-sm text-emerald-300/70 hover:text-white transition-colors"
+                      className="text-sm text-brand-300/70 hover:text-white transition-colors"
                     >
                       {link.label}
                     </a>
@@ -2970,7 +3165,7 @@ export default function Home() {
                   <li key={service.title}>
                     <a
                       href="#services"
-                      className="text-sm text-emerald-300/70 hover:text-white transition-colors"
+                      className="text-sm text-brand-300/70 hover:text-white transition-colors"
                     >
                       {service.title}
                     </a>
@@ -2984,20 +3179,20 @@ export default function Home() {
               <h4 className="font-semibold text-white mb-4">Contact Info</h4>
               <ul className="space-y-3">
                 <li className="flex items-start gap-2.5">
-                  <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="text-sm text-emerald-300/70">
+                  <MapPin className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+                  <span className="text-sm text-brand-300/70">
                     {siteSettings.address}
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="text-sm text-emerald-300/70">
+                  <Phone className="w-4 h-4 text-brand-400 shrink-0" />
+                  <span className="text-sm text-brand-300/70">
                     {siteSettings.phone}
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="text-sm text-emerald-300/70">
+                  <Mail className="w-4 h-4 text-brand-400 shrink-0" />
+                  <span className="text-sm text-brand-300/70">
                     {siteSettings.email}
                   </span>
                 </li>
@@ -3006,11 +3201,11 @@ export default function Home() {
           </div>
 
           {/* Bottom bar */}
-          <div className="border-t border-emerald-800/50 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-emerald-300/50">
+          <div className="border-t border-brand-800/50 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-brand-300/50">
               © {new Date().getFullYear()} A-Star Infotech. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-emerald-300/50">
+            <div className="flex gap-6 text-sm text-brand-300/50">
               <a href="#" className="hover:text-white transition-colors">
                 Privacy Policy
               </a>
@@ -3046,7 +3241,7 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="fixed bottom-6 left-6 z-50 w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+            className="fixed bottom-6 left-6 z-50 w-12 h-12 bg-brand-600 hover:bg-brand-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
             aria-label="Scroll to top"
           >
             <ChevronUp className="w-5 h-5" />
