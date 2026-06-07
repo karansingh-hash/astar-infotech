@@ -81,55 +81,20 @@ const NAV_LINKS = [
   { label: 'Contact', href: '#contact' },
 ]
 
-const SERVICES = [
-  {
-    icon: Globe,
-    title: 'Website Design',
-    description:
-      'Beautiful, modern designs that capture your brand identity and engage visitors from the first click.',
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-  },
-  {
-    icon: Code2,
-    title: 'Website Development',
-    description:
-      'Robust, scalable web applications built with the latest technologies for peak performance and reliability.',
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-  },
-  {
-    icon: ShoppingCart,
-    title: 'E-Commerce Development',
-    description:
-      'Feature-rich online stores with secure payments, inventory management, and seamless shopping experiences.',
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-  },
-  {
-    icon: Smartphone,
-    title: 'Responsive Websites',
-    description:
-      'Websites that look stunning on every device — from desktop monitors to the smallest smartphones.',
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-  },
-  {
-    icon: Settings,
-    title: 'Website Maintenance',
-    description:
-      'Ongoing support, updates, and optimization to keep your website running smoothly and securely.',
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-  },
-  {
-    icon: Search,
-    title: 'SEO Services',
-    description:
-      'Data-driven SEO strategies that boost your visibility and drive organic traffic to your website.',
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-  },
+/* ── Icon map: maps string icon names from DB to React components ── */
+const ICON_MAP: Record<string, React.ElementType> = {
+  Globe, Code2, ShoppingCart, Smartphone, Settings, Search,
+  Award, Zap, Shield, Heart, Target, Rocket, Star, Users,
+  BarChart3, Briefcase, LayoutDashboard, Lock,
+}
+
+const DEFAULT_SERVICES = [
+  { icon: 'Globe' as const, title: 'Website Design', description: 'Beautiful, modern designs that capture your brand identity and engage visitors from the first click.', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { icon: 'Code2' as const, title: 'Website Development', description: 'Robust, scalable web applications built with the latest technologies for peak performance and reliability.', color: 'text-amber-600', bg: 'bg-amber-50' },
+  { icon: 'ShoppingCart' as const, title: 'E-Commerce Development', description: 'Feature-rich online stores with secure payments, inventory management, and seamless shopping experiences.', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { icon: 'Smartphone' as const, title: 'Responsive Websites', description: 'Websites that look stunning on every device — from desktop monitors to the smallest smartphones.', color: 'text-amber-600', bg: 'bg-amber-50' },
+  { icon: 'Settings' as const, title: 'Website Maintenance', description: 'Ongoing support, updates, and optimization to keep your website running smoothly and securely.', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { icon: 'Search' as const, title: 'SEO Services', description: 'Data-driven SEO strategies that boost your visibility and drive organic traffic to your website.', color: 'text-amber-600', bg: 'bg-amber-50' },
 ]
 
 const WHY_CHOOSE_US = [
@@ -165,114 +130,38 @@ const WHY_CHOOSE_US = [
   },
 ]
 
-const PORTFOLIO = [
-  {
-    title: 'FreshMart Online Store',
-    category: 'E-Commerce',
-    description:
-      'A fully-featured online grocery store with real-time inventory, secure checkout, and delivery tracking.',
-    tech: ['Next.js', 'Stripe', 'PostgreSQL'],
-    color: 'from-emerald-500 to-emerald-700',
-    image: '/portfolio-freshmart.png',
-  },
-  {
-    title: 'HealthPlus Clinic',
-    category: 'Healthcare',
-    description:
-      'A responsive website for a multi-specialty clinic with appointment booking and patient portal.',
-    tech: ['React', 'Node.js', 'MongoDB'],
-    color: 'from-amber-500 to-amber-700',
-    image: '/portfolio-healthplus.png',
-  },
-  {
-    title: 'UrbanBite Restaurant',
-    category: 'Restaurant',
-    description:
-      'A beautiful restaurant website with online ordering, table reservations, and menu management.',
-    tech: ['Next.js', 'Prisma', 'Tailwind'],
-    color: 'from-emerald-600 to-teal-700',
-    image: '/portfolio-urbanbite.png',
-  },
-  {
-    title: 'EduSpark Academy',
-    category: 'Education',
-    description:
-      'An e-learning platform with course management, video streaming, and student progress tracking.',
-    tech: ['React', 'Firebase', 'TypeScript'],
-    color: 'from-orange-500 to-amber-700',
-    image: '/portfolio-eduspark.png',
-  },
-  {
-    title: 'GreenLeaf Landscaping',
-    category: 'Local Business',
-    description:
-      'A lead-generating website for a landscaping company with gallery, quote requests, and service pages.',
-    tech: ['Next.js', 'Sanity CMS', 'Vercel'],
-    color: 'from-teal-500 to-emerald-700',
-    image: '/portfolio-greenleaf.png',
-  },
-  {
-    title: 'TechVault IT Solutions',
-    category: 'IT Services',
-    description:
-      'A corporate website for an IT firm with service pages, case studies, and a knowledge base.',
-    tech: ['React', 'GraphQL', 'AWS'],
-    color: 'from-amber-600 to-orange-700',
-    image: '/portfolio-techvault.png',
-  },
+const DEFAULT_PORTFOLIO = [
+  { title: 'FreshMart Online Store', category: 'E-Commerce', description: 'A fully-featured online grocery store with real-time inventory, secure checkout, and delivery tracking.', tech: 'Next.js, Stripe, PostgreSQL', color: 'from-emerald-500 to-emerald-700', image: '/portfolio-freshmart.png' },
+  { title: 'HealthPlus Clinic', category: 'Healthcare', description: 'A responsive website for a multi-specialty clinic with appointment booking and patient portal.', tech: 'React, Node.js, MongoDB', color: 'from-amber-500 to-amber-700', image: '/portfolio-healthplus.png' },
+  { title: 'UrbanBite Restaurant', category: 'Restaurant', description: 'A beautiful restaurant website with online ordering, table reservations, and menu management.', tech: 'Next.js, Prisma, Tailwind', color: 'from-emerald-600 to-teal-700', image: '/portfolio-urbanbite.png' },
+  { title: 'EduSpark Academy', category: 'Education', description: 'An e-learning platform with course management, video streaming, and student progress tracking.', tech: 'React, Firebase, TypeScript', color: 'from-orange-500 to-amber-700', image: '/portfolio-eduspark.png' },
+  { title: 'GreenLeaf Landscaping', category: 'Local Business', description: 'A lead-generating website for a landscaping company with gallery, quote requests, and service pages.', tech: 'Next.js, Sanity CMS, Vercel', color: 'from-teal-500 to-emerald-700', image: '/portfolio-greenleaf.png' },
+  { title: 'TechVault IT Solutions', category: 'IT Services', description: 'A corporate website for an IT firm with service pages, case studies, and a knowledge base.', tech: 'React, GraphQL, AWS', color: 'from-amber-600 to-orange-700', image: '/portfolio-techvault.png' },
 ]
 
-const TESTIMONIALS = [
-  {
-    name: 'Priya Sharma',
-    company: 'FreshMart Pvt. Ltd.',
-    review:
-      'A-Star Infotech transformed our online presence. Our e-commerce sales increased by 150% within the first three months. Their team is incredibly talented and responsive.',
-    rating: 5,
-  },
-  {
-    name: 'Rajesh Patel',
-    company: 'HealthPlus Clinic',
-    review:
-      'The website they built for us is professional, fast, and easy to manage. Patient appointments have doubled since launch. Highly recommended!',
-    rating: 5,
-  },
-  {
-    name: 'Anita Desai',
-    company: 'UrbanBite Restaurant',
-    review:
-      'From design to deployment, A-Star Infotech exceeded all our expectations. The online ordering system works flawlessly, and our customers love it.',
-    rating: 5,
-  },
-  {
-    name: 'Vikram Singh',
-    company: 'EduSpark Academy',
-    review:
-      'Working with A-Star Infotech was a game-changer for our platform. They understood our vision and delivered a solution that truly supports our students.',
-    rating: 5,
-  },
-  {
-    name: 'Meera Joshi',
-    company: 'GreenLeaf Landscaping',
-    review:
-      'Our new website generates leads every single day. A-Star Infotech really understands how to create sites that convert visitors into customers.',
-    rating: 5,
-  },
-  {
-    name: 'Arun Kumar',
-    company: 'TechVault IT Solutions',
-    review:
-      'Professional, reliable, and creative — A-Star Infotech is the best web development partner we have ever worked with. They truly go above and beyond.',
-    rating: 5,
-  },
+const DEFAULT_TESTIMONIALS = [
+  { name: 'Priya Sharma', company: 'FreshMart Pvt. Ltd.', review: 'A-Star Infotech transformed our online presence. Our e-commerce sales increased by 150% within the first three months. Their team is incredibly talented and responsive.', rating: 5 },
+  { name: 'Rajesh Patel', company: 'HealthPlus Clinic', review: 'The website they built for us is professional, fast, and easy to manage. Patient appointments have doubled since launch. Highly recommended!', rating: 5 },
+  { name: 'Anita Desai', company: 'UrbanBite Restaurant', review: 'From design to deployment, A-Star Infotech exceeded all our expectations. The online ordering system works flawlessly, and our customers love it.', rating: 5 },
+  { name: 'Vikram Singh', company: 'EduSpark Academy', review: 'Working with A-Star Infotech was a game-changer for our platform. They understood our vision and delivered a solution that truly supports our students.', rating: 5 },
+  { name: 'Meera Joshi', company: 'GreenLeaf Landscaping', review: 'Our new website generates leads every single day. A-Star Infotech really understands how to create sites that convert visitors into customers.', rating: 5 },
+  { name: 'Arun Kumar', company: 'TechVault IT Solutions', review: 'Professional, reliable, and creative — A-Star Infotech is the best web development partner we have ever worked with. They truly go above and beyond.', rating: 5 },
 ]
 
-const STATS = [
+const DEFAULT_STATS = [
   { value: '150+', label: 'Projects Delivered' },
   { value: '120+', label: 'Happy Clients' },
   { value: '5+', label: 'Years Experience' },
   { value: '99%', label: 'Client Satisfaction' },
 ]
+
+const DEFAULT_SETTINGS = {
+  companyName: 'A-Star Infotech',
+  address: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan',
+  phone: '+91 8560074448',
+  email: 'karansinghmeertiya@gmail.com',
+  hours: 'Mon – Sat: 10:00 AM – 7:00 PM',
+}
 
 /* ────────────────────────────────────────────
    Animated Section Wrapper
@@ -1915,6 +1804,93 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
+  // ── Dynamic data from database ──
+  const [services, setServices] = useState(DEFAULT_SERVICES)
+  const [portfolioItems, setPortfolioItems] = useState(DEFAULT_PORTFOLIO)
+  const [testimonialItems, setTestimonialItems] = useState(DEFAULT_TESTIMONIALS)
+  const [statItems, setStatItems] = useState(DEFAULT_STATS)
+  const [siteSettings, setSiteSettings] = useState(DEFAULT_SETTINGS)
+
+  // Fetch all data from API on mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [servicesRes, portfolioRes, testimonialsRes, statsRes, settingsRes] = await Promise.allSettled([
+          fetch('/api/services'),
+          fetch('/api/portfolio'),
+          fetch('/api/testimonials'),
+          fetch('/api/stats'),
+          fetch('/api/settings'),
+        ])
+
+        if (servicesRes.status === 'fulfilled' && servicesRes.value.ok) {
+          const data = await servicesRes.value.json()
+          if (data.services?.length > 0) {
+            setServices(data.services.map((s: { icon: string; title: string; description: string; color: string; bgColor: string }) => ({
+              icon: s.icon || 'Globe',
+              title: s.title,
+              description: s.description,
+              color: s.color || 'text-emerald-600',
+              bg: s.bgColor || 'bg-emerald-50',
+            })))
+          }
+        }
+
+        if (portfolioRes.status === 'fulfilled' && portfolioRes.value.ok) {
+          const data = await portfolioRes.value.json()
+          if (data.portfolio?.length > 0) {
+            setPortfolioItems(data.portfolio.map((p: { title: string; category: string; description: string; tech: string; color: string; image: string }) => ({
+              title: p.title,
+              category: p.category,
+              description: p.description,
+              tech: p.tech || '',
+              color: p.color || 'from-emerald-500 to-emerald-700',
+              image: p.image || '/portfolio-freshmart.png',
+            })))
+          }
+        }
+
+        if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.ok) {
+          const data = await testimonialsRes.value.json()
+          if (data.testimonials?.length > 0) {
+            setTestimonialItems(data.testimonials.map((t: { name: string; company: string; review: string; rating: number }) => ({
+              name: t.name,
+              company: t.company,
+              review: t.review,
+              rating: t.rating || 5,
+            })))
+          }
+        }
+
+        if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
+          const data = await statsRes.value.json()
+          if (data.stats?.length > 0) {
+            setStatItems(data.stats.map((s: { value: string; label: string }) => ({
+              value: s.value,
+              label: s.label,
+            })))
+          }
+        }
+
+        if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) {
+          const data = await settingsRes.value.json()
+          if (data.settings) {
+            setSiteSettings({
+              companyName: data.settings.companyName || DEFAULT_SETTINGS.companyName,
+              address: data.settings.address || DEFAULT_SETTINGS.address,
+              phone: data.settings.phone || DEFAULT_SETTINGS.phone,
+              email: data.settings.email || DEFAULT_SETTINGS.email,
+              hours: data.settings.hours || DEFAULT_SETTINGS.hours,
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch site data:', error)
+      }
+    }
+    fetchData()
+  }, [])
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
@@ -2166,7 +2142,7 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8"
             >
-              {STATS.map((stat) => (
+              {statItems.map((stat) => (
                 <div key={stat.label} className="text-center sm:text-left">
                   <div className="text-2xl sm:text-3xl font-bold text-white">
                     {stat.value}
@@ -2325,7 +2301,9 @@ export default function Home() {
           </div>
 
           <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SERVICES.map((service, idx) => (
+            {services.map((service, idx) => {
+                const IconComp = ICON_MAP[service.icon] || Globe
+                return (
               <motion.div
                 key={service.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -2338,7 +2316,7 @@ export default function Home() {
                     <div
                       className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
                     >
-                      <service.icon className={`w-6 h-6 ${service.color}`} />
+                      <IconComp className={`w-6 h-6 ${service.color}`} />
                     </div>
                     <h3 className="text-xl font-semibold text-foreground mb-3">
                       {service.title}
@@ -2356,7 +2334,8 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+            )
+            })}
           </div>
         </div>
       </AnimatedSection>
@@ -2474,7 +2453,7 @@ export default function Home() {
           </div>
 
           <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PORTFOLIO.map((project, idx) => (
+            {portfolioItems.map((project, idx) => (
               <motion.div
                 key={project.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -2505,13 +2484,13 @@ export default function Home() {
                       {project.description}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {project.tech.map((t) => (
+                      {project.tech.split(',').map((t: string) => (
                         <Badge
-                          key={t}
+                          key={t.trim()}
                           variant="secondary"
                           className="text-xs bg-emerald-50 text-emerald-700"
                         >
-                          {t}
+                          {t.trim()}
                         </Badge>
                       ))}
                     </div>
@@ -2560,7 +2539,7 @@ export default function Home() {
           </div>
 
           <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((testimonial, idx) => (
+            {testimonialItems.map((testimonial, idx) => (
               <motion.div
                 key={testimonial.name}
                 initial={{ opacity: 0, y: 30 }}
@@ -2793,9 +2772,7 @@ export default function Home() {
                           Office Address
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          D-49, Shiv Marg, Balaji Sagar-15,
-                          <br />
-                          Jaipur, Rajasthan
+                          {siteSettings.address}
                         </div>
                       </div>
                     </div>
@@ -2808,7 +2785,7 @@ export default function Home() {
                           Phone Number
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          +91 8560074448
+                          {siteSettings.phone}
                         </div>
                       </div>
                     </div>
@@ -2821,7 +2798,7 @@ export default function Home() {
                           Email Address
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          karansinghmeertiya@gmail.com
+                          {siteSettings.email}
                         </div>
                       </div>
                     </div>
@@ -2834,7 +2811,7 @@ export default function Home() {
                           Business Hours
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          Mon – Sat: 10:00 AM – 7:00 PM
+                          {siteSettings.hours}
                         </div>
                       </div>
                     </div>
@@ -2995,7 +2972,7 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-white mb-4">Our Services</h4>
               <ul className="space-y-2.5">
-                {SERVICES.map((service) => (
+                {services.map((service) => (
                   <li key={service.title}>
                     <a
                       href="#services"
@@ -3015,19 +2992,19 @@ export default function Home() {
                 <li className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span className="text-sm text-emerald-300/70">
-                    D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan
+                    {siteSettings.address}
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span className="text-sm text-emerald-300/70">
-                    +91 8560074448
+                    {siteSettings.phone}
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span className="text-sm text-emerald-300/70">
-                    karansinghmeertiya@gmail.com
+                    {siteSettings.email}
                   </span>
                 </li>
               </ul>
