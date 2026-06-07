@@ -9,7 +9,7 @@ import {
   Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target,
   Shield, Rocket, Eye, Trash2, Inbox, Lock, LayoutDashboard,
   BarChart3, LogOut, Calendar, MailCheck, PhoneCall, Briefcase,
-  Plus, Pencil, Wrench, Save,
+  Plus, Pencil, Wrench, Save, Sun, Moon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription, DialogFooter,
@@ -136,6 +137,9 @@ function AdminPanel() {
   const [authLoading, setAuthLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const [contacts, setContacts] = useState<ContactItem[]>([])
   const [services, setServices] = useState<ServiceItem[]>([])
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
@@ -224,7 +228,7 @@ function AdminPanel() {
   )
 
   const triggerButton = (
-    <button onClick={() => setIsOpen(true)} className="fixed bottom-20 sm:bottom-6 left-6 z-50 w-12 h-12 bg-[#111128] hover:bg-neon/20 border border-neon/30 text-neon rounded-full flex items-center justify-center shadow-lg shadow-neon/10 transition-all duration-300 hover:scale-110" aria-label="Admin Panel" title="Admin Panel">
+    <button onClick={() => setIsOpen(true)} className="fixed bottom-20 sm:bottom-6 left-6 z-50 w-12 h-12 bg-dark-card hover:bg-neon/20 border border-neon/30 text-neon rounded-full flex items-center justify-center shadow-lg shadow-neon/10 transition-all duration-300 hover:scale-110" aria-label="Admin Panel" title="Admin Panel">
       <Lock className="w-5 h-5" />
     </button>
   )
@@ -235,7 +239,7 @@ function AdminPanel() {
     return (
       <>
         {triggerButton}
-        <div className="fixed inset-0 z-[9999] bg-[#06060f] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center p-4">
           <div className="absolute top-20 right-20 w-72 h-72 bg-neon/5 rounded-full blur-3xl" />
           <div className="absolute bottom-20 left-20 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
           <Card className="w-full max-w-md glass-card border-neon/20 relative">
@@ -266,10 +270,10 @@ function AdminPanel() {
 
   return (
     <>
-      <div className="fixed inset-0 z-[9999] bg-[#06060f] flex">
+      <div className="fixed inset-0 z-[9999] bg-background flex">
         {sidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
-        <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#0d0d1a] border-r border-neon/10 flex flex-col shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-          <div className="p-5 border-b border-neon/10">
+        <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-dark-surface border-r border-border flex flex-col shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+          <div className="p-5 border-b border-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-neon/10 border border-neon/30 rounded-xl flex items-center justify-center"><LayoutDashboard className="w-5 h-5 text-neon" /></div>
               <div><div className="font-bold text-sm text-foreground">A-Star Infotech</div><div className="text-xs text-neon">Admin Panel</div></div>
@@ -283,20 +287,30 @@ function AdminPanel() {
               </button>
             ))}
           </nav>
-          <div className="p-3 border-t border-neon/10 space-y-1">
+          <div className="p-3 border-t border-border space-y-1">
             <button onClick={() => { setIsOpen(false); setSidebarOpen(false) }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"><Eye className="w-5 h-5" />View Website</button>
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </button>
+            )}
             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors"><LogOut className="w-5 h-5" />Logout</button>
           </div>
         </aside>
         <main className="flex-1 flex flex-col min-w-0">
-          <header className="h-16 border-b border-neon/10 bg-[#0d0d1a] shrink-0 flex items-center justify-between px-4 md:px-6">
+          <header className="h-16 border-b border-border bg-dark-surface shrink-0 flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-3">
               <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 rounded-md hover:bg-neon/5 transition-colors" aria-label="Open sidebar"><Menu className="w-5 h-5 text-foreground" /></button>
               <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab === 'inquiries' ? 'Inquiries' : activeTab}</h1>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-muted-foreground hidden sm:flex hover:bg-neon/5"><Eye className="w-4 h-4 mr-1.5" />View Website</Button>
           </header>
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#06060f]">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-background">
 
             {/* Dashboard */}
             {activeTab === 'dashboard' && (
@@ -311,7 +325,7 @@ function AdminPanel() {
                         { label: 'This Week', value: dashboard?.weekContacts ?? 0, icon: BarChart3, color: 'text-neon', bg: 'bg-neon/10' },
                         { label: 'This Month', value: dashboard?.monthContacts ?? 0, icon: BarChart3, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
                       ].map((item, i) => (
-                        <Card key={i} className="glass-card border-neon/10">
+                        <Card key={i} className="glass-card border-border">
                           <CardContent className="p-4 md:p-6">
                             <div className="flex items-center justify-between">
                               <div><p className="text-xs md:text-sm text-muted-foreground">{item.label}</p><p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{item.value}</p></div>
@@ -327,7 +341,7 @@ function AdminPanel() {
                         { label: 'Portfolio', value: dashboard?.totalPortfolio ?? 0, icon: Briefcase },
                         { label: 'Testimonials', value: dashboard?.totalTestimonials ?? 0, icon: Star },
                       ].map((item, i) => (
-                        <Card key={i} className={`glass-card border-neon/10 ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`}>
+                        <Card key={i} className={`glass-card border-border ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`}>
                           <CardContent className="p-4 md:p-6">
                             <div className="flex items-center justify-between">
                               <div><p className="text-xs md:text-sm text-muted-foreground">{item.label}</p><p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{item.value}</p></div>
@@ -337,13 +351,13 @@ function AdminPanel() {
                         </Card>
                       ))}
                     </div>
-                    <Card className="glass-card border-neon/10 mb-6">
+                    <Card className="glass-card border-border mb-6">
                       <CardContent className="p-4 md:p-6">
                         <h3 className="text-lg font-semibold text-foreground mb-4">Recent Contacts</h3>
                         {!dashboard?.recentContacts?.length ? <p className="text-sm text-muted-foreground text-center py-8">No contact activity yet</p> : (
                           <div className="space-y-3 max-h-64 overflow-y-auto">
                             {dashboard.recentContacts.map(c => (
-                              <div key={c.id} className="flex items-center gap-3 py-2 border-b border-neon/10 last:border-0">
+                              <div key={c.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
                                 <div className="w-8 h-8 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center text-neon font-semibold text-xs shrink-0">{c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</div>
                                 <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{c.name}</p><p className="text-xs text-muted-foreground truncate">{c.email}</p></div>
                                 <p className="text-xs text-muted-foreground shrink-0">{new Date(c.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}</p>
@@ -353,7 +367,7 @@ function AdminPanel() {
                         )}
                       </CardContent>
                     </Card>
-                    <Card className="glass-card border-neon/10">
+                    <Card className="glass-card border-border">
                       <CardContent className="p-4 md:p-6">
                         <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -363,7 +377,7 @@ function AdminPanel() {
                             { label: 'Manage Portfolio', icon: Briefcase, tab: 'portfolio' as AdminTab },
                             { label: 'Edit Settings', icon: Wrench, tab: 'settings' as AdminTab },
                           ].map(a => (
-                            <button key={a.tab} onClick={() => setActiveTab(a.tab)} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-neon/10 hover:border-neon/30 hover:bg-neon/5 transition-all duration-200">
+                            <button key={a.tab} onClick={() => setActiveTab(a.tab)} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border hover:border-neon/30 hover:bg-neon/5 transition-all duration-200">
                               <div className="w-10 h-10 rounded-lg bg-neon/10 flex items-center justify-center"><a.icon className="w-5 h-5 text-neon" /></div>
                               <span className="text-xs font-medium text-foreground text-center">{a.label}</span>
                             </button>
@@ -385,7 +399,7 @@ function AdminPanel() {
                 ) : (
                   <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
                     {contacts.map(c => (
-                      <Card key={c.id} className="glass-card border-neon/10 hover:border-neon/20 transition-colors">
+                      <Card key={c.id} className="glass-card border-border hover:border-neon/20 transition-colors">
                         <CardContent className="p-5">
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
@@ -399,7 +413,7 @@ function AdminPanel() {
                                 {c.phone && <span className="flex items-center gap-1"><PhoneCall className="w-3.5 h-3.5" />{c.phone}</span>}
                                 <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(c.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' })}</span>
                               </div>
-                              <p className="mt-3 text-sm text-foreground/80 bg-[#0d0d1a] rounded-lg p-3 ml-0 sm:ml-11 leading-relaxed border border-neon/5">{c.message}</p>
+                              <p className="mt-3 text-sm text-foreground/80 bg-dark-surface rounded-lg p-3 ml-0 sm:ml-11 leading-relaxed border border-border">{c.message}</p>
                             </div>
                             <Button variant="ghost" size="sm" onClick={() => handleDeleteContact(c.id)} disabled={deletingId === c.id} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 shrink-0">
                               {deletingId === c.id ? <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <Trash2 className="w-4 h-4" />}
@@ -422,7 +436,7 @@ function AdminPanel() {
                 ) : (
                   <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
                     {services.sort((a, b) => a.order - b.order).map(s => (
-                      <Card key={s.id} className="glass-card border-neon/10 hover:border-neon/20 transition-colors">
+                      <Card key={s.id} className="glass-card border-border hover:border-neon/20 transition-colors">
                         <CardContent className="p-5">
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
@@ -432,7 +446,7 @@ function AdminPanel() {
                               </div>
                               <div className="flex items-center gap-3 mt-2 ml-13 text-xs text-muted-foreground">
                                 <Badge variant="secondary" className="text-xs bg-neon/10 text-neon border-neon/20">Icon: {s.icon}</Badge>
-                                <Badge variant="secondary" className="text-xs bg-[#111128] text-muted-foreground border-neon/10">Order: {s.order}</Badge>
+                                <Badge variant="secondary" className="text-xs bg-dark-card text-muted-foreground border-border">Order: {s.order}</Badge>
                               </div>
                             </div>
                             <div className="flex items-center gap-1 shrink-0">
@@ -446,7 +460,7 @@ function AdminPanel() {
                   </div>
                 )}
                 <Dialog open={serviceDialog.open} onOpenChange={o => setServiceDialog(p => ({ ...p, open: o }))}>
-                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border-neon/20">
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-dark-surface border-neon/20">
                     <DialogHeader><DialogTitle>{serviceDialog.mode === 'add' ? 'Add Service' : 'Edit Service'}</DialogTitle><DialogDescription>{serviceDialog.mode === 'add' ? 'Create a new service item.' : 'Update the service details.'}</DialogDescription></DialogHeader>
                     <div className="space-y-4 py-2">
                       <div className="space-y-2"><Label htmlFor="svc-title">Title</Label><Input id="svc-title" value={serviceForm.title} onChange={e => setServiceForm(p => ({ ...p, title: e.target.value }))} placeholder="Service title" className="futuristic-input" /></div>
@@ -478,7 +492,7 @@ function AdminPanel() {
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-4 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
                     {portfolio.sort((a, b) => a.order - b.order).map(item => (
-                      <Card key={item.id} className="glass-card border-neon/10 hover:border-neon/20 overflow-hidden">
+                      <Card key={item.id} className="glass-card border-border hover:border-neon/20 overflow-hidden">
                         <div className={`h-24 bg-gradient-to-r ${item.color} flex items-end p-4 relative`}>
                           {item.image && <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-30" />}
                           <div className="relative z-10"><Badge className="bg-white/20 text-white border-0 text-xs mb-1">{item.category}</Badge><h3 className="font-bold text-white text-sm">{item.title}</h3></div>
@@ -496,7 +510,7 @@ function AdminPanel() {
                   </div>
                 )}
                 <Dialog open={portfolioDialog.open} onOpenChange={o => setPortfolioDialog(p => ({ ...p, open: o }))}>
-                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border-neon/20">
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-dark-surface border-neon/20">
                     <DialogHeader><DialogTitle>{portfolioDialog.mode === 'add' ? 'Add Portfolio Item' : 'Edit Portfolio Item'}</DialogTitle><DialogDescription>{portfolioDialog.mode === 'add' ? 'Create a new portfolio item.' : 'Update the portfolio item.'}</DialogDescription></DialogHeader>
                     <div className="space-y-4 py-2">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -531,7 +545,7 @@ function AdminPanel() {
                 ) : (
                   <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
                     {testimonials.sort((a, b) => a.order - b.order).map(item => (
-                      <Card key={item.id} className="glass-card border-neon/10 hover:border-neon/20 transition-colors">
+                      <Card key={item.id} className="glass-card border-border hover:border-neon/20 transition-colors">
                         <CardContent className="p-5">
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
@@ -553,7 +567,7 @@ function AdminPanel() {
                   </div>
                 )}
                 <Dialog open={testimonialDialog.open} onOpenChange={o => setTestimonialDialog(p => ({ ...p, open: o }))}>
-                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border-neon/20">
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-dark-surface border-neon/20">
                     <DialogHeader><DialogTitle>{testimonialDialog.mode === 'add' ? 'Add Testimonial' : 'Edit Testimonial'}</DialogTitle><DialogDescription>{testimonialDialog.mode === 'add' ? 'Create a new testimonial.' : 'Update the testimonial.'}</DialogDescription></DialogHeader>
                     <div className="space-y-4 py-2">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -589,7 +603,7 @@ function AdminPanel() {
                         { label: 'This Week', value: dashboard?.weekContacts ?? 0, icon: BarChart3, color: 'text-neon', bg: 'bg-neon/10' },
                         { label: 'This Month', value: dashboard?.monthContacts ?? 0, icon: BarChart3, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
                       ].map((item, i) => (
-                        <Card key={i} className="glass-card border-neon/10"><CardContent className="p-4 md:p-6"><div className="flex items-center justify-between"><div><p className="text-xs md:text-sm text-muted-foreground">{item.label}</p><p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{item.value}</p></div><div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${item.bg} flex items-center justify-center`}><item.icon className={`w-5 h-5 md:w-6 md:h-6 ${item.color}`} /></div></div></CardContent></Card>
+                        <Card key={i} className="glass-card border-border"><CardContent className="p-4 md:p-6"><div className="flex items-center justify-between"><div><p className="text-xs md:text-sm text-muted-foreground">{item.label}</p><p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{item.value}</p></div><div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${item.bg} flex items-center justify-center`}><item.icon className={`w-5 h-5 md:w-6 md:h-6 ${item.color}`} /></div></div></CardContent></Card>
                       ))}
                     </div>
                   )}
@@ -604,7 +618,7 @@ function AdminPanel() {
                   ) : (
                     <div className="space-y-3">
                       {stats.sort((a, b) => a.order - b.order).map(stat => (
-                        <Card key={stat.id} className="glass-card border-neon/10 hover:border-neon/20 transition-colors">
+                        <Card key={stat.id} className="glass-card border-border hover:border-neon/20 transition-colors">
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between gap-3 sm:gap-4">
                               <div className="flex items-center gap-3 sm:gap-4">
@@ -623,7 +637,7 @@ function AdminPanel() {
                   )}
                 </div>
                 <Dialog open={statDialog.open} onOpenChange={o => setStatDialog(p => ({ ...p, open: o }))}>
-                  <DialogContent className="sm:max-w-md bg-[#0d0d1a] border-neon/20">
+                  <DialogContent className="sm:max-w-md bg-dark-surface border-neon/20">
                     <DialogHeader><DialogTitle>{statDialog.mode === 'add' ? 'Add Stat' : 'Edit Stat'}</DialogTitle><DialogDescription>{statDialog.mode === 'add' ? 'Create a new site stat.' : 'Update the stat.'}</DialogDescription></DialogHeader>
                     <div className="space-y-4 py-2">
                       <div className="space-y-2"><Label htmlFor="st-value">Value</Label><Input id="st-value" value={statForm.value} onChange={e => setStatForm(p => ({ ...p, value: e.target.value }))} placeholder="150+" className="futuristic-input" /></div>
@@ -645,7 +659,7 @@ function AdminPanel() {
                 <SectionHeader title="Site Settings" subtitle="Manage your business information" />
                 {settingsLoading ? <Spinner /> : (
                   <>
-                    <Card className="glass-card border-neon/10">
+                    <Card className="glass-card border-border">
                       <CardContent className="p-4 sm:p-6">
                         <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Business Information</h3>
                         <div className="space-y-5">
@@ -671,7 +685,7 @@ function AdminPanel() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="glass-card border-neon/10 mt-4 sm:mt-6">
+                    <Card className="glass-card border-border mt-4 sm:mt-6">
                       <CardContent className="p-4 sm:p-6">
                         <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Social Media Links</h3>
                         <div className="space-y-5">
@@ -692,7 +706,7 @@ function AdminPanel() {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="glass-card border-neon/10 mt-4 sm:mt-6">
+                    <Card className="glass-card border-border mt-4 sm:mt-6">
                       <CardContent className="p-4 sm:p-6">
                         <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Brand Color</h3>
                         <div className="space-y-5">
@@ -750,6 +764,9 @@ export default function Home() {
   const [testimonialItems, setTestimonialItems] = useState(DEFAULT_TESTIMONIALS)
   const [statItems, setStatItems] = useState(DEFAULT_STATS)
   const [siteSettings, setSiteSettings] = useState(DEFAULT_SETTINGS)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     async function fetchData() {
@@ -801,48 +818,66 @@ export default function Home() {
   const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06060f]">
+    <div className="min-h-screen flex flex-col bg-background">
 
       {/* ─── Header ─── */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0d0d1a]/90 backdrop-blur-xl border-b border-neon/10 shadow-lg shadow-neon/5' : 'bg-transparent'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-dark-surface/90 backdrop-blur-xl border-b border-border shadow-lg shadow-neon/5' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             <a href="#home" className="flex items-center gap-2 group">
               <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain shadow-md shadow-neon/10 group-hover:shadow-neon/20 transition-shadow" />
               <div className="flex flex-col">
-                <span className="font-bold text-base sm:text-lg leading-tight text-white">A-Star</span>
+                <span className="font-bold text-base sm:text-lg leading-tight text-foreground">A-Star</span>
                 <span className="text-[10px] sm:text-xs leading-tight font-medium tracking-wider uppercase text-neon">Infotech</span>
               </div>
             </a>
             <nav className="hidden md:flex items-center gap-1">
               {NAV_LINKS.map(link => (
-                <a key={link.href} href={link.href} className="px-3 lg:px-4 py-2 rounded-md text-sm font-medium text-white/70 hover:text-white hover:bg-neon/10 transition-colors">{link.label}</a>
+                <a key={link.href} href={link.href} className="px-3 lg:px-4 py-2 rounded-md text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-neon/10 transition-colors">{link.label}</a>
               ))}
               <a href="#contact"><Button size="sm" className="ml-2 glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30">Get a Quote</Button></a>
+              {mounted && (
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-lg hover:bg-neon/10 transition-colors ml-1"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'dark' ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
+                </button>
+              )}
             </nav>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-md text-white hover:bg-neon/10 transition-colors" aria-label="Toggle menu">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-md text-foreground hover:bg-neon/10 transition-colors" aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ type: 'tween', duration: 0.3 }} className="fixed inset-0 z-[60] md:hidden bg-[#06060f]/98 backdrop-blur-xl flex flex-col">
-              <div className="flex items-center justify-between px-4 sm:px-6 h-16 sm:h-20 border-b border-neon/10">
+            <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ type: 'tween', duration: 0.3 }} className="fixed inset-0 z-[60] md:hidden bg-background/98 backdrop-blur-xl flex flex-col">
+              <div className="flex items-center justify-between px-4 sm:px-6 h-16 sm:h-20 border-b border-border">
                 <a href="#home" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
                   <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 rounded-lg object-contain" />
-                  <div className="flex flex-col"><span className="font-bold text-base leading-tight text-white">A-Star</span><span className="text-[10px] leading-tight font-medium tracking-wider uppercase text-neon">Infotech</span></div>
+                  <div className="flex flex-col"><span className="font-bold text-base leading-tight text-foreground">A-Star</span><span className="text-[10px] leading-tight font-medium tracking-wider uppercase text-neon">Infotech</span></div>
                 </a>
-                <button onClick={() => setMobileMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-white hover:bg-neon/10 transition-colors" aria-label="Close menu">
+                <button onClick={() => setMobileMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-foreground hover:bg-neon/10 transition-colors" aria-label="Close menu">
                   <X className="w-6 h-6" />
                 </button>
               </div>
               <nav className="flex-1 flex flex-col justify-center px-6">
                 <div className="space-y-2">
-                  {NAV_LINKS.map(link => <a key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block px-5 py-3.5 rounded-lg text-white text-lg font-medium hover:bg-neon/10 hover:text-neon transition-colors min-h-[44px] flex items-center">{link.label}</a>)}
+                  {NAV_LINKS.map(link => <a key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block px-5 py-3.5 rounded-lg text-foreground text-lg font-medium hover:bg-neon/10 hover:text-neon transition-colors min-h-[44px] flex items-center">{link.label}</a>)}
                 </div>
                 <div className="mt-8">
                   <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-12 text-base">Get a Quote</Button></a>
+                  {mounted && (
+                    <button
+                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                      className="w-full mt-3 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light Mode</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark Mode</span></>}
+                    </button>
+                  )}
                 </div>
               </nav>
             </motion.div>
@@ -851,12 +886,12 @@ export default function Home() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-[#06060f]">
+      <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-background">
         {/* Coding computer background image */}
         <div className="absolute inset-0">
           <img src="/coding-bg.png" alt="" className="w-full h-full object-cover object-center hero-bg-image" aria-hidden="true" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#06060f] via-[#06060f]/95 sm:via-[#06060fee] to-[#06060f]/80 sm:to-[#06060faa]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/40 sm:via-transparent to-[#06060f]/90 sm:to-[#06060fcc]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 sm:via-background/[0.93] to-background/80 sm:to-background/[0.67]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 sm:via-transparent to-background/90 sm:to-background/80" />
         </div>
         <div className="absolute inset-0 hero-grid" />
         <div className="absolute inset-0 scanline-overlay" />
@@ -867,21 +902,21 @@ export default function Home() {
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />Building Smart Websites for Growing Businesses</Badge>
             </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
               Transform Your <span className="gradient-text">Digital Presence</span> With Us
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/60 max-w-2xl leading-relaxed">
+            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/60 max-w-2xl leading-relaxed">
               We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25">Start Your Project<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
-              <a href="#portfolio"><Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
+              <a href="#portfolio"><Button size="lg" variant="outline" className="border-foreground/20 text-foreground bg-foreground/5 hover:bg-foreground/10 hover:text-foreground hover:border-foreground/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-10 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 sm:gap-8">
               {statItems.map(stat => (
                 <div key={stat.label} className="text-center sm:text-left">
                   <div className="text-xl sm:text-2xl md:text-3xl font-bold text-neon animate-neon-pulse">{stat.value}</div>
-                  <div className="text-[11px] sm:text-xs md:text-sm text-white/40 mt-0.5 sm:mt-1">{stat.label}</div>
+                  <div className="text-[11px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -897,7 +932,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── About ─── */}
-      <AnimatedSection id="about" className="py-16 sm:py-20 md:py-28 bg-[#06060f] grid-bg">
+      <AnimatedSection id="about" className="py-16 sm:py-20 md:py-28 bg-background grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <div className="relative">
@@ -931,7 +966,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Services ─── */}
-      <AnimatedSection id="services" className="py-16 sm:py-20 md:py-28 bg-[#0d0d1a]">
+      <AnimatedSection id="services" className="py-16 sm:py-20 md:py-28 bg-dark-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge>
@@ -943,9 +978,9 @@ export default function Home() {
               const IconComp = ICON_MAP[service.icon] || Globe
               return (
                 <motion.div key={service.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                  <Card className="group h-full glass-card neon-border border-neon/10">
+                  <Card className="group h-full glass-card neon-border border-border">
                     <CardContent className="p-4 sm:p-6 md:p-8">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform border border-neon/10`}>
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform border border-border`}>
                         <IconComp className={`w-5 h-5 sm:w-6 sm:h-6 ${service.color}`} />
                       </div>
                       <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">{service.title}</h3>
@@ -963,7 +998,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Why Choose Us ─── */}
-      <AnimatedSection className="py-16 sm:py-20 md:py-28 bg-[#06060f] hex-pattern">
+      <AnimatedSection className="py-16 sm:py-20 md:py-28 bg-background hex-pattern">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <div>
@@ -990,7 +1025,7 @@ export default function Home() {
                   ].map((item, idx) => (
                     <div key={item.label}>
                       <div className="flex justify-between text-xs sm:text-sm mb-2"><span className="font-medium text-foreground">{item.label}</span><span className="text-neon font-semibold">{item.value}%</span></div>
-                      <div className="h-2 sm:h-2.5 bg-[#111128] rounded-full overflow-hidden border border-neon/5">
+                      <div className="h-2 sm:h-2.5 bg-dark-card rounded-full overflow-hidden border border-border">
                         <motion.div initial={{ width: 0 }} whileInView={{ width: `${item.value}%` }} viewport={{ once: true }} transition={{ delay: 0.3 + idx * 0.15, duration: 0.8, ease: 'easeOut' }} className="h-full bg-gradient-to-r from-neon to-cyan-400 rounded-full" />
                       </div>
                     </div>
@@ -1006,7 +1041,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Portfolio ─── */}
-      <AnimatedSection id="portfolio" className="py-16 sm:py-20 md:py-28 bg-[#0d0d1a]">
+      <AnimatedSection id="portfolio" className="py-16 sm:py-20 md:py-28 bg-dark-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Portfolio</Badge>
@@ -1016,12 +1051,12 @@ export default function Home() {
           <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {portfolioItems.map((project, idx) => (
               <motion.div key={project.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                <Card className="group overflow-hidden glass-card neon-border border-neon/10 h-full">
+                <Card className="group overflow-hidden glass-card neon-border border-border h-full">
                   <div className="h-36 sm:h-48 relative overflow-hidden">
                     <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                     <div className="absolute top-3 right-3 sm:top-4 sm:right-4"><Badge className="bg-neon/20 text-neon border-neon/30 backdrop-blur-sm text-xs">{project.category}</Badge></div>
-                    <h3 className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 text-base sm:text-xl font-bold text-white z-10">{project.title}</h3>
+                    <h3 className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 text-base sm:text-xl font-bold text-foreground z-10">{project.title}</h3>
                   </div>
                   <CardContent className="p-4 sm:p-6">
                     <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{project.description}</p>
@@ -1042,7 +1077,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Testimonials ─── */}
-      <AnimatedSection id="testimonials" className="py-16 sm:py-20 md:py-28 bg-[#06060f]">
+      <AnimatedSection id="testimonials" className="py-16 sm:py-20 md:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Testimonials</Badge>
@@ -1052,7 +1087,7 @@ export default function Home() {
           <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {testimonialItems.map((testimonial, idx) => (
               <motion.div key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                <Card className="h-full glass-card neon-border border-neon/10">
+                <Card className="h-full glass-card neon-border border-border">
                   <CardContent className="p-4 sm:p-6">
                     <div className="flex gap-0.5 mb-3 sm:mb-4">{Array.from({ length: testimonial.rating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />)}</div>
                     <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm md:text-base italic">&ldquo;{testimonial.review}&rdquo;</p>
@@ -1069,18 +1104,18 @@ export default function Home() {
       </AnimatedSection>
 
       {/* ─── CTA Banner ─── */}
-      <AnimatedSection className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-[#0d0d1a]">
+      <AnimatedSection className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-dark-surface">
         <div className="absolute inset-0 hero-grid opacity-50" />
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-48 sm:w-64 h-48 sm:h-64 bg-neon/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-36 sm:w-48 h-36 sm:h-48 bg-amber-500/5 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Ready to Take Your Business Online?</h2>
-          <p className="mt-3 sm:mt-4 text-white/60 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Ready to Take Your Business Online?</h2>
+          <p className="mt-3 sm:mt-4 text-foreground/60 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
             <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25 min-h-[44px]">Get Free Consultation<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
-            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm min-h-[44px]"><MessageCircle className="mr-2 w-4 sm:w-5 h-4 sm:h-5" />Chat on WhatsApp</Button></a>
+            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="border-foreground/20 text-foreground bg-foreground/5 hover:bg-foreground/10 hover:text-foreground hover:border-foreground/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm min-h-[44px]"><MessageCircle className="mr-2 w-4 sm:w-5 h-4 sm:h-5" />Chat on WhatsApp</Button></a>
           </div>
         </div>
       </AnimatedSection>
@@ -1088,7 +1123,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Contact ─── */}
-      <AnimatedSection id="contact" className="py-16 sm:py-20 md:py-28 bg-[#06060f] grid-bg">
+      <AnimatedSection id="contact" className="py-16 sm:py-20 md:py-28 bg-background grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Contact Us</Badge>
@@ -1134,7 +1169,7 @@ export default function Home() {
                 </CardContent>
               </Card>
               <Card className="glass-card border-neon/20 overflow-hidden">
-                <div className="h-36 sm:h-48 bg-[#0d0d1a] flex items-center justify-center border border-neon/10">
+                <div className="h-36 sm:h-48 bg-dark-surface flex items-center justify-center border border-border">
                   <div className="text-center"><MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-neon/40 mx-auto" /><p className="text-xs sm:text-sm text-neon mt-2 font-medium">A-Star Infotech</p><p className="text-[11px] sm:text-xs text-muted-foreground">Jaipur, Rajasthan</p></div>
                 </div>
               </Card>
@@ -1155,7 +1190,7 @@ export default function Home() {
       </AnimatedSection>
 
       {/* ─── Footer ─── */}
-      <footer className="bg-[#06060f] border-t border-neon/10 mt-auto">
+      <footer className="bg-background border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
           <div className="py-12 sm:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
             {/* Company Info */}
@@ -1163,25 +1198,25 @@ export default function Home() {
               <div className="flex items-center gap-2.5 mb-5">
                 <img src="/logo.png" alt="A-Star Infotech Logo" className="w-10 h-10 rounded-lg object-contain" />
                 <div>
-                  <div className="font-bold text-white text-lg leading-tight">A-Star</div>
+                  <div className="font-bold text-foreground text-lg leading-tight">A-Star</div>
                   <div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div>
                 </div>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
               <div className="mt-5 flex gap-3">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
+                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
               </div>
             </div>
             {/* Quick Links */}
             <div>
-              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+              <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
               <ul className="space-y-3">
                 {NAV_LINKS.map(link => (
                   <li key={link.href}>
-                    <a href={link.href} className="text-sm text-white/40 hover:text-neon transition-colors inline-flex items-center gap-2 group">
+                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {link.label}
                     </a>
@@ -1191,11 +1226,11 @@ export default function Home() {
             </div>
             {/* Our Services */}
             <div>
-              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Our Services</h4>
+              <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Our Services</h4>
               <ul className="space-y-3">
                 {services.map(s => (
                   <li key={s.title}>
-                    <a href="#services" className="text-sm text-white/40 hover:text-neon transition-colors inline-flex items-center gap-2 group">
+                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {s.title}
                     </a>
@@ -1205,35 +1240,35 @@ export default function Home() {
             </div>
             {/* Contact Info */}
             <div className="sm:col-span-2 lg:col-span-1">
-              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+              <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-neon/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5">
                     <MapPin className="w-3.5 h-3.5 text-neon/60" />
                   </div>
-                  <span className="text-sm text-white/40 leading-relaxed pt-1">{siteSettings.address}</span>
+                  <span className="text-sm text-muted-foreground leading-relaxed pt-1">{siteSettings.address}</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-neon/10 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
                     <Phone className="w-3.5 h-3.5 text-neon/60" />
                   </div>
-                  <a href={`tel:${siteSettings.phone}`} className="text-sm text-white/40 hover:text-neon transition-colors pt-0.5">{siteSettings.phone}</a>
+                  <a href={`tel:${siteSettings.phone}`} className="text-sm text-muted-foreground hover:text-neon transition-colors pt-0.5">{siteSettings.phone}</a>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-neon/10 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
                     <Mail className="w-3.5 h-3.5 text-neon/60" />
                   </div>
-                  <a href={`mailto:${siteSettings.email}`} className="text-sm text-white/40 hover:text-neon transition-colors break-all">{siteSettings.email}</a>
+                  <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
                 </li>
               </ul>
             </div>
           </div>
           {/* Bottom Bar */}
-          <div className="border-t border-neon/10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-white/30">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
-            <div className="flex gap-6 text-sm text-white/30">
+          <div className="border-t border-border py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground/70">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
+            <div className="flex gap-6 text-sm text-muted-foreground/70">
               <a href="#" className="hover:text-neon transition-colors">Privacy Policy</a>
-              <span className="text-white/10">|</span>
+              <span className="text-foreground/10">|</span>
               <a href="#" className="hover:text-neon transition-colors">Terms of Service</a>
             </div>
           </div>

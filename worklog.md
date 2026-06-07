@@ -294,3 +294,50 @@ Stage Summary:
 - No functionality or content changed
 - ESLint passes with no errors
 - All APIs returning 200
+
+---
+Task ID: 5
+Agent: Theme Toggle Agent
+Task: Implement dark/light mode toggle for the entire website including admin panel
+
+Work Log:
+- Read worklog.md to understand previous agents' work
+- Created ThemeProvider component at /src/components/theme-provider.tsx wrapping next-themes
+- Updated layout.tsx: added ThemeProvider wrapper with attribute="class", defaultTheme="dark", enableSystem, disableTransitionOnChange; added className="dark" to html tag
+- Completely rewrote globals.css CSS variable system:
+  - Split :root into light mode values (near-white backgrounds, dark text, emerald/teal primary)
+  - Moved dark theme values to .dark selector (keeping exact same dark futuristic look)
+  - Added light mode versions for all custom properties: --neon, --neon-dim, --neon-glow, --dark-bg, --dark-surface, --dark-card, --dark-border
+  - Updated all CSS utility classes for dual mode: glass-card, neon-border, grid-bg, hero-grid, gradient-text, futuristic-input, glow-button, section-divider, scanline-overlay, hex-pattern
+  - Updated scrollbar colors to use CSS variables
+  - Updated mobile-specific CSS for both light and dark modes
+- Systematically replaced all hardcoded dark-mode-only colors in page.tsx:
+  - Background: bg-[#06060f] → bg-background (11 instances), bg-[#0d0d1a] → bg-dark-surface (11 instances), bg-[#111128] → bg-dark-card (6 instances)
+  - Text: text-white → text-foreground (header, hero, CTA, footer), text-white/70 → text-foreground/70, text-white/60 → text-foreground/60, text-white/50 → text-muted-foreground, text-white/40 → text-muted-foreground, text-white/30 → text-muted-foreground/70, text-white/10 → text-foreground/10
+  - Borders: border-neon/10 → border-border (all structural borders), border-neon/5 → border-border
+  - Gradient overlays: from-[#06060f] → from-background, via-[#06060f] → via-background, to-[#06060f] → to-background
+  - Button outlines: border-white/20 → border-foreground/20, bg-white/5 → bg-foreground/5, hover:bg-white/10 → hover:bg-foreground/10
+  - Admin panel: all backgrounds, borders, and structural colors updated
+  - Dialog backgrounds: bg-dark-surface with semantic variable
+  - Preserved: text-white on colored backgrounds (amber CTA buttons, portfolio gradient overlays, brand color checkmarks, WhatsApp button)
+- Added theme toggle buttons:
+  - Desktop nav: Sun/Moon icon button next to "Get a Quote" button
+  - Mobile menu: Full-width "Light Mode"/"Dark Mode" button with icon and label below "Get a Quote"
+  - Admin sidebar footer: "Light Mode"/"Dark Mode" button with icon above "Logout"
+  - All toggle buttons use mounted state to prevent hydration mismatch
+  - Toggle uses useTheme() from next-themes
+- Added imports: Sun, Moon from lucide-react; useTheme from next-themes
+- Added state: useTheme() + mounted state in both Home and AdminPanel components
+- Verified: ESLint passes with no errors
+- Verified: Page loads with 200 status code
+- Verified: Dev server running with no compilation errors
+
+Stage Summary:
+- Implemented complete dark/light mode toggle system using next-themes
+- Dark mode looks identical to the previous hardcoded dark theme
+- Light mode uses clean white backgrounds, dark text, emerald/teal accents, subtle shadows
+- All CSS utility classes (glass-card, neon-border, gradient-text, etc.) adapt to both modes
+- Theme toggle accessible from: desktop header, mobile menu, admin sidebar
+- All custom CSS properties are theme-aware via CSS variables
+- No functionality or content changed
+- Default theme is dark (matching the existing design)

@@ -61,6 +61,7 @@
   --color-dark-border: var(--dark-border);
 }
 
+/* ── Light Mode (default) ── */
 :root {
   --radius: 0.625rem;
   /* Brand color defaults (cyan/teal neon) - overridden by JS at runtime */
@@ -75,49 +76,50 @@
   --brand-800: #155e75;
   --brand-900: #164e63;
   --brand-950: #083344;
-  /* Neon accent colors */
-  --neon: #06d6a0;
-  --neon-dim: #06d6a033;
-  --neon-glow: #06d6a066;
-  /* Dark theme surfaces */
-  --dark-bg: #06060f;
-  --dark-surface: #0d0d1a;
-  --dark-card: #111128;
-  --dark-border: #1e1e3a;
-  /* shadcn vars for dark futuristic look */
-  --background: oklch(0.08 0.02 270);
-  --foreground: oklch(0.93 0.01 250);
-  --card: oklch(0.12 0.02 270);
-  --card-foreground: oklch(0.93 0.01 250);
-  --popover: oklch(0.12 0.02 270);
-  --popover-foreground: oklch(0.93 0.01 250);
-  --primary: oklch(0.72 0.18 180);
-  --primary-foreground: oklch(0.08 0.02 270);
-  --secondary: oklch(0.18 0.03 270);
-  --secondary-foreground: oklch(0.93 0.01 250);
-  --muted: oklch(0.18 0.03 270);
-  --muted-foreground: oklch(0.6 0.03 250);
-  --accent: oklch(0.72 0.18 180);
-  --accent-foreground: oklch(0.08 0.02 270);
+  /* Neon accent - slightly deeper for light mode visibility */
+  --neon: #059669;
+  --neon-dim: #05966933;
+  --neon-glow: #05966944;
+  /* Light theme surfaces */
+  --dark-bg: #ffffff;
+  --dark-surface: #f8fafc;
+  --dark-card: #ffffff;
+  --dark-border: #e2e8f0;
+  /* shadcn vars for light mode */
+  --background: oklch(0.98 0.005 250);
+  --foreground: oklch(0.13 0.02 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.02 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.02 270);
+  --primary: oklch(0.55 0.15 160);
+  --primary-foreground: oklch(0.98 0.005 250);
+  --secondary: oklch(0.96 0.01 250);
+  --secondary-foreground: oklch(0.13 0.02 270);
+  --muted: oklch(0.96 0.01 250);
+  --muted-foreground: oklch(0.5 0.02 250);
+  --accent: oklch(0.55 0.15 160);
+  --accent-foreground: oklch(0.98 0.005 250);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.22 0.03 270);
-  --input: oklch(0.22 0.03 270);
-  --ring: oklch(0.72 0.18 180);
-  --chart-1: oklch(0.72 0.18 180);
-  --chart-2: oklch(0.8 0.15 85);
-  --chart-3: oklch(0.65 0.22 41);
-  --chart-4: oklch(0.6 0.18 300);
-  --chart-5: oklch(0.77 0.15 70);
-  --sidebar: oklch(0.1 0.02 270);
-  --sidebar-foreground: oklch(0.93 0.01 250);
-  --sidebar-primary: oklch(0.72 0.18 180);
-  --sidebar-primary-foreground: oklch(0.08 0.02 270);
-  --sidebar-accent: oklch(0.18 0.03 270);
-  --sidebar-accent-foreground: oklch(0.93 0.01 250);
-  --sidebar-border: oklch(0.22 0.03 270);
-  --sidebar-ring: oklch(0.72 0.18 180);
+  --border: oklch(0.88 0.01 250);
+  --input: oklch(0.88 0.01 250);
+  --ring: oklch(0.55 0.15 160);
+  --chart-1: oklch(0.55 0.15 160);
+  --chart-2: oklch(0.6 0.15 85);
+  --chart-3: oklch(0.55 0.2 41);
+  --chart-4: oklch(0.55 0.18 300);
+  --chart-5: oklch(0.65 0.15 70);
+  --sidebar: oklch(0.98 0.005 250);
+  --sidebar-foreground: oklch(0.13 0.02 270);
+  --sidebar-primary: oklch(0.55 0.15 160);
+  --sidebar-primary-foreground: oklch(0.98 0.005 250);
+  --sidebar-accent: oklch(0.96 0.01 250);
+  --sidebar-accent-foreground: oklch(0.13 0.02 270);
+  --sidebar-border: oklch(0.88 0.01 250);
+  --sidebar-ring: oklch(0.55 0.15 160);
 }
 
+/* ── Dark Mode ── */
 .dark {
   --background: oklch(0.08 0.02 270);
   --foreground: oklch(0.93 0.01 250);
@@ -131,7 +133,7 @@
   --secondary-foreground: oklch(0.93 0.01 250);
   --muted: oklch(0.18 0.03 270);
   --muted-foreground: oklch(0.6 0.03 250);
-  --accent: oklch(0.8 0.15 85);
+  --accent: oklch(0.72 0.18 180);
   --accent-foreground: oklch(0.08 0.02 270);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.22 0.03 270);
@@ -150,6 +152,27 @@
   --sidebar-accent-foreground: oklch(0.93 0.01 250);
   --sidebar-border: oklch(0.22 0.03 270);
   --sidebar-ring: oklch(0.72 0.18 180);
+  /* Brand colors - same palette for both modes */
+  --brand-50: #ecfeff;
+  --brand-100: #cffafe;
+  --brand-200: #a5f3fc;
+  --brand-300: #67e8f9;
+  --brand-400: #22d3ee;
+  --brand-500: #06b6d4;
+  --brand-600: #0891b2;
+  --brand-700: #0e7490;
+  --brand-800: #155e75;
+  --brand-900: #164e63;
+  --brand-950: #083344;
+  /* Neon accent colors - vivid for dark mode */
+  --neon: #06d6a0;
+  --neon-dim: #06d6a033;
+  --neon-glow: #06d6a066;
+  /* Dark theme surfaces */
+  --dark-bg: #06060f;
+  --dark-surface: #0d0d1a;
+  --dark-card: #111128;
+  --dark-border: #1e1e3a;
 }
 
 @layer base {
@@ -161,22 +184,22 @@
   }
 }
 
-/* Custom scrollbar - futuristic dark theme */
+/* Custom scrollbar - dual mode */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d0d1a;
+  background: var(--dark-surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e1e3a;
+  background: var(--dark-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #06d6a044;
+  background: var(--neon-dim);
 }
 
 /* Smooth scrolling */
@@ -284,16 +307,27 @@ html {
   animation: neon-pulse 3s ease-in-out infinite;
 }
 
-/* ── Glass Card ── */
+/* ── Glass Card - Light Mode ── */
 .glass-card {
-  background: rgba(17, 17, 40, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(6, 214, 160, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
+  border-color: rgba(5, 150, 105, 0.3);
+  box-shadow: 0 0 20px rgba(5, 150, 105, 0.06), inset 0 1px 0 rgba(5, 150, 105, 0.1);
+}
+
+/* ── Glass Card - Dark Mode ── */
+.dark .glass-card {
+  background: rgba(17, 17, 40, 0.6);
+  border: 1px solid rgba(6, 214, 160, 0.1);
+}
+
+.dark .glass-card:hover {
   border-color: rgba(6, 214, 160, 0.3);
   box-shadow: 0 0 30px rgba(6, 214, 160, 0.08), inset 0 1px 0 rgba(6, 214, 160, 0.1);
 }
@@ -309,7 +343,7 @@ html {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(6, 214, 160, 0.4), transparent 40%, transparent 60%, rgba(6, 182, 212, 0.4));
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.4), transparent 40%, transparent 60%, rgba(6, 182, 212, 0.4));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -318,30 +352,56 @@ html {
   transition: opacity 0.4s ease;
 }
 
+.dark .neon-border::before {
+  background: linear-gradient(135deg, rgba(6, 214, 160, 0.4), transparent 40%, transparent 60%, rgba(6, 182, 212, 0.4));
+}
+
 .neon-border:hover::before {
   opacity: 1;
 }
 
-/* ── Grid background ── */
+/* ── Grid background - Light Mode ── */
 .grid-bg {
   background-image:
-    linear-gradient(rgba(6, 214, 160, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6, 214, 160, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(5, 150, 105, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5, 150, 105, 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
-/* ── Animated grid background for hero ── */
+/* ── Grid background - Dark Mode ── */
+.dark .grid-bg {
+  background-image:
+    linear-gradient(rgba(6, 214, 160, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 214, 160, 0.03) 1px, transparent 1px);
+}
+
+/* ── Animated grid background for hero - Light Mode ── */
 .hero-grid {
   background-image:
-    linear-gradient(rgba(6, 214, 160, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6, 214, 160, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(5, 150, 105, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5, 150, 105, 0.06) 1px, transparent 1px);
   background-size: 80px 80px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
 }
 
-/* ── Gradient text ── */
+/* ── Animated grid background for hero - Dark Mode ── */
+.dark .hero-grid {
+  background-image:
+    linear-gradient(rgba(6, 214, 160, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 214, 160, 0.06) 1px, transparent 1px);
+}
+
+/* ── Gradient text - Light Mode ── */
 .gradient-text {
+  background: linear-gradient(135deg, #059669, #0891b2, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Gradient text - Dark Mode ── */
+.dark .gradient-text {
   background: linear-gradient(135deg, #06d6a0, #06b6d4, #22d3ee);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -355,20 +415,31 @@ html {
   background-clip: text;
 }
 
-/* ── Futuristic input styling ── */
+/* ── Futuristic input styling - Light Mode ── */
 .futuristic-input {
-  background: rgba(17, 17, 40, 0.5);
-  border: 1px solid rgba(6, 214, 160, 0.15);
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(5, 150, 105, 0.15);
   transition: all 0.3s ease;
 }
 
 .futuristic-input:focus {
-  border-color: rgba(6, 214, 160, 0.5);
-  box-shadow: 0 0 20px rgba(6, 214, 160, 0.1);
+  border-color: rgba(5, 150, 105, 0.5);
+  box-shadow: 0 0 15px rgba(5, 150, 105, 0.08);
   outline: none;
 }
 
-/* ── Glowing button ── */
+/* ── Futuristic input styling - Dark Mode ── */
+.dark .futuristic-input {
+  background: rgba(17, 17, 40, 0.5);
+  border: 1px solid rgba(6, 214, 160, 0.15);
+}
+
+.dark .futuristic-input:focus {
+  border-color: rgba(6, 214, 160, 0.5);
+  box-shadow: 0 0 20px rgba(6, 214, 160, 0.1);
+}
+
+/* ── Glowing button - Light Mode ── */
 .glow-button {
   position: relative;
   overflow: hidden;
@@ -379,7 +450,7 @@ html {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), transparent);
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.15), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -389,20 +460,45 @@ html {
 }
 
 .glow-button:hover {
+  box-shadow: 0 0 20px rgba(5, 150, 105, 0.2), 0 0 40px rgba(5, 150, 105, 0.06);
+}
+
+/* ── Glowing button - Dark Mode ── */
+.dark .glow-button::before {
+  background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), transparent);
+}
+
+.dark .glow-button:hover {
   box-shadow: 0 0 30px rgba(6, 214, 160, 0.3), 0 0 60px rgba(6, 214, 160, 0.1);
 }
 
-/* ── Section divider ── */
+/* ── Section divider - Light Mode ── */
 .section-divider {
   height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(5, 150, 105, 0.25), transparent);
+}
+
+/* ── Section divider - Dark Mode ── */
+.dark .section-divider {
   background: linear-gradient(90deg, transparent, rgba(6, 214, 160, 0.3), transparent);
 }
 
-/* ── Scanline overlay for hero ── */
+/* ── Scanline overlay for hero - Light Mode ── */
 .scanline-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(5, 150, 105, 0.008) 2px,
+    rgba(5, 150, 105, 0.008) 4px
+  );
+}
+
+/* ── Scanline overlay for hero - Dark Mode ── */
+.dark .scanline-overlay {
   background: repeating-linear-gradient(
     0deg,
     transparent,
@@ -412,8 +508,13 @@ html {
   );
 }
 
-/* ── Hex pattern background ── */
+/* ── Hex pattern background - Light Mode ── */
 .hex-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 20 L55 40 L30 55 L5 40 L5 20 Z' fill='none' stroke='rgba(5,150,105,0.06)' stroke-width='0.5'/%3E%3C/svg%3E");
+}
+
+/* ── Hex pattern background - Dark Mode ── */
+.dark .hex-pattern {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 20 L55 40 L30 55 L5 40 L5 20 Z' fill='none' stroke='rgba(6,214,160,0.04)' stroke-width='0.5'/%3E%3C/svg%3E");
 }
 
@@ -450,6 +551,10 @@ html {
 
   /* Reduce neon glow effects on mobile for performance */
   .glow-button:hover {
+    box-shadow: 0 0 15px rgba(5, 150, 105, 0.15), 0 0 30px rgba(5, 150, 105, 0.04);
+  }
+
+  .dark .glow-button:hover {
     box-shadow: 0 0 15px rgba(6, 214, 160, 0.2), 0 0 30px rgba(6, 214, 160, 0.05);
   }
 
@@ -466,6 +571,16 @@ html {
 
   /* Ensure scanlines are very subtle on mobile */
   .scanline-overlay {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(5, 150, 105, 0.005) 3px,
+      rgba(5, 150, 105, 0.005) 6px
+    );
+  }
+
+  .dark .scanline-overlay {
     background: repeating-linear-gradient(
       0deg,
       transparent,
