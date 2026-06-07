@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 
 export async function GET() {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
       },
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, portfolio: item }, { status: 201 })
   } catch (error) {
     console.error('Create portfolio error:', error)
@@ -68,6 +70,7 @@ export async function PUT(request: Request) {
       },
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, portfolio: item })
   } catch (error) {
     console.error('Update portfolio error:', error)
@@ -85,6 +88,7 @@ export async function DELETE(request: Request) {
     }
 
     await db.portfolio.delete({ where: { id } })
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, message: 'Portfolio item deleted.' })
   } catch (error) {
     console.error('Delete portfolio error:', error)

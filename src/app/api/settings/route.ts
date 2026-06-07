@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 
 export async function GET() {
@@ -34,6 +35,7 @@ export async function PUT(request: Request) {
       results.push(result)
     }
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, updated: results.length })
   } catch (error) {
     console.error('Update settings error:', error)

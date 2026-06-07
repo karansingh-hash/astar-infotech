@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 
 export async function GET() {
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
       },
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, stat }, { status: 201 })
   } catch (error) {
     console.error('Create stat error:', error)
@@ -60,6 +62,7 @@ export async function PUT(request: Request) {
       },
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, stat })
   } catch (error) {
     console.error('Update stat error:', error)
@@ -77,6 +80,7 @@ export async function DELETE(request: Request) {
     }
 
     await db.stat.delete({ where: { id } })
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, message: 'Stat deleted.' })
   } catch (error) {
     console.error('Delete stat error:', error)

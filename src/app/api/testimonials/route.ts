@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 
 export async function GET() {
@@ -32,6 +33,7 @@ export async function POST(request: Request) {
       },
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, testimonial }, { status: 201 })
   } catch (error) {
     console.error('Create testimonial error:', error)
@@ -64,6 +66,7 @@ export async function PUT(request: Request) {
       },
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, testimonial })
   } catch (error) {
     console.error('Update testimonial error:', error)
@@ -81,6 +84,7 @@ export async function DELETE(request: Request) {
     }
 
     await db.testimonial.delete({ where: { id } })
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, message: 'Testimonial deleted.' })
   } catch (error) {
     console.error('Delete testimonial error:', error)

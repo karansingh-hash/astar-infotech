@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 
 /**
@@ -72,6 +73,7 @@ export async function DELETE(request: Request) {
 
     await db.contact.delete({ where: { id } })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({
       success: true,
       message: 'Contact deleted successfully.',

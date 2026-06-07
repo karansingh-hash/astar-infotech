@@ -57,7 +57,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -278,7 +278,6 @@ const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = 
 ]
 
 function AdminPanel() {
-  const { toast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -362,12 +361,12 @@ function AdminPanel() {
         setIsAuthenticated(true)
         sessionStorage.setItem('admin_auth', 'true')
         setPassword('')
-        toast({ title: 'Login Successful', description: 'Welcome to the Admin Panel!' })
+        toast.success('Login Successful', { description: 'Welcome to the Admin Panel!' })
       } else {
-        toast({ title: 'Login Failed', description: data.error || 'Invalid password.', variant: 'destructive' })
+        toast.error('Login Failed', { description: data.error || 'Invalid password.' })
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to connect to server.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to connect to server.' })
     } finally {
       setAuthLoading(false)
     }
@@ -385,7 +384,7 @@ function AdminPanel() {
     setTestimonials([])
     setStats([])
     setDashboard(null)
-    toast({ title: 'Logged Out', description: 'You have been logged out successfully.' })
+    toast.success('Logged Out', { description: 'You have been logged out successfully.' })
   }
 
   // ─── Fetch Functions ───
@@ -396,7 +395,7 @@ function AdminPanel() {
       const data = await res.json()
       setDashboard(data)
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch dashboard data.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch dashboard data.' })
     } finally {
       setDashboardLoading(false)
     }
@@ -409,7 +408,7 @@ function AdminPanel() {
       const data = await res.json()
       setContacts(data.contacts || [])
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch contacts.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch contacts.' })
     } finally {
       setContactsLoading(false)
     }
@@ -422,7 +421,7 @@ function AdminPanel() {
       const data = await res.json()
       setServices(data.services || [])
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch services.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch services.' })
     } finally {
       setServicesLoading(false)
     }
@@ -435,7 +434,7 @@ function AdminPanel() {
       const data = await res.json()
       setPortfolio(data.portfolio || [])
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch portfolio.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch portfolio.' })
     } finally {
       setPortfolioLoading(false)
     }
@@ -448,7 +447,7 @@ function AdminPanel() {
       const data = await res.json()
       setTestimonials(data.testimonials || [])
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch testimonials.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch testimonials.' })
     } finally {
       setTestimonialsLoading(false)
     }
@@ -461,7 +460,7 @@ function AdminPanel() {
       const data = await res.json()
       setStats(data.stats || [])
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch stats.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch stats.' })
     } finally {
       setStatsLoading(false)
     }
@@ -482,7 +481,7 @@ function AdminPanel() {
         })
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch settings.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to fetch settings.' })
     } finally {
       setSettingsLoading(false)
     }
@@ -499,13 +498,13 @@ function AdminPanel() {
       })
       if (res.ok) {
         setContacts((prev) => prev.filter((c) => c.id !== id))
-        toast({ title: 'Deleted', description: 'Contact has been deleted.' })
+        toast.success('Deleted', { description: 'Contact has been deleted.' })
       } else {
         const data = await res.json()
-        toast({ title: 'Error', description: data.error || 'Failed to delete.', variant: 'destructive' })
+        toast.error('Error', { description: data.error || 'Failed to delete.' })
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to delete contact.', variant: 'destructive' })
+      toast.error('Error', { description: 'Failed to delete contact.' })
     } finally {
       setDeletingId(null)
     }
@@ -539,15 +538,15 @@ function AdminPanel() {
     try {
       if (serviceDialog.mode === 'add') {
         await apiCall('/api/services', 'POST', serviceForm)
-        toast({ title: 'Service Added', description: 'New service has been created.' })
+        toast.success('Service Added', { description: 'New service has been created.' })
       } else {
         await apiCall('/api/services', 'PUT', { id: serviceDialog.item?.id, ...serviceForm })
-        toast({ title: 'Service Updated', description: 'Service has been updated.' })
+        toast.success('Service Updated', { description: 'Service has been updated.' })
       }
       setServiceDialog({ open: false, mode: 'add', item: null })
       fetchServices()
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save service.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to save service.' })
     } finally {
       setSaving(false)
     }
@@ -558,9 +557,9 @@ function AdminPanel() {
     try {
       await apiCall('/api/services', 'DELETE', { id })
       setServices((prev) => prev.filter((s) => s.id !== id))
-      toast({ title: 'Deleted', description: 'Service has been deleted.' })
+      toast.success('Deleted', { description: 'Service has been deleted.' })
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to delete.' })
     } finally {
       setDeletingId(null)
     }
@@ -582,15 +581,15 @@ function AdminPanel() {
     try {
       if (portfolioDialog.mode === 'add') {
         await apiCall('/api/portfolio', 'POST', portfolioForm)
-        toast({ title: 'Portfolio Item Added', description: 'New portfolio item has been created.' })
+        toast.success('Portfolio Item Added', { description: 'New portfolio item has been created.' })
       } else {
         await apiCall('/api/portfolio', 'PUT', { id: portfolioDialog.item?.id, ...portfolioForm })
-        toast({ title: 'Portfolio Updated', description: 'Portfolio item has been updated.' })
+        toast.success('Portfolio Updated', { description: 'Portfolio item has been updated.' })
       }
       setPortfolioDialog({ open: false, mode: 'add', item: null })
       fetchPortfolio()
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save portfolio item.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to save portfolio item.' })
     } finally {
       setSaving(false)
     }
@@ -601,9 +600,9 @@ function AdminPanel() {
     try {
       await apiCall('/api/portfolio', 'DELETE', { id })
       setPortfolio((prev) => prev.filter((p) => p.id !== id))
-      toast({ title: 'Deleted', description: 'Portfolio item has been deleted.' })
+      toast.success('Deleted', { description: 'Portfolio item has been deleted.' })
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to delete.' })
     } finally {
       setDeletingId(null)
     }
@@ -625,15 +624,15 @@ function AdminPanel() {
     try {
       if (testimonialDialog.mode === 'add') {
         await apiCall('/api/testimonials', 'POST', testimonialForm)
-        toast({ title: 'Testimonial Added', description: 'New testimonial has been created.' })
+        toast.success('Testimonial Added', { description: 'New testimonial has been created.' })
       } else {
         await apiCall('/api/testimonials', 'PUT', { id: testimonialDialog.item?.id, ...testimonialForm })
-        toast({ title: 'Testimonial Updated', description: 'Testimonial has been updated.' })
+        toast.success('Testimonial Updated', { description: 'Testimonial has been updated.' })
       }
       setTestimonialDialog({ open: false, mode: 'add', item: null })
       fetchTestimonials()
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save testimonial.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to save testimonial.' })
     } finally {
       setSaving(false)
     }
@@ -644,9 +643,9 @@ function AdminPanel() {
     try {
       await apiCall('/api/testimonials', 'DELETE', { id })
       setTestimonials((prev) => prev.filter((t) => t.id !== id))
-      toast({ title: 'Deleted', description: 'Testimonial has been deleted.' })
+      toast.success('Deleted', { description: 'Testimonial has been deleted.' })
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to delete.' })
     } finally {
       setDeletingId(null)
     }
@@ -668,15 +667,15 @@ function AdminPanel() {
     try {
       if (statDialog.mode === 'add') {
         await apiCall('/api/stats', 'POST', statForm)
-        toast({ title: 'Stat Added', description: 'New stat has been created.' })
+        toast.success('Stat Added', { description: 'New stat has been created.' })
       } else {
         await apiCall('/api/stats', 'PUT', { id: statDialog.item?.id, ...statForm })
-        toast({ title: 'Stat Updated', description: 'Stat has been updated.' })
+        toast.success('Stat Updated', { description: 'Stat has been updated.' })
       }
       setStatDialog({ open: false, mode: 'add', item: null })
       fetchStats()
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save stat.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to save stat.' })
     } finally {
       setSaving(false)
     }
@@ -687,9 +686,9 @@ function AdminPanel() {
     try {
       await apiCall('/api/stats', 'DELETE', { id })
       setStats((prev) => prev.filter((s) => s.id !== id))
-      toast({ title: 'Deleted', description: 'Stat has been deleted.' })
+      toast.success('Deleted', { description: 'Stat has been deleted.' })
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to delete.' })
     } finally {
       setDeletingId(null)
     }
@@ -700,9 +699,9 @@ function AdminPanel() {
     setSaving(true)
     try {
       await apiCall('/api/settings', 'PUT', { settings: siteSettings })
-      toast({ title: 'Settings Saved', description: 'Business information has been updated.' })
+      toast.success('Settings Saved', { description: 'Business information has been updated.' })
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save settings.', variant: 'destructive' })
+      toast.error('Error', { description: err instanceof Error ? err.message : 'Failed to save settings.' })
     } finally {
       setSaving(false)
     }
@@ -1802,8 +1801,6 @@ export default function Home() {
     message: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
-
   // ── Dynamic data from database ──
   const [services, setServices] = useState(DEFAULT_SERVICES)
   const [portfolioItems, setPortfolioItems] = useState(DEFAULT_PORTFOLIO)
@@ -1918,8 +1915,7 @@ export default function Home() {
 
       const data = await res.json()
 
-      toast({
-        title: 'Message Sent Successfully!',
+      toast.success('Message Sent Successfully!', {
         description:
           "Thank you for reaching out! We've received your message and will get back to you within 24 hours. A confirmation email has been sent to your inbox.",
       })
@@ -1928,10 +1924,8 @@ export default function Home() {
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : 'Something went wrong'
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description: message,
-        variant: 'destructive',
       })
     } finally {
       setIsSubmitting(false)
