@@ -224,7 +224,7 @@ function AdminPanel() {
   )
 
   const triggerButton = (
-    <button onClick={() => setIsOpen(true)} className="fixed bottom-6 left-20 z-50 w-12 h-12 bg-[#111128] hover:bg-neon/20 border border-neon/30 text-neon rounded-full flex items-center justify-center shadow-lg shadow-neon/10 transition-all duration-300 hover:scale-110" aria-label="Admin Panel" title="Admin Panel">
+    <button onClick={() => setIsOpen(true)} className="fixed bottom-20 sm:bottom-6 left-6 z-50 w-12 h-12 bg-[#111128] hover:bg-neon/20 border border-neon/30 text-neon rounded-full flex items-center justify-center shadow-lg shadow-neon/10 transition-all duration-300 hover:scale-110" aria-label="Admin Panel" title="Admin Panel">
       <Lock className="w-5 h-5" />
     </button>
   )
@@ -394,12 +394,12 @@ function AdminPanel() {
                                 <span className="font-semibold text-foreground">{c.name}</span>
                                 {c.phone && <a href={`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-neon hover:text-neon/80 bg-neon/10 px-2 py-0.5 rounded-full"><MessageCircle className="w-3 h-3" />WhatsApp</a>}
                               </div>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-11">
+                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-0 sm:ml-11 flex-wrap">
                                 <span className="flex items-center gap-1"><MailCheck className="w-3.5 h-3.5" /><a href={`mailto:${c.email}`} className="hover:text-neon transition-colors">{c.email}</a></span>
                                 {c.phone && <span className="flex items-center gap-1"><PhoneCall className="w-3.5 h-3.5" />{c.phone}</span>}
                                 <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(c.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' })}</span>
                               </div>
-                              <p className="mt-3 text-sm text-foreground/80 bg-[#0d0d1a] rounded-lg p-3 ml-11 leading-relaxed border border-neon/5">{c.message}</p>
+                              <p className="mt-3 text-sm text-foreground/80 bg-[#0d0d1a] rounded-lg p-3 ml-0 sm:ml-11 leading-relaxed border border-neon/5">{c.message}</p>
                             </div>
                             <Button variant="ghost" size="sm" onClick={() => handleDeleteContact(c.id)} disabled={deletingId === c.id} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 shrink-0">
                               {deletingId === c.id ? <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <Trash2 className="w-4 h-4" />}
@@ -451,11 +451,11 @@ function AdminPanel() {
                     <div className="space-y-4 py-2">
                       <div className="space-y-2"><Label htmlFor="svc-title">Title</Label><Input id="svc-title" value={serviceForm.title} onChange={e => setServiceForm(p => ({ ...p, title: e.target.value }))} placeholder="Service title" className="futuristic-input" /></div>
                       <div className="space-y-2"><Label htmlFor="svc-desc">Description</Label><Textarea id="svc-desc" value={serviceForm.description} onChange={e => setServiceForm(p => ({ ...p, description: e.target.value }))} placeholder="Service description" rows={3} className="futuristic-input" /></div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="svc-icon">Icon Name</Label><Input id="svc-icon" value={serviceForm.icon} onChange={e => setServiceForm(p => ({ ...p, icon: e.target.value }))} placeholder="Globe" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="svc-order">Order</Label><Input id="svc-order" type="number" value={serviceForm.order} onChange={e => setServiceForm(p => ({ ...p, order: parseInt(e.target.value) || 0 }))} className="futuristic-input" /></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="svc-color">Color Class</Label><Input id="svc-color" value={serviceForm.color} onChange={e => setServiceForm(p => ({ ...p, color: e.target.value }))} placeholder="text-emerald-400" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="svc-bg">Background Class</Label><Input id="svc-bg" value={serviceForm.bgColor} onChange={e => setServiceForm(p => ({ ...p, bgColor: e.target.value }))} placeholder="bg-emerald-500/10" className="futuristic-input" /></div>
                       </div>
@@ -499,16 +499,16 @@ function AdminPanel() {
                   <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border-neon/20">
                     <DialogHeader><DialogTitle>{portfolioDialog.mode === 'add' ? 'Add Portfolio Item' : 'Edit Portfolio Item'}</DialogTitle><DialogDescription>{portfolioDialog.mode === 'add' ? 'Create a new portfolio item.' : 'Update the portfolio item.'}</DialogDescription></DialogHeader>
                     <div className="space-y-4 py-2">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="pf-title">Title</Label><Input id="pf-title" value={portfolioForm.title} onChange={e => setPortfolioForm(p => ({ ...p, title: e.target.value }))} placeholder="Project title" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="pf-category">Category</Label><Input id="pf-category" value={portfolioForm.category} onChange={e => setPortfolioForm(p => ({ ...p, category: e.target.value }))} placeholder="E-Commerce" className="futuristic-input" /></div>
                       </div>
                       <div className="space-y-2"><Label htmlFor="pf-desc">Description</Label><Textarea id="pf-desc" value={portfolioForm.description} onChange={e => setPortfolioForm(p => ({ ...p, description: e.target.value }))} placeholder="Project description" rows={3} className="futuristic-input" /></div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="pf-tech">Tech (comma-separated)</Label><Input id="pf-tech" value={portfolioForm.tech} onChange={e => setPortfolioForm(p => ({ ...p, tech: e.target.value }))} placeholder="Next.js, React" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="pf-image">Image URL</Label><Input id="pf-image" value={portfolioForm.image} onChange={e => setPortfolioForm(p => ({ ...p, image: e.target.value }))} placeholder="/portfolio-image.png" className="futuristic-input" /></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="pf-color">Gradient Class</Label><Input id="pf-color" value={portfolioForm.color} onChange={e => setPortfolioForm(p => ({ ...p, color: e.target.value }))} placeholder="from-emerald-500 to-emerald-700" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="pf-order">Order</Label><Input id="pf-order" type="number" value={portfolioForm.order} onChange={e => setPortfolioForm(p => ({ ...p, order: parseInt(e.target.value) || 0 }))} className="futuristic-input" /></div>
                       </div>
@@ -556,12 +556,12 @@ function AdminPanel() {
                   <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0d1a] border-neon/20">
                     <DialogHeader><DialogTitle>{testimonialDialog.mode === 'add' ? 'Add Testimonial' : 'Edit Testimonial'}</DialogTitle><DialogDescription>{testimonialDialog.mode === 'add' ? 'Create a new testimonial.' : 'Update the testimonial.'}</DialogDescription></DialogHeader>
                     <div className="space-y-4 py-2">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="tm-name">Name</Label><Input id="tm-name" value={testimonialForm.name} onChange={e => setTestimonialForm(p => ({ ...p, name: e.target.value }))} placeholder="Client name" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="tm-company">Company</Label><Input id="tm-company" value={testimonialForm.company} onChange={e => setTestimonialForm(p => ({ ...p, company: e.target.value }))} placeholder="Company name" className="futuristic-input" /></div>
                       </div>
                       <div className="space-y-2"><Label htmlFor="tm-review">Review</Label><Textarea id="tm-review" value={testimonialForm.review} onChange={e => setTestimonialForm(p => ({ ...p, review: e.target.value }))} placeholder="Client review text" rows={4} className="futuristic-input" /></div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="tm-rating">Rating (1-5)</Label><Input id="tm-rating" type="number" min={1} max={5} value={testimonialForm.rating} onChange={e => setTestimonialForm(p => ({ ...p, rating: parseInt(e.target.value) || 5 }))} className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="tm-order">Order</Label><Input id="tm-order" type="number" value={testimonialForm.order} onChange={e => setTestimonialForm(p => ({ ...p, order: parseInt(e.target.value) || 0 }))} className="futuristic-input" /></div>
                       </div>
@@ -827,11 +827,24 @@ export default function Home() {
         </div>
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="md:hidden bg-[#0d0d1a] border-b border-neon/10 overflow-hidden">
-              <div className="px-4 py-4 space-y-1">
-                {NAV_LINKS.map(link => <a key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 rounded-md text-white font-medium hover:bg-neon/10 hover:text-neon transition-colors">{link.label}</a>)}
-                <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full mt-2 glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30">Get a Quote</Button></a>
+            <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ type: 'tween', duration: 0.3 }} className="fixed inset-0 z-[60] md:hidden bg-[#06060f]/98 backdrop-blur-xl flex flex-col">
+              <div className="flex items-center justify-between px-4 sm:px-6 h-16 sm:h-20 border-b border-neon/10">
+                <a href="#home" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+                  <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 rounded-lg object-contain" />
+                  <div className="flex flex-col"><span className="font-bold text-base leading-tight text-white">A-Star</span><span className="text-[10px] leading-tight font-medium tracking-wider uppercase text-neon">Infotech</span></div>
+                </a>
+                <button onClick={() => setMobileMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-white hover:bg-neon/10 transition-colors" aria-label="Close menu">
+                  <X className="w-6 h-6" />
+                </button>
               </div>
+              <nav className="flex-1 flex flex-col justify-center px-6">
+                <div className="space-y-2">
+                  {NAV_LINKS.map(link => <a key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block px-5 py-3.5 rounded-lg text-white text-lg font-medium hover:bg-neon/10 hover:text-neon transition-colors min-h-[44px] flex items-center">{link.label}</a>)}
+                </div>
+                <div className="mt-8">
+                  <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-12 text-base">Get a Quote</Button></a>
+                </div>
+              </nav>
             </motion.div>
           )}
         </AnimatePresence>
@@ -868,7 +881,7 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block">
           <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-6 h-10 border-2 border-neon/30 rounded-full flex items-start justify-center p-1.5">
             <motion.div className="w-1.5 h-1.5 bg-neon rounded-full" />
           </motion.div>
@@ -878,14 +891,14 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── About ─── */}
-      <AnimatedSection id="about" className="py-20 sm:py-28 bg-[#06060f] grid-bg">
+      <AnimatedSection id="about" className="py-16 sm:py-20 md:py-28 bg-[#06060f] grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="relative">
               <div className="rounded-2xl overflow-hidden border border-neon/20 shadow-xl shadow-neon/5">
                 <img src="/about-image.png" alt="A-Star Infotech team collaborating" className="w-full h-auto object-cover" />
               </div>
-              <div className="absolute -bottom-6 -right-4 sm:right-4 glass-card rounded-xl p-4 sm:p-5 border-neon/30">
+              <div className="absolute -bottom-6 right-2 sm:right-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center"><Award className="w-6 h-6 text-neon" /></div>
                   <div><div className="font-bold text-lg text-foreground">5+ Years</div><div className="text-sm text-muted-foreground">Trusted Experience</div></div>
@@ -912,7 +925,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Services ─── */}
-      <AnimatedSection id="services" className="py-20 sm:py-28 bg-[#0d0d1a]">
+      <AnimatedSection id="services" className="py-16 sm:py-20 md:py-28 bg-[#0d0d1a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge>
@@ -925,7 +938,7 @@ export default function Home() {
               return (
                 <motion.div key={service.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
                   <Card className="group h-full glass-card neon-border border-neon/10">
-                    <CardContent className="p-6 sm:p-8">
+                    <CardContent className="p-4 sm:p-6 md:p-8">
                       <div className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform border border-neon/10`}>
                         <IconComp className={`w-6 h-6 ${service.color}`} />
                       </div>
@@ -944,7 +957,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Why Choose Us ─── */}
-      <AnimatedSection className="py-20 sm:py-28 bg-[#06060f] hex-pattern">
+      <AnimatedSection className="py-16 sm:py-20 md:py-28 bg-[#06060f] hex-pattern">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
@@ -987,7 +1000,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Portfolio ─── */}
-      <AnimatedSection id="portfolio" className="py-20 sm:py-28 bg-[#0d0d1a]">
+      <AnimatedSection id="portfolio" className="py-16 sm:py-20 md:py-28 bg-[#0d0d1a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Portfolio</Badge>
@@ -998,7 +1011,7 @@ export default function Home() {
             {portfolioItems.map((project, idx) => (
               <motion.div key={project.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
                 <Card className="group overflow-hidden glass-card neon-border border-neon/10 h-full">
-                  <div className="h-48 relative overflow-hidden">
+                  <div className="h-36 sm:h-48 relative overflow-hidden">
                     <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-[#06060f]/40 to-transparent" />
                     <div className="absolute top-4 right-4"><Badge className="bg-neon/20 text-neon border-neon/30 backdrop-blur-sm">{project.category}</Badge></div>
@@ -1023,7 +1036,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Testimonials ─── */}
-      <AnimatedSection id="testimonials" className="py-20 sm:py-28 bg-[#06060f]">
+      <AnimatedSection id="testimonials" className="py-16 sm:py-20 md:py-28 bg-[#06060f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Testimonials</Badge>
@@ -1069,7 +1082,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* ─── Contact ─── */}
-      <AnimatedSection id="contact" className="py-20 sm:py-28 bg-[#06060f] grid-bg">
+      <AnimatedSection id="contact" className="py-16 sm:py-20 md:py-28 bg-[#06060f] grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Contact Us</Badge>
@@ -1123,10 +1136,10 @@ export default function Home() {
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-foreground mb-4">Follow Us</h3>
                   <div className="flex gap-3">
-                    {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
-                    {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
-                    {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
-                    {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
+                    {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
+                    {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
+                    {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
+                    {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
                   </div>
                 </CardContent>
               </Card>
@@ -1146,10 +1159,10 @@ export default function Home() {
               </div>
               <p className="text-white/40 text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
               <div className="mt-4 flex gap-3">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-4 h-4 text-white/60" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4 text-white/60" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-white/60" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-4 h-4 text-white/60" /></a>}
+                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-white/60" /></a>}
+                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-white/60" /></a>}
+                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-white/60" /></a>}
+                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-white/60" /></a>}
               </div>
             </div>
             <div>
