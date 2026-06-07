@@ -1156,41 +1156,86 @@ export default function Home() {
 
       {/* ─── Footer ─── */}
       <footer className="bg-[#06060f] border-t border-neon/10 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-10 sm:py-12 md:py-16 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
-            <div className="col-span-2 sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 rounded-lg object-contain" />
-                <div><div className="font-bold text-white text-lg leading-tight">A-Star</div><div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div></div>
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="py-12 sm:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+            {/* Company Info */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="flex items-center gap-2.5 mb-5">
+                <img src="/logo.png" alt="A-Star Infotech Logo" className="w-10 h-10 rounded-lg object-contain" />
+                <div>
+                  <div className="font-bold text-white text-lg leading-tight">A-Star</div>
+                  <div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div>
+                </div>
               </div>
-              <p className="text-white/40 text-xs sm:text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
-              <div className="mt-4 flex gap-3 flex-wrap">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-white/60" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-white/60" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-white/60" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-white/60" /></a>}
+              <p className="text-white/50 text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
+              <div className="mt-5 flex gap-3">
+                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
+                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
+                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
+                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-[#111128] hover:bg-neon/10 border border-neon/10 hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-4 h-4 text-white/50 hover:text-neon" /></a>}
               </div>
             </div>
+            {/* Quick Links */}
             <div>
-              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Quick Links</h4>
-              <ul className="space-y-2 sm:space-y-2.5">{NAV_LINKS.map(link => <li key={link.href}><a href={link.href} className="text-xs sm:text-sm text-white/40 hover:text-neon transition-colors min-h-[44px] flex items-center">{link.label}</a></li>)}</ul>
+              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+              <ul className="space-y-3">
+                {NAV_LINKS.map(link => (
+                  <li key={link.href}>
+                    <a href={link.href} className="text-sm text-white/40 hover:text-neon transition-colors inline-flex items-center gap-2 group">
+                      <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
+            {/* Our Services */}
             <div>
-              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Our Services</h4>
-              <ul className="space-y-2 sm:space-y-2.5">{services.map(s => <li key={s.title}><a href="#services" className="text-xs sm:text-sm text-white/40 hover:text-neon transition-colors min-h-[44px] flex items-center">{s.title}</a></li>)}</ul>
+              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Our Services</h4>
+              <ul className="space-y-3">
+                {services.map(s => (
+                  <li key={s.title}>
+                    <a href="#services" className="text-sm text-white/40 hover:text-neon transition-colors inline-flex items-center gap-2 group">
+                      <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
+                      {s.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="col-span-2 sm:col-span-1">
-              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Contact Info</h4>
-              <ul className="space-y-2 sm:space-y-3">
-                <li className="flex items-start gap-2 sm:gap-2.5"><MapPin className="w-4 h-4 text-neon/50 shrink-0 mt-0.5" /><span className="text-xs sm:text-sm text-white/40">{siteSettings.address}</span></li>
-                <li className="flex items-center gap-2 sm:gap-2.5"><Phone className="w-4 h-4 text-neon/50 shrink-0" /><span className="text-xs sm:text-sm text-white/40">{siteSettings.phone}</span></li>
-                <li className="flex items-center gap-2 sm:gap-2.5"><Mail className="w-4 h-4 text-neon/50 shrink-0" /><span className="text-xs sm:text-sm text-white/40 break-all">{siteSettings.email}</span></li>
+            {/* Contact Info */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-neon/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-3.5 h-3.5 text-neon/60" />
+                  </div>
+                  <span className="text-sm text-white/40 leading-relaxed pt-1">{siteSettings.address}</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-neon/10 flex items-center justify-center shrink-0">
+                    <Phone className="w-3.5 h-3.5 text-neon/60" />
+                  </div>
+                  <a href={`tel:${siteSettings.phone}`} className="text-sm text-white/40 hover:text-neon transition-colors pt-0.5">{siteSettings.phone}</a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-neon/10 flex items-center justify-center shrink-0">
+                    <Mail className="w-3.5 h-3.5 text-neon/60" />
+                  </div>
+                  <a href={`mailto:${siteSettings.email}`} className="text-sm text-white/40 hover:text-neon transition-colors break-all">{siteSettings.email}</a>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-neon/10 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
-            <p className="text-xs sm:text-sm text-white/30">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
-            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-white/30"><a href="#" className="hover:text-neon transition-colors">Privacy Policy</a><a href="#" className="hover:text-neon transition-colors">Terms of Service</a></div>
+          {/* Bottom Bar */}
+          <div className="border-t border-neon/10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-white/30">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
+            <div className="flex gap-6 text-sm text-white/30">
+              <a href="#" className="hover:text-neon transition-colors">Privacy Policy</a>
+              <span className="text-white/10">|</span>
+              <a href="#" className="hover:text-neon transition-colors">Terms of Service</a>
+            </div>
           </div>
         </div>
       </footer>
