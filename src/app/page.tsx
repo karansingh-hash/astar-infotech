@@ -287,19 +287,8 @@ function AdminPanel() {
               </button>
             ))}
           </nav>
-          <div className="p-3 border-t border-border space-y-1">
+          <div className="p-3 border-t border-border">
             <button onClick={() => { setIsOpen(false); setSidebarOpen(false) }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"><Eye className="w-5 h-5" />View Website</button>
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </button>
-            )}
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors"><LogOut className="w-5 h-5" />Logout</button>
           </div>
         </aside>
         <main className="flex-1 flex flex-col min-w-0">
@@ -308,7 +297,27 @@ function AdminPanel() {
               <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 rounded-md hover:bg-neon/5 transition-colors" aria-label="Open sidebar"><Menu className="w-5 h-5 text-foreground" /></button>
               <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab === 'inquiries' ? 'Inquiries' : activeTab}</h1>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-muted-foreground hidden sm:flex hover:bg-neon/5"><Eye className="w-4 h-4 mr-1.5" />View Website</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-muted-foreground hidden sm:flex hover:bg-neon/5"><Eye className="w-4 h-4 mr-1.5" />View Website</Button>
+              {mounted && (
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-lg hover:bg-neon/10 transition-colors"
+                  aria-label="Toggle theme"
+                  title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-foreground" />}
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
+                aria-label="Logout"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5 text-red-400/80 hover:text-red-400" />
+              </button>
+            </div>
           </header>
           <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-background">
 
