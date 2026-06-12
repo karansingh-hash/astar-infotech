@@ -1420,7 +1420,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col">
                     <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
-                    {siteSettings.secondaryEmail && <a href={`mailto:${siteSettings.secondaryEmail}`} className="text-xs text-muted-foreground/70 hover:text-neon transition-colors break-all mt-0.5">{siteSettings.secondaryEmail}</a>}
+                    {siteSettings.secondaryEmail && siteSettings.secondaryEmail !== siteSettings.email && <a href={`mailto:${siteSettings.secondaryEmail}`} className="text-xs text-muted-foreground/70 hover:text-neon transition-colors break-all mt-0.5">{siteSettings.secondaryEmail}</a>}
                   </div>
                 </li>
               </ul>
