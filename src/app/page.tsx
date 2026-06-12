@@ -94,6 +94,16 @@ const DEFAULT_SETTINGS = {
   linkedin: 'https://linkedin.com/company/astarinfotech',
   youtube: 'https://youtube.com/@astarinfotech',
   brandColor: '#059669',
+  heroBadge: 'Building Smart Websites for Growing Businesses',
+  heroHeading: 'Transform Your Digital Presence With Us',
+  heroSubtitle: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.',
+  aboutHeading: 'We Build Digital Experiences That Matter',
+  aboutDescription1: 'A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don\'t just look great — they deliver measurable results.',
+  aboutDescription2: 'From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.',
+  aboutVision: 'To be the most trusted digital partner for businesses seeking growth through innovative web solutions.',
+  aboutMission: 'To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.',
+  aboutValues: 'Innovation, Integrity, Excellence, Collaboration, Transparency',
+  whyChooseUsIntro: 'We\'re not just another web development agency. We\'re your growth partners — committed to delivering solutions that make a real difference for your business.',
 }
 
 /* ── Animated Section Wrapper ── */
@@ -118,7 +128,7 @@ interface PortfolioItem { id: string; title: string; category: string; descripti
 interface TestimonialItem { id: string; name: string; company: string; review: string; rating: number; order: number }
 interface StatItem { id: string; value: string; label: string; order: number }
 interface DashboardData { totalContacts: number; totalServices: number; totalPortfolio: number; totalTestimonials: number; todayContacts: number; weekContacts: number; monthContacts: number; recentContacts: ContactItem[] }
-interface SiteSettings { companyName: string; address: string; phone: string; email: string; hours: string; facebook: string; instagram: string; linkedin: string; youtube: string; brandColor: string }
+interface SiteSettings { companyName: string; address: string; phone: string; email: string; hours: string; facebook: string; instagram: string; linkedin: string; youtube: string; brandColor: string; heroBadge: string; heroHeading: string; heroSubtitle: string; aboutHeading: string; aboutDescription1: string; aboutDescription2: string; aboutVision: string; aboutMission: string; aboutValues: string; whyChooseUsIntro: string }
 
 const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -146,7 +156,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>([])
   const [stats, setStats] = useState<StatItem[]>([])
   const [dashboard, setDashboard] = useState<DashboardData | null>(null)
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>({ companyName: '', address: '', phone: '', email: '', hours: '', facebook: '', instagram: '', linkedin: '', youtube: '', brandColor: '' })
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({ companyName: '', address: '', phone: '', email: '', hours: '', facebook: '', instagram: '', linkedin: '', youtube: '', brandColor: '', heroBadge: '', heroHeading: '', heroSubtitle: '', aboutHeading: '', aboutDescription1: '', aboutDescription2: '', aboutVision: '', aboutMission: '', aboutValues: '', whyChooseUsIntro: '' })
   const [contactsLoading, setContactsLoading] = useState(false)
   const [servicesLoading, setServicesLoading] = useState(false)
   const [portfolioLoading, setPortfolioLoading] = useState(false)
@@ -198,7 +208,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const fetchPortfolio = async () => { setPortfolioLoading(true); try { const r = await fetch('/api/portfolio'); const d = await r.json(); setPortfolio(d.portfolio || []) } catch { toast.error('Error', { description: 'Failed to fetch portfolio.' }) } finally { setPortfolioLoading(false) } }
   const fetchTestimonials = async () => { setTestimonialsLoading(true); try { const r = await fetch('/api/testimonials'); const d = await r.json(); setTestimonials(d.testimonials || []) } catch { toast.error('Error', { description: 'Failed to fetch testimonials.' }) } finally { setTestimonialsLoading(false) } }
   const fetchStats = async () => { setStatsLoading(true); try { const r = await fetch('/api/stats'); const d = await r.json(); setStats(d.stats || []) } catch { toast.error('Error', { description: 'Failed to fetch stats.' }) } finally { setStatsLoading(false) } }
-  const fetchSettings = async () => { setSettingsLoading(true); try { const r = await fetch('/api/settings'); const d = await r.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || '', address: d.settings.address || '', phone: d.settings.phone || '', email: d.settings.email || '', hours: d.settings.hours || '', facebook: d.settings.facebook || '', instagram: d.settings.instagram || '', linkedin: d.settings.linkedin || '', youtube: d.settings.youtube || '', brandColor: d.settings.brandColor || '' }) } catch { toast.error('Error', { description: 'Failed to fetch settings.' }) } finally { setSettingsLoading(false) } }
+  const fetchSettings = async () => { setSettingsLoading(true); try { const r = await fetch('/api/settings'); const d = await r.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || '', address: d.settings.address || '', phone: d.settings.phone || '', email: d.settings.email || '', hours: d.settings.hours || '', facebook: d.settings.facebook || '', instagram: d.settings.instagram || '', linkedin: d.settings.linkedin || '', youtube: d.settings.youtube || '', brandColor: d.settings.brandColor || '', heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) } catch { toast.error('Error', { description: 'Failed to fetch settings.' }) } finally { setSettingsLoading(false) } }
 
   const handleDeleteContact = async (id: string) => { setDeletingId(id); try { const r = await fetch('/api/contacts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); if (r.ok) { setContacts(p => p.filter(c => c.id !== id)); toast.success('Deleted', { description: 'Contact has been deleted.' }) } else { const d = await r.json(); toast.error('Error', { description: d.error || 'Failed to delete.' }) } } catch { toast.error('Error', { description: 'Failed to delete contact.' }) } finally { setDeletingId(null) } }
 
@@ -712,6 +722,64 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                     </Card>
                     <Card className="glass-card border-border mt-4 sm:mt-6">
                       <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2"><Sparkles className="w-5 h-5 text-neon" />Hero Section</h3>
+                        <div className="space-y-5">
+                          {[
+                            { icon: Sparkles, label: 'Badge Text', key: 'heroBadge' as const, placeholder: 'Building Smart Websites for Growing Businesses', type: 'input' },
+                            { icon: Target, label: 'Main Heading', key: 'heroHeading' as const, placeholder: 'Transform Your Digital Presence With Us', type: 'input' },
+                            { icon: Globe, label: 'Subtitle', key: 'heroSubtitle' as const, placeholder: 'We craft stunning, high-performance websites...', type: 'textarea' },
+                          ].map(field => (
+                            <div key={field.key} className="flex items-start gap-4">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><field.icon className="w-5 h-5 text-neon" /></div>
+                              <div className="flex-1 space-y-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{field.label}</Label>
+                                {field.type === 'textarea' ? <Textarea value={siteSettings[field.key]} onChange={e => setSiteSettings(p => ({ ...p, [field.key]: e.target.value }))} placeholder={field.placeholder} className="futuristic-input" rows={3} /> : <Input value={siteSettings[field.key]} onChange={e => setSiteSettings(p => ({ ...p, [field.key]: e.target.value }))} placeholder={field.placeholder} className="futuristic-input" />}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="glass-card border-border mt-4 sm:mt-6">
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2"><Target className="w-5 h-5 text-neon" />About Section</h3>
+                        <div className="space-y-5">
+                          {[
+                            { icon: Target, label: 'Heading', key: 'aboutHeading' as const, placeholder: 'We Build Digital Experiences That Matter', type: 'input' },
+                            { icon: Globe, label: 'Description (Paragraph 1)', key: 'aboutDescription1' as const, placeholder: 'A-Star Infotech is a forward-thinking...', type: 'textarea' },
+                            { icon: Globe, label: 'Description (Paragraph 2)', key: 'aboutDescription2' as const, placeholder: 'From startups finding their voice...', type: 'textarea' },
+                            { icon: Eye, label: 'Vision', key: 'aboutVision' as const, placeholder: 'To be the most trusted digital partner...', type: 'textarea' },
+                            { icon: Rocket, label: 'Mission', key: 'aboutMission' as const, placeholder: 'To deliver high-quality, affordable web solutions...', type: 'textarea' },
+                            { icon: Heart, label: 'Core Values (comma-separated)', key: 'aboutValues' as const, placeholder: 'Innovation, Integrity, Excellence, Collaboration, Transparency', type: 'input' },
+                          ].map(field => (
+                            <div key={field.key} className="flex items-start gap-4">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><field.icon className="w-5 h-5 text-neon" /></div>
+                              <div className="flex-1 space-y-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{field.label}</Label>
+                                {field.type === 'textarea' ? <Textarea value={siteSettings[field.key]} onChange={e => setSiteSettings(p => ({ ...p, [field.key]: e.target.value }))} placeholder={field.placeholder} className="futuristic-input" rows={3} /> : <Input value={siteSettings[field.key]} onChange={e => setSiteSettings(p => ({ ...p, [field.key]: e.target.value }))} placeholder={field.placeholder} className="futuristic-input" />}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="glass-card border-border mt-4 sm:mt-6">
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2"><Shield className="w-5 h-5 text-neon" />Why Choose Us Section</h3>
+                        <div className="space-y-5">
+                          <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><Globe className="w-5 h-5 text-neon" /></div>
+                            <div className="flex-1 space-y-2">
+                              <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Introduction Text</Label>
+                              <Textarea value={siteSettings.whyChooseUsIntro} onChange={e => setSiteSettings(p => ({ ...p, whyChooseUsIntro: e.target.value }))} placeholder="We're not just another web development agency..." className="futuristic-input" rows={3} />
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-4 bg-neon/5 p-3 rounded-lg border border-neon/10">💡 To edit the individual "Why Choose Us" items and performance metrics, use the <strong>Statistics</strong> tab in the sidebar. The 6 feature cards (Experienced Team, Fast Delivery, etc.) and progress bars are managed there.</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="glass-card border-border mt-4 sm:mt-6">
+                      <CardContent className="p-4 sm:p-6">
                         <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6">Social Media Links</h3>
                         <div className="space-y-5">
                           {[
@@ -845,7 +913,7 @@ export default function Home() {
         if (portfolioRes.status === 'fulfilled' && portfolioRes.value.ok) { const d = await portfolioRes.value.json(); if (d.portfolio?.length > 0) setPortfolioItems(d.portfolio.map((p: { title: string; category: string; description: string; tech: string; color: string; image: string }) => ({ title: p.title, category: p.category, description: p.description, tech: p.tech || '', color: p.color || 'from-emerald-500 to-emerald-700', image: p.image || '/portfolio-freshmart.png' }))) }
         if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.ok) { const d = await testimonialsRes.value.json(); if (d.testimonials?.length > 0) setTestimonialItems(d.testimonials.map((t: { name: string; company: string; review: string; rating: number }) => ({ name: t.name, company: t.company, review: t.review, rating: t.rating || 5 }))) }
         if (statsRes.status === 'fulfilled' && statsRes.value.ok) { const d = await statsRes.value.json(); if (d.stats?.length > 0) setStatItems(d.stats.map((s: { value: string; label: string }) => ({ value: s.value, label: s.label }))) }
-        if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) { const d = await settingsRes.value.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || DEFAULT_SETTINGS.companyName, address: d.settings.address || DEFAULT_SETTINGS.address, phone: d.settings.phone || DEFAULT_SETTINGS.phone, email: d.settings.email || DEFAULT_SETTINGS.email, hours: d.settings.hours || DEFAULT_SETTINGS.hours, facebook: d.settings.facebook || DEFAULT_SETTINGS.facebook, instagram: d.settings.instagram || DEFAULT_SETTINGS.instagram, linkedin: d.settings.linkedin || DEFAULT_SETTINGS.linkedin, youtube: d.settings.youtube || DEFAULT_SETTINGS.youtube, brandColor: d.settings.brandColor || DEFAULT_SETTINGS.brandColor }) }
+        if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) { const d = await settingsRes.value.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || DEFAULT_SETTINGS.companyName, address: d.settings.address || DEFAULT_SETTINGS.address, phone: d.settings.phone || DEFAULT_SETTINGS.phone, email: d.settings.email || DEFAULT_SETTINGS.email, hours: d.settings.hours || DEFAULT_SETTINGS.hours, facebook: d.settings.facebook || DEFAULT_SETTINGS.facebook, instagram: d.settings.instagram || DEFAULT_SETTINGS.instagram, linkedin: d.settings.linkedin || DEFAULT_SETTINGS.linkedin, youtube: d.settings.youtube || DEFAULT_SETTINGS.youtube, brandColor: d.settings.brandColor || DEFAULT_SETTINGS.brandColor, heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) }
       } catch (error) { console.error('Failed to fetch site data:', error) }
     }
     fetchData()
@@ -985,13 +1053,13 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
           <div className="max-w-3xl">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />Building Smart Websites for Growing Businesses</Badge>
+              <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
             </motion.div>
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
-              Transform Your <span className="gradient-text">Digital Presence</span> With Us
+              {siteSettings.heroHeading}
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/60 max-w-2xl leading-relaxed">
-              We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.
+              {siteSettings.heroSubtitle}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25">Start Your Project<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
@@ -1033,15 +1101,15 @@ export default function Home() {
             </div>
             <div>
               <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">About Us</Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">We Build Digital Experiences <span className="gradient-text">That Matter</span></h2>
-              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don&apos;t just look great — they deliver measurable results.</p>
-              <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">{siteSettings.aboutHeading}</h2>
+              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription1}</p>
+              <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription2}</p>
               <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4">
-                <Card className="glass-card border-neon/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Target className="w-5 h-5 text-neon" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Vision</h3></div><p className="text-xs sm:text-sm text-muted-foreground">To be the most trusted digital partner for businesses seeking growth through innovative web solutions.</p></CardContent></Card>
-                <Card className="glass-card border-amber-500/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Rocket className="w-5 h-5 text-amber-400" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Mission</h3></div><p className="text-xs sm:text-sm text-muted-foreground">To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.</p></CardContent></Card>
+                <Card className="glass-card border-neon/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Target className="w-5 h-5 text-neon" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Vision</h3></div><p className="text-xs sm:text-sm text-muted-foreground">{siteSettings.aboutVision}</p></CardContent></Card>
+                <Card className="glass-card border-amber-500/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Rocket className="w-5 h-5 text-amber-400" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Mission</h3></div><p className="text-xs sm:text-sm text-muted-foreground">{siteSettings.aboutMission}</p></CardContent></Card>
               </div>
               <div className="mt-4 sm:mt-6 flex flex-wrap gap-1.5 sm:gap-2">
-                {['Innovation', 'Integrity', 'Excellence', 'Collaboration', 'Transparency'].map(v => <Badge key={v} variant="outline" className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm text-neon border-neon/30">{v}</Badge>)}
+                {siteSettings.aboutValues.split(',').map((v: string) => v.trim()).filter(Boolean).map((v: string) => <Badge key={v} variant="outline" className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm text-neon border-neon/30">{v}</Badge>)}
               </div>
             </div>
           </div>
@@ -1089,7 +1157,7 @@ export default function Home() {
             <div>
               <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Why Choose Us</Badge>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">What Makes Us <span className="gradient-text">Stand Out</span></h2>
-              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">We&apos;re not just another web development agency. We&apos;re your growth partners — committed to delivering solutions that make a real difference for your business.</p>
+              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.whyChooseUsIntro}</p>
               <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4 sm:gap-5">
                 {WHY_CHOOSE_US.map((item, idx) => (
                   <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.4 }} className="flex gap-3 sm:gap-4">
