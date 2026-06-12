@@ -87,7 +87,8 @@ const DEFAULT_SETTINGS = {
   companyName: 'A-Star Infotech',
   address: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan',
   phone: '+91 8560074448',
-  email: 'karansinghmeertiya@gmail.com',
+  email: 'contact@astarinfotech.in',
+  secondaryEmail: 'infootechastar@gmail.com',
   hours: 'Mon – Sat: 10:00 AM – 7:00 PM',
   facebook: 'https://facebook.com/astarinfotech',
   instagram: 'https://instagram.com/astarinfotech',
@@ -128,7 +129,7 @@ interface PortfolioItem { id: string; title: string; category: string; descripti
 interface TestimonialItem { id: string; name: string; company: string; review: string; rating: number; order: number }
 interface StatItem { id: string; value: string; label: string; order: number }
 interface DashboardData { totalContacts: number; totalServices: number; totalPortfolio: number; totalTestimonials: number; todayContacts: number; weekContacts: number; monthContacts: number; recentContacts: ContactItem[] }
-interface SiteSettings { companyName: string; address: string; phone: string; email: string; hours: string; facebook: string; instagram: string; linkedin: string; youtube: string; brandColor: string; heroBadge: string; heroHeading: string; heroSubtitle: string; aboutHeading: string; aboutDescription1: string; aboutDescription2: string; aboutVision: string; aboutMission: string; aboutValues: string; whyChooseUsIntro: string }
+interface SiteSettings { companyName: string; address: string; phone: string; email: string; secondaryEmail: string; hours: string; facebook: string; instagram: string; linkedin: string; youtube: string; brandColor: string; heroBadge: string; heroHeading: string; heroSubtitle: string; aboutHeading: string; aboutDescription1: string; aboutDescription2: string; aboutVision: string; aboutMission: string; aboutValues: string; whyChooseUsIntro: string }
 
 const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -156,7 +157,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>([])
   const [stats, setStats] = useState<StatItem[]>([])
   const [dashboard, setDashboard] = useState<DashboardData | null>(null)
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>({ companyName: '', address: '', phone: '', email: '', hours: '', facebook: '', instagram: '', linkedin: '', youtube: '', brandColor: '', heroBadge: '', heroHeading: '', heroSubtitle: '', aboutHeading: '', aboutDescription1: '', aboutDescription2: '', aboutVision: '', aboutMission: '', aboutValues: '', whyChooseUsIntro: '' })
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({ companyName: '', address: '', phone: '', email: '', secondaryEmail: '', hours: '', facebook: '', instagram: '', linkedin: '', youtube: '', brandColor: '', heroBadge: '', heroHeading: '', heroSubtitle: '', aboutHeading: '', aboutDescription1: '', aboutDescription2: '', aboutVision: '', aboutMission: '', aboutValues: '', whyChooseUsIntro: '' })
   const [contactsLoading, setContactsLoading] = useState(false)
   const [servicesLoading, setServicesLoading] = useState(false)
   const [portfolioLoading, setPortfolioLoading] = useState(false)
@@ -208,7 +209,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const fetchPortfolio = async () => { setPortfolioLoading(true); try { const r = await fetch('/api/portfolio'); const d = await r.json(); setPortfolio(d.portfolio || []) } catch { toast.error('Error', { description: 'Failed to fetch portfolio.' }) } finally { setPortfolioLoading(false) } }
   const fetchTestimonials = async () => { setTestimonialsLoading(true); try { const r = await fetch('/api/testimonials'); const d = await r.json(); setTestimonials(d.testimonials || []) } catch { toast.error('Error', { description: 'Failed to fetch testimonials.' }) } finally { setTestimonialsLoading(false) } }
   const fetchStats = async () => { setStatsLoading(true); try { const r = await fetch('/api/stats'); const d = await r.json(); setStats(d.stats || []) } catch { toast.error('Error', { description: 'Failed to fetch stats.' }) } finally { setStatsLoading(false) } }
-  const fetchSettings = async () => { setSettingsLoading(true); try { const r = await fetch('/api/settings'); const d = await r.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || '', address: d.settings.address || '', phone: d.settings.phone || '', email: d.settings.email || '', hours: d.settings.hours || '', facebook: d.settings.facebook || '', instagram: d.settings.instagram || '', linkedin: d.settings.linkedin || '', youtube: d.settings.youtube || '', brandColor: d.settings.brandColor || '', heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) } catch { toast.error('Error', { description: 'Failed to fetch settings.' }) } finally { setSettingsLoading(false) } }
+  const fetchSettings = async () => { setSettingsLoading(true); try { const r = await fetch('/api/settings'); const d = await r.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || '', address: d.settings.address || '', phone: d.settings.phone || '', email: d.settings.email || '', secondaryEmail: d.settings.secondaryEmail || '', hours: d.settings.hours || '', facebook: d.settings.facebook || '', instagram: d.settings.instagram || '', linkedin: d.settings.linkedin || '', youtube: d.settings.youtube || '', brandColor: d.settings.brandColor || '', heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) } catch { toast.error('Error', { description: 'Failed to fetch settings.' }) } finally { setSettingsLoading(false) } }
 
   const handleDeleteContact = async (id: string) => { setDeletingId(id); try { const r = await fetch('/api/contacts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); if (r.ok) { setContacts(p => p.filter(c => c.id !== id)); toast.success('Deleted', { description: 'Contact has been deleted.' }) } else { const d = await r.json(); toast.error('Error', { description: d.error || 'Failed to delete.' }) } } catch { toast.error('Error', { description: 'Failed to delete contact.' }) } finally { setDeletingId(null) } }
 
@@ -702,7 +703,8 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                             { icon: Globe, label: 'Company Name', key: 'companyName' as const, placeholder: 'A-Star Infotech', type: 'input' },
                             { icon: MapPin, label: 'Address', key: 'address' as const, placeholder: 'Full business address', type: 'textarea' },
                             { icon: Phone, label: 'Phone', key: 'phone' as const, placeholder: '+91 0000000000', type: 'input' },
-                            { icon: Mail, label: 'Email', key: 'email' as const, placeholder: 'contact@example.com', type: 'input' },
+                            { icon: Mail, label: 'Primary Email', key: 'email' as const, placeholder: 'contact@astarinfotech.in', type: 'input' },
+                            { icon: Mail, label: 'Secondary Email', key: 'secondaryEmail' as const, placeholder: 'infootechastar@gmail.com', type: 'input' },
                             { icon: Clock, label: 'Business Hours', key: 'hours' as const, placeholder: 'Mon – Sat: 10:00 AM – 7:00 PM', type: 'input' },
                           ].map(field => (
                             <div key={field.key} className="flex items-start gap-4">
@@ -913,7 +915,7 @@ export default function Home() {
         if (portfolioRes.status === 'fulfilled' && portfolioRes.value.ok) { const d = await portfolioRes.value.json(); if (d.portfolio?.length > 0) setPortfolioItems(d.portfolio.map((p: { title: string; category: string; description: string; tech: string; color: string; image: string }) => ({ title: p.title, category: p.category, description: p.description, tech: p.tech || '', color: p.color || 'from-emerald-500 to-emerald-700', image: p.image || '/portfolio-freshmart.png' }))) }
         if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.ok) { const d = await testimonialsRes.value.json(); if (d.testimonials?.length > 0) setTestimonialItems(d.testimonials.map((t: { name: string; company: string; review: string; rating: number }) => ({ name: t.name, company: t.company, review: t.review, rating: t.rating || 5 }))) }
         if (statsRes.status === 'fulfilled' && statsRes.value.ok) { const d = await statsRes.value.json(); if (d.stats?.length > 0) setStatItems(d.stats.map((s: { value: string; label: string }) => ({ value: s.value, label: s.label }))) }
-        if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) { const d = await settingsRes.value.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || DEFAULT_SETTINGS.companyName, address: d.settings.address || DEFAULT_SETTINGS.address, phone: d.settings.phone || DEFAULT_SETTINGS.phone, email: d.settings.email || DEFAULT_SETTINGS.email, hours: d.settings.hours || DEFAULT_SETTINGS.hours, facebook: d.settings.facebook || DEFAULT_SETTINGS.facebook, instagram: d.settings.instagram || DEFAULT_SETTINGS.instagram, linkedin: d.settings.linkedin || DEFAULT_SETTINGS.linkedin, youtube: d.settings.youtube || DEFAULT_SETTINGS.youtube, brandColor: d.settings.brandColor || DEFAULT_SETTINGS.brandColor, heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) }
+        if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) { const d = await settingsRes.value.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || DEFAULT_SETTINGS.companyName, address: d.settings.address || DEFAULT_SETTINGS.address, phone: d.settings.phone || DEFAULT_SETTINGS.phone, email: d.settings.email || DEFAULT_SETTINGS.email, secondaryEmail: d.settings.secondaryEmail || DEFAULT_SETTINGS.secondaryEmail, hours: d.settings.hours || DEFAULT_SETTINGS.hours, facebook: d.settings.facebook || DEFAULT_SETTINGS.facebook, instagram: d.settings.instagram || DEFAULT_SETTINGS.instagram, linkedin: d.settings.linkedin || DEFAULT_SETTINGS.linkedin, youtube: d.settings.youtube || DEFAULT_SETTINGS.youtube, brandColor: d.settings.brandColor || DEFAULT_SETTINGS.brandColor, heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) }
       } catch (error) { console.error('Failed to fetch site data:', error) }
     }
     fetchData()
@@ -1310,7 +1312,8 @@ export default function Home() {
                     {[
                       { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
                       { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
-                      { icon: Mail, label: 'Email Address', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
+                      { icon: Mail, label: 'Primary Email', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
+                      ...(siteSettings.secondaryEmail ? [{ icon: Mail, label: 'Secondary Email', value: siteSettings.secondaryEmail, href: `mailto:${siteSettings.secondaryEmail}` }] : []),
                       { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
                     ].map((item, i) => (
                       <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 group cursor-pointer">
@@ -1415,7 +1418,10 @@ export default function Home() {
                   <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
                     <Mail className="w-3.5 h-3.5 text-neon/60" />
                   </div>
-                  <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
+                  <div className="flex flex-col">
+                    <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
+                    {siteSettings.secondaryEmail && <a href={`mailto:${siteSettings.secondaryEmail}`} className="text-xs text-muted-foreground/70 hover:text-neon transition-colors break-all mt-0.5">{siteSettings.secondaryEmail}</a>}
+                  </div>
                 </li>
               </ul>
             </div>
