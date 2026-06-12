@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  website:
+    build: .
+    container_name: astar-infotech
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/data/production.db
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-astar@2024}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASS=${EMAIL_PASS:-}
+      - BUSINESS_EMAIL=${BUSINESS_EMAIL:-infootechastar@gmail.com}
+      - BUSINESS_PHONE=${BUSINESS_PHONE:-918560074448}
+      - CALLMEBOT_API_KEY=${CALLMEBOT_API_KEY:-}
+    volumes:
+      - db-data:/app/data
+      - ./public:/app/public
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  db-data:
+    driver: local

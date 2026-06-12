@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+dev.log
+server.log
+db/*.db
+db/*.db-journal
+prisma/migrations
+.env.local
+.env*.local
