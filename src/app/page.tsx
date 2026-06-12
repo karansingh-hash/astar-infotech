@@ -669,7 +669,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                           {[
                             { icon: Globe, label: 'Company Name', key: 'companyName' as const, placeholder: 'A-Star Infotech', type: 'input' },
                             { icon: MapPin, label: 'Address', key: 'address' as const, placeholder: 'Full business address', type: 'textarea' },
-                            { icon: Phone, label: 'Phone', key: 'phone' as const, placeholder: '+91 8560074448', type: 'input' },
+                            { icon: Phone, label: 'Phone', key: 'phone' as const, placeholder: '+91 0000000000', type: 'input' },
                             { icon: Mail, label: 'Email', key: 'email' as const, placeholder: 'contact@example.com', type: 'input' },
                             { icon: Clock, label: 'Business Hours', key: 'hours' as const, placeholder: 'Mon – Sat: 10:00 AM – 7:00 PM', type: 'input' },
                           ].map(field => (
@@ -851,11 +851,12 @@ export default function Home() {
               )}
               <button
                 onClick={() => setAdminOpen(true)}
-                className="p-2 rounded-lg hover:bg-neon/10 transition-colors ml-1"
+                className="ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-foreground/60 hover:text-foreground hover:bg-neon/10 border border-border hover:border-neon/30 transition-all"
                 aria-label="Admin Panel"
                 title="Admin Panel"
               >
-                <Lock className="w-5 h-5 text-foreground/50 hover:text-foreground" />
+                <Lock className="w-3.5 h-3.5" />
+                <span>Admin</span>
               </button>
             </nav>
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-md text-foreground hover:bg-neon/10 transition-colors" aria-label="Toggle menu">
@@ -1161,7 +1162,7 @@ export default function Home() {
                       <div className="space-y-2"><label htmlFor="name" className="text-sm font-medium text-foreground">Full Name <span className="text-red-400">*</span></label><Input id="name" placeholder="John Doe" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="futuristic-input h-11" /></div>
                       <div className="space-y-2"><label htmlFor="email" className="text-sm font-medium text-foreground">Email Address <span className="text-red-400">*</span></label><Input id="email" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="futuristic-input h-11" /></div>
                     </div>
-                    <div className="space-y-2"><label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label><Input id="phone" type="tel" placeholder="+91 8560074448" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input h-11" /></div>
+                    <div className="space-y-2"><label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label><Input id="phone" type="tel" placeholder="+91 0000000000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input h-11" /></div>
                     <div className="space-y-2"><label htmlFor="message" className="text-sm font-medium text-foreground">Your Message <span className="text-red-400">*</span></label><Textarea id="message" placeholder="Tell us about your project..." rows={4} required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="futuristic-input" /></div>
                     <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 px-6 sm:px-8 min-h-[44px]">
                       {isSubmitting ? <><span className="animate-spin mr-2">⏳</span>Sending...</> : <>Send Message<Send className="ml-2 w-4 h-4" /></>}
