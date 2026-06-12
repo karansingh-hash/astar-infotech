@@ -9,7 +9,7 @@ import {
   Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target,
   Shield, Rocket, Eye, Trash2, Inbox, Lock, LayoutDashboard,
   BarChart3, LogOut, Calendar, MailCheck, PhoneCall, Briefcase,
-  Plus, Pencil, Wrench, Save, Sun, Moon,
+  Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -164,6 +164,9 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [portfolioForm, setPortfolioForm] = useState({ title: '', category: '', description: '', tech: '', color: '', image: '', order: 0 })
   const [testimonialForm, setTestimonialForm] = useState({ name: '', company: '', review: '', rating: 5, order: 0 })
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 })
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [passwordVis, setPasswordVis] = useState({ current: false, new: false, confirm: false })
+  const [changingPassword, setChangingPassword] = useState(false)
 
   useEffect(() => { const s = sessionStorage.getItem('admin_auth'); if (s === 'true') setIsAuthenticated(true) }, [])
   useEffect(() => { if (externalOpen) setIsOpen(true) }, [externalOpen])
@@ -218,6 +221,25 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const handleDeleteStat = async (id: string) => { setDeletingId(id); try { await apiCall('/api/stats', 'DELETE', { id }); setStats(p => p.filter(s => s.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
 
   const handleSaveSettings = async () => { setSaving(true); try { await apiCall('/api/settings', 'PUT', { settings: siteSettings }); toast.success('Settings Saved', { description: 'Business information has been updated.' }) } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save settings.' }) } finally { setSaving(false) } }
+
+  const handleChangePassword = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) { toast.error('Error', { description: 'All fields are required.' }); return }
+    if (passwordForm.newPassword.length < 6) { toast.error('Error', { description: 'New password must be at least 6 characters.' }); return }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) { toast.error('Error', { description: 'Passwords do not match.' }); return }
+    setChangingPassword(true)
+    try {
+      const res = await fetch('/api/admin/auth', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword }) })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success('Password Changed', { description: 'Your admin password has been updated successfully. Use the new password next time you log in.' })
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+        setPasswordVis({ current: false, new: false, confirm: false })
+      } else {
+        toast.error('Error', { description: data.error || 'Failed to change password.' })
+      }
+    } catch { toast.error('Error', { description: 'Failed to change password. Please try again.' }) }
+    finally { setChangingPassword(false) }
+  }
 
   // Neon spinner component
   const Spinner = () => <div className="flex items-center justify-center py-20"><div className="animate-spin w-10 h-10 border-4 border-neon/30 border-t-neon rounded-full" /></div>
@@ -733,6 +755,47 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                               ))}
                             </div>
                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="glass-card border-border mt-4 sm:mt-6">
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-1 flex items-center gap-2"><KeyRound className="w-5 h-5 text-neon" />Change Password</h3>
+                        <p className="text-xs text-muted-foreground mb-4 sm:mb-5">Update your admin panel password. Changes take effect immediately.</p>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Current Password</Label>
+                            <div className="relative">
+                              <Input type={passwordVis.current ? 'text' : 'password'} placeholder="Enter current password" value={passwordForm.currentPassword} onChange={e => setPasswordForm(p => ({ ...p, currentPassword: e.target.value }))} className="futuristic-input h-11 pr-10" />
+                              <button type="button" onClick={() => setPasswordVis(v => ({ ...v, current: !v.current }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Toggle visibility">
+                                {passwordVis.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium">New Password</Label>
+                            <div className="relative">
+                              <Input type={passwordVis.new ? 'text' : 'password'} placeholder="Enter new password (min 6 characters)" value={passwordForm.newPassword} onChange={e => setPasswordForm(p => ({ ...p, newPassword: e.target.value }))} className="futuristic-input h-11 pr-10" />
+                              <button type="button" onClick={() => setPasswordVis(v => ({ ...v, new: !v.new }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Toggle visibility">
+                                {passwordVis.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Confirm New Password</Label>
+                            <div className="relative">
+                              <Input type={passwordVis.confirm ? 'text' : 'password'} placeholder="Confirm new password" value={passwordForm.confirmPassword} onChange={e => setPasswordForm(p => ({ ...p, confirmPassword: e.target.value }))} className="futuristic-input h-11 pr-10" />
+                              <button type="button" onClick={() => setPasswordVis(v => ({ ...v, confirm: !v.confirm }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Toggle visibility">
+                                {passwordVis.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            </div>
+                            {passwordForm.confirmPassword && passwordForm.newPassword && passwordForm.confirmPassword !== passwordForm.newPassword && (
+                              <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+                            )}
+                          </div>
+                          <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 min-h-[44px]" onClick={handleChangePassword} disabled={changingPassword || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword || passwordForm.newPassword !== passwordForm.confirmPassword}>
+                            {changingPassword ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Changing...</> : <><Shield className="w-4 h-4 mr-2" />Change Password</>}
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
