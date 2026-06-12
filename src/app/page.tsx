@@ -130,7 +130,7 @@ const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = 
   { key: 'settings', label: 'Site Settings', icon: Wrench },
 ]
 
-function AdminPanel() {
+function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean; onExternalClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -166,6 +166,7 @@ function AdminPanel() {
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 })
 
   useEffect(() => { const s = sessionStorage.getItem('admin_auth'); if (s === 'true') setIsAuthenticated(true) }, [])
+  useEffect(() => { if (externalOpen) setIsOpen(true) }, [externalOpen])
   useEffect(() => {
     if (!isOpen || !isAuthenticated) return
     if (activeTab === 'dashboard') fetchDashboard()
@@ -186,7 +187,7 @@ function AdminPanel() {
       else toast.error('Login Failed', { description: data.error || 'Invalid password.' })
     } catch { toast.error('Error', { description: 'Failed to connect to server.' }) } finally { setAuthLoading(false) }
   }
-  const handleLogout = () => { setIsAuthenticated(false); sessionStorage.removeItem('admin_auth'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); toast.success('Logged Out', { description: 'You have been logged out successfully.' }) }
+  const handleLogout = () => { setIsAuthenticated(false); sessionStorage.removeItem('admin_auth'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' }) }
 
   const fetchDashboard = async () => { setDashboardLoading(true); try { const r = await fetch('/api/dashboard'); setDashboard(await r.json()) } catch { toast.error('Error', { description: 'Failed to fetch dashboard data.' }) } finally { setDashboardLoading(false) } }
   const fetchContacts = async () => { setContactsLoading(true); try { const r = await fetch('/api/contacts'); const d = await r.json(); setContacts(d.contacts || []) } catch { toast.error('Error', { description: 'Failed to fetch contacts.' }) } finally { setContactsLoading(false) } }
@@ -227,18 +228,11 @@ function AdminPanel() {
     </div>
   )
 
-  const triggerButton = (
-    <button onClick={() => setIsOpen(true)} className="fixed bottom-20 sm:bottom-6 left-6 z-50 w-12 h-12 bg-dark-card hover:bg-neon/20 border border-neon/30 text-neon rounded-full flex items-center justify-center shadow-lg shadow-neon/10 transition-all duration-300 hover:scale-110" aria-label="Admin Panel" title="Admin Panel">
-      <Lock className="w-5 h-5" />
-    </button>
-  )
-
-  if (!isOpen) return triggerButton
+  if (!isOpen) return null
 
   if (!isAuthenticated) {
     return (
       <>
-        {triggerButton}
         <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center p-4">
           <div className="absolute top-20 right-20 w-72 h-72 bg-neon/5 rounded-full blur-3xl" />
           <div className="absolute bottom-20 left-20 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
@@ -288,7 +282,7 @@ function AdminPanel() {
             ))}
           </nav>
           <div className="p-3 border-t border-border">
-            <button onClick={() => { setIsOpen(false); setSidebarOpen(false) }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"><Eye className="w-5 h-5" />View Website</button>
+            <button onClick={() => { setIsOpen(false); setSidebarOpen(false); onExternalClose?.() }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"><Eye className="w-5 h-5" />View Website</button>
           </div>
         </aside>
         <main className="flex-1 flex flex-col min-w-0">
@@ -298,7 +292,7 @@ function AdminPanel() {
               <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab === 'inquiries' ? 'Inquiries' : activeTab}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-muted-foreground hidden sm:flex hover:bg-neon/5"><Eye className="w-4 h-4 mr-1.5" />View Website</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setIsOpen(false); onExternalClose?.() }} className="text-muted-foreground hidden sm:flex hover:bg-neon/5"><Eye className="w-4 h-4 mr-1.5" />View Website</Button>
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -766,6 +760,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [adminOpen, setAdminOpen] = useState(false)
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [services, setServices] = useState(DEFAULT_SERVICES)
@@ -854,6 +849,14 @@ export default function Home() {
                   {theme === 'dark' ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
                 </button>
               )}
+              <button
+                onClick={() => setAdminOpen(true)}
+                className="p-2 rounded-lg hover:bg-neon/10 transition-colors ml-1"
+                aria-label="Admin Panel"
+                title="Admin Panel"
+              >
+                <Lock className="w-5 h-5 text-foreground/50 hover:text-foreground" />
+              </button>
             </nav>
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-md text-foreground hover:bg-neon/10 transition-colors" aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -878,15 +881,24 @@ export default function Home() {
                 </div>
                 <div className="mt-8">
                   <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-12 text-base">Get a Quote</Button></a>
-                  {mounted && (
+                  <div className="flex gap-3 mt-4">
+                    {mounted && (
+                      <button
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground"
+                        aria-label="Toggle theme"
+                      >
+                        {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light Mode</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark Mode</span></>}
+                      </button>
+                    )}
                     <button
-                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                      className="w-full mt-3 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground"
-                      aria-label="Toggle theme"
+                      onClick={() => { setAdminOpen(true); setMobileMenuOpen(false) }}
+                      className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground/60"
+                      aria-label="Admin Panel"
                     >
-                      {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light Mode</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark Mode</span></>}
+                      <Lock className="w-5 h-5" /><span className="text-sm font-medium">Admin</span>
                     </button>
-                  )}
+                  </div>
                 </div>
               </nav>
             </motion.div>
@@ -1289,7 +1301,7 @@ export default function Home() {
         <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 transition-transform"><MessageCircle className="w-7 h-7 text-white" /></div>
       </a>
 
-      <AdminPanel />
+      <AdminPanel externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />
 
       {/* Scroll to Top */}
       <AnimatePresence>
