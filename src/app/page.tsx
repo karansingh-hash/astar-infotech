@@ -1177,24 +1177,26 @@ export default function Home() {
                   <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-5">Get In Touch</h3>
                   <div className="space-y-4 sm:space-y-5">
                     {[
-                      { icon: MapPin, label: 'Office Address', value: siteSettings.address },
-                      { icon: Phone, label: 'Phone Number', value: siteSettings.phone },
-                      { icon: Mail, label: 'Email Address', value: siteSettings.email },
-                      { icon: Clock, label: 'Business Hours', value: siteSettings.hours },
+                      { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
+                      { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
+                      { icon: Mail, label: 'Email Address', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
+                      { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
                     ].map((item, i) => (
-                      <div key={i} className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><item.icon className="w-5 h-5 text-neon" /></div>
-                        <div><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5">{item.value}</div></div>
-                      </div>
+                      <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 group cursor-pointer">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 group-hover:border-neon/30 transition-colors"><item.icon className="w-5 h-5 text-neon" /></div>
+                        <div><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors">{item.value}</div></div>
+                      </a>
                     ))}
                   </div>
                 </CardContent>
               </Card>
-              <Card className="glass-card border-neon/20 overflow-hidden">
-                <div className="h-36 sm:h-48 bg-dark-surface flex items-center justify-center border border-border">
-                  <div className="text-center"><MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-neon/40 mx-auto" /><p className="text-xs sm:text-sm text-neon mt-2 font-medium">A-Star Infotech</p><p className="text-[11px] sm:text-xs text-muted-foreground">Jaipur, Rajasthan</p></div>
-                </div>
-              </Card>
+              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="block">
+                <Card className="glass-card border-neon/20 overflow-hidden hover:border-neon/40 transition-colors cursor-pointer group">
+                  <div className="h-36 sm:h-48 bg-dark-surface flex items-center justify-center border border-border group-hover:bg-neon/5 transition-colors relative">
+                    <div className="text-center"><MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-neon/40 mx-auto group-hover:text-neon group-hover:scale-110 transition-all" /><p className="text-xs sm:text-sm text-neon mt-2 font-medium">A-Star Infotech</p><p className="text-[11px] sm:text-xs text-muted-foreground">{siteSettings.address}</p><span className="inline-flex items-center gap-1 mt-2 text-[10px] sm:text-xs text-neon/60 group-hover:text-neon transition-colors">Open in Google Maps <ExternalLink className="w-3 h-3" /></span></div>
+                  </div>
+                </Card>
+              </a>
               <Card className="glass-card border-neon/20">
                 <CardContent className="p-4 sm:p-6">
                   <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Follow Us</h3>
@@ -1265,10 +1267,12 @@ export default function Home() {
               <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-neon/60" />
-                  </div>
-                  <span className="text-sm text-muted-foreground leading-relaxed pt-1">{siteSettings.address}</span>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 group">
+                    <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
+                      <MapPin className="w-3.5 h-3.5 text-neon/60 group-hover:text-neon transition-colors" />
+                    </div>
+                    <span className="text-sm text-muted-foreground leading-relaxed pt-1 group-hover:text-neon transition-colors">{siteSettings.address}</span>
+                  </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
