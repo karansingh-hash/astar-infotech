@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
+import { requireAdmin, sanitizeString, validateLength } from '@/lib/security'
 
 export async function GET() {
   try {
@@ -16,6 +17,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { title, description, icon, color, bgColor, order } = body
 
@@ -23,14 +27,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title and description are required.' }, { status: 400 })
     }
 
+    if (!validateLength(title, 1, 200) || !validateLength(description, 1, 2000)) {
+      return NextResponse.json({ error: 'Input length exceeds limits.' }, { status: 400 })
+    }
+
     const service = await db.service.create({
       data: {
-        title: title.trim(),
-        description: description.trim(),
-        icon: icon || 'Globe',
-        color: color || 'text-emerald-600',
-        bgColor: bgColor || 'bg-emerald-50',
-        order: order || 0,
+        title: sanitizeString(title, 200),
+        description: sanitizeString(description, 2000),
+        icon: sanitizeString(icon || 'Globe', 50),
+        color: sanitizeString(color || 'text-emerald-600', 50),
+        bgColor: sanitizeString(bgColor || 'bg-emerald-50', 50),
+        order: typeof order === 'number' ? order : 0,
       },
     })
 
@@ -44,10 +52,13 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id, title, description, icon, color, bgColor, order } = body
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Service ID is required.' }, { status: 400 })
     }
 
@@ -59,12 +70,12 @@ export async function PUT(request: Request) {
     const service = await db.service.update({
       where: { id },
       data: {
-        ...(title !== undefined && { title: title.trim() }),
-        ...(description !== undefined && { description: description.trim() }),
-        ...(icon !== undefined && { icon }),
-        ...(color !== undefined && { color }),
-        ...(bgColor !== undefined && { bgColor }),
-        ...(order !== undefined && { order }),
+        ...(title !== undefined && { title: sanitizeString(title, 200) }),
+        ...(description !== undefined && { description: sanitizeString(description, 2000) }),
+        ...(icon !== undefined && { icon: sanitizeString(icon, 50) }),
+        ...(color !== undefined && { color: sanitizeString(color, 50) }),
+        ...(bgColor !== undefined && { bgColor: sanitizeString(bgColor, 50) }),
+        ...(order !== undefined && typeof order === 'number' && { order }),
       },
     })
 
@@ -78,10 +89,13 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id } = body
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Service ID is required.' }, { status: 400 })
     }
 

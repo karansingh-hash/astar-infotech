@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/security'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const [
       totalContacts,
       totalServices,

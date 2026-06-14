@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/security'
 
 /**
  * GET /api/contacts
- * Retrieve all contact form submissions (admin view)
- *
- * Query params:
- *   ?page=1     - Page number (default: 1)
- *   ?limit=20   - Results per page (default: 20)
+ * Retrieve all contact form submissions (admin only)
  */
 export async function GET(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const { searchParams } = new URL(request.url)
     const page = Math.max(1, Number(searchParams.get('page')) || 1)
     const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit')) || 20))
@@ -46,12 +46,13 @@ export async function GET(request: Request) {
 
 /**
  * DELETE /api/contacts
- * Delete a contact submission by ID
- *
- * Body: { id: string }
+ * Delete a contact submission by ID (admin only)
  */
 export async function DELETE(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id } = body
 

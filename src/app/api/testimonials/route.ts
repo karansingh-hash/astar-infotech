@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
+import { requireAdmin, sanitizeString, validateLength } from '@/lib/security'
 
 export async function GET() {
   try {
@@ -16,6 +17,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { name, company, review, rating, order } = body
 
@@ -23,13 +27,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name, company, and review are required.' }, { status: 400 })
     }
 
+    if (!validateLength(name, 1, 100) || !validateLength(company, 1, 200) || !validateLength(review, 1, 2000)) {
+      return NextResponse.json({ error: 'Input length exceeds limits.' }, { status: 400 })
+    }
+
     const testimonial = await db.testimonial.create({
       data: {
-        name: name.trim(),
-        company: company.trim(),
-        review: review.trim(),
-        rating: rating || 5,
-        order: order || 0,
+        name: sanitizeString(name, 100),
+        company: sanitizeString(company, 200),
+        review: sanitizeString(review, 2000),
+        rating: typeof rating === 'number' && rating >= 1 && rating <= 5 ? rating : 5,
+        order: typeof order === 'number' ? order : 0,
       },
     })
 
@@ -43,10 +51,13 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id, name, company, review, rating, order } = body
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Testimonial ID is required.' }, { status: 400 })
     }
 
@@ -58,11 +69,11 @@ export async function PUT(request: Request) {
     const testimonial = await db.testimonial.update({
       where: { id },
       data: {
-        ...(name !== undefined && { name: name.trim() }),
-        ...(company !== undefined && { company: company.trim() }),
-        ...(review !== undefined && { review: review.trim() }),
-        ...(rating !== undefined && { rating }),
-        ...(order !== undefined && { order }),
+        ...(name !== undefined && { name: sanitizeString(name, 100) }),
+        ...(company !== undefined && { company: sanitizeString(company, 200) }),
+        ...(review !== undefined && { review: sanitizeString(review, 2000) }),
+        ...(rating !== undefined && typeof rating === 'number' && rating >= 1 && rating <= 5 && { rating }),
+        ...(order !== undefined && typeof order === 'number' && { order }),
       },
     })
 
@@ -76,10 +87,13 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id } = body
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Testimonial ID is required.' }, { status: 400 })
     }
 

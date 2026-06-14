@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
+import { requireAdmin, sanitizeString, validateLength } from '@/lib/security'
 
 export async function GET() {
   try {
@@ -16,6 +17,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { value, label, order } = body
 
@@ -23,11 +27,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Value and label are required.' }, { status: 400 })
     }
 
+    if (!validateLength(value, 1, 50) || !validateLength(label, 1, 200)) {
+      return NextResponse.json({ error: 'Input length exceeds limits.' }, { status: 400 })
+    }
+
     const stat = await db.stat.create({
       data: {
-        value: value.trim(),
-        label: label.trim(),
-        order: order || 0,
+        value: sanitizeString(value, 50),
+        label: sanitizeString(label, 200),
+        order: typeof order === 'number' ? order : 0,
       },
     })
 
@@ -41,10 +49,13 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id, value, label, order } = body
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Stat ID is required.' }, { status: 400 })
     }
 
@@ -56,9 +67,9 @@ export async function PUT(request: Request) {
     const stat = await db.stat.update({
       where: { id },
       data: {
-        ...(value !== undefined && { value: value.trim() }),
-        ...(label !== undefined && { label: label.trim() }),
-        ...(order !== undefined && { order }),
+        ...(value !== undefined && { value: sanitizeString(value, 50) }),
+        ...(label !== undefined && { label: sanitizeString(label, 200) }),
+        ...(order !== undefined && typeof order === 'number' && { order }),
       },
     })
 
@@ -72,10 +83,13 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     const body = await request.json()
     const { id } = body
 
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Stat ID is required.' }, { status: 400 })
     }
 

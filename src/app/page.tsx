@@ -144,6 +144,7 @@ const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = 
 function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean; onExternalClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [adminToken, setAdminToken] = useState<string>('')
   const [password, setPassword] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard')
@@ -179,7 +180,15 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [passwordVis, setPasswordVis] = useState({ current: false, new: false, confirm: false })
   const [changingPassword, setChangingPassword] = useState(false)
 
-  useEffect(() => { const s = sessionStorage.getItem('admin_auth'); if (s === 'true') setIsAuthenticated(true) }, [])
+  useEffect(() => {
+    const token = sessionStorage.getItem('admin_token')
+    if (token) {
+      // Validate existing token
+      fetch('/api/admin/auth', { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } })
+        .then(r => { if (r.ok) { setAdminToken(token); setIsAuthenticated(true) } else { sessionStorage.removeItem('admin_token') } })
+        .catch(() => sessionStorage.removeItem('admin_token'))
+    }
+  }, [])
   useEffect(() => { if (externalOpen) setIsOpen(true) }, [externalOpen])
   useEffect(() => {
     if (!isOpen || !isAuthenticated) return
@@ -197,23 +206,28 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
     try {
       const res = await fetch('/api/admin/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) })
       const data = await res.json()
-      if (res.ok && data.success) { setIsAuthenticated(true); sessionStorage.setItem('admin_auth', 'true'); setPassword(''); toast.success('Login Successful', { description: 'Welcome to the Admin Panel!' }) }
-      else toast.error('Login Failed', { description: data.error || 'Invalid password.' })
+      if (res.ok && data.success && data.token) {
+        setAdminToken(data.token); setIsAuthenticated(true); sessionStorage.setItem('admin_token', data.token); setPassword(''); toast.success('Login Successful', { description: 'Welcome to the Admin Panel!' })
+      } else toast.error('Login Failed', { description: data.error || 'Invalid password.' })
     } catch { toast.error('Error', { description: 'Failed to connect to server.' }) } finally { setAuthLoading(false) }
   }
-  const handleLogout = () => { setIsAuthenticated(false); sessionStorage.removeItem('admin_auth'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' }) }
+  const handleLogout = async () => {
+    try { await fetch('/api/admin/auth', { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } }) } catch {}
+    setIsAuthenticated(false); setAdminToken(''); sessionStorage.removeItem('admin_token'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' })
+  }
 
-  const fetchDashboard = async () => { setDashboardLoading(true); try { const r = await fetch('/api/dashboard'); setDashboard(await r.json()) } catch { toast.error('Error', { description: 'Failed to fetch dashboard data.' }) } finally { setDashboardLoading(false) } }
-  const fetchContacts = async () => { setContactsLoading(true); try { const r = await fetch('/api/contacts'); const d = await r.json(); setContacts(d.contacts || []) } catch { toast.error('Error', { description: 'Failed to fetch contacts.' }) } finally { setContactsLoading(false) } }
+  const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` })
+  const fetchDashboard = async () => { setDashboardLoading(true); try { const r = await fetch('/api/dashboard', { headers: authHeaders() }); if (r.status === 401) { handleLogout(); return } setDashboard(await r.json()) } catch { toast.error('Error', { description: 'Failed to fetch dashboard data.' }) } finally { setDashboardLoading(false) } }
+  const fetchContacts = async () => { setContactsLoading(true); try { const r = await fetch('/api/contacts', { headers: authHeaders() }); if (r.status === 401) { handleLogout(); return } const d = await r.json(); setContacts(d.contacts || []) } catch { toast.error('Error', { description: 'Failed to fetch contacts.' }) } finally { setContactsLoading(false) } }
   const fetchServices = async () => { setServicesLoading(true); try { const r = await fetch('/api/services'); const d = await r.json(); setServices(d.services || []) } catch { toast.error('Error', { description: 'Failed to fetch services.' }) } finally { setServicesLoading(false) } }
   const fetchPortfolio = async () => { setPortfolioLoading(true); try { const r = await fetch('/api/portfolio'); const d = await r.json(); setPortfolio(d.portfolio || []) } catch { toast.error('Error', { description: 'Failed to fetch portfolio.' }) } finally { setPortfolioLoading(false) } }
   const fetchTestimonials = async () => { setTestimonialsLoading(true); try { const r = await fetch('/api/testimonials'); const d = await r.json(); setTestimonials(d.testimonials || []) } catch { toast.error('Error', { description: 'Failed to fetch testimonials.' }) } finally { setTestimonialsLoading(false) } }
   const fetchStats = async () => { setStatsLoading(true); try { const r = await fetch('/api/stats'); const d = await r.json(); setStats(d.stats || []) } catch { toast.error('Error', { description: 'Failed to fetch stats.' }) } finally { setStatsLoading(false) } }
   const fetchSettings = async () => { setSettingsLoading(true); try { const r = await fetch('/api/settings'); const d = await r.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || '', address: d.settings.address || '', phone: d.settings.phone || '', email: d.settings.email || '', secondaryEmail: d.settings.secondaryEmail || '', hours: d.settings.hours || '', facebook: d.settings.facebook || '', instagram: d.settings.instagram || '', linkedin: d.settings.linkedin || '', youtube: d.settings.youtube || '', brandColor: d.settings.brandColor || '', heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) } catch { toast.error('Error', { description: 'Failed to fetch settings.' }) } finally { setSettingsLoading(false) } }
 
-  const handleDeleteContact = async (id: string) => { setDeletingId(id); try { const r = await fetch('/api/contacts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); if (r.ok) { setContacts(p => p.filter(c => c.id !== id)); toast.success('Deleted', { description: 'Contact has been deleted.' }) } else { const d = await r.json(); toast.error('Error', { description: d.error || 'Failed to delete.' }) } } catch { toast.error('Error', { description: 'Failed to delete contact.' }) } finally { setDeletingId(null) } }
+  const handleDeleteContact = async (id: string) => { setDeletingId(id); try { const r = await fetch('/api/contacts', { method: 'DELETE', headers: authHeaders(), body: JSON.stringify({ id }) }); if (r.status === 401) { handleLogout(); return } if (r.ok) { setContacts(p => p.filter(c => c.id !== id)); toast.success('Deleted', { description: 'Contact has been deleted.' }) } else { const d = await r.json(); toast.error('Error', { description: d.error || 'Failed to delete.' }) } } catch { toast.error('Error', { description: 'Failed to delete contact.' }) } finally { setDeletingId(null) } }
 
-  const apiCall = async (url: string, method: string, body?: unknown) => { const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }); const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Request failed'); return d }
+  const apiCall = async (url: string, method: string, body?: unknown) => { const r = await fetch(url, { method, headers: authHeaders(), body: body ? JSON.stringify(body) : undefined }); if (r.status === 401) { handleLogout(); throw new Error('Session expired. Please log in again.') } const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Request failed'); return d }
 
   const openServiceDialog = (mode: 'add' | 'edit', item?: ServiceItem) => { if (mode === 'edit' && item) { setServiceForm({ title: item.title, description: item.description, icon: item.icon, color: item.color, bgColor: item.bgColor, order: item.order }); setServiceDialog({ open: true, mode: 'edit', item }) } else { setServiceForm({ title: '', description: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', order: services.length }); setServiceDialog({ open: true, mode: 'add', item: null }) } }
   const handleSaveService = async () => { setSaving(true); try { if (serviceDialog.mode === 'add') { await apiCall('/api/services', 'POST', serviceForm); toast.success('Service Added') } else { await apiCall('/api/services', 'PUT', { id: serviceDialog.item?.id, ...serviceForm }); toast.success('Service Updated') } setServiceDialog({ open: false, mode: 'add', item: null }); fetchServices() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save.' }) } finally { setSaving(false) } }
@@ -235,11 +249,11 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
 
   const handleChangePassword = async () => {
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) { toast.error('Error', { description: 'All fields are required.' }); return }
-    if (passwordForm.newPassword.length < 6) { toast.error('Error', { description: 'New password must be at least 6 characters.' }); return }
+    if (passwordForm.newPassword.length < 8) { toast.error('Error', { description: 'New password must be at least 8 characters.' }); return }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) { toast.error('Error', { description: 'Passwords do not match.' }); return }
     setChangingPassword(true)
     try {
-      const res = await fetch('/api/admin/auth', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword }) })
+      const res = await fetch('/api/admin/auth', { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword }) })
       const data = await res.json()
       if (res.ok && data.success) {
         toast.success('Password Changed', { description: 'Your admin password has been updated successfully. Use the new password next time you log in.' })

@@ -1,21 +1,25 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import {
+  verifyAdminPassword,
+  setAdminPassword,
+  generateToken,
+  createSession,
+  validateSession,
+  destroySession,
+  rateLimit,
+  getClientIP,
+  sanitizeString,
+  validateLength,
+} from '@/lib/security'
 
-const ENV_PASSWORD = process.env.ADMIN_PASSWORD || 'astar@2024'
-
-/** Get the effective admin password (DB override → env fallback) */
-async function getEffectivePassword(): Promise<string> {
-  try {
-    const setting = await db.siteSetting.findUnique({ where: { key: 'adminPassword' } })
-    return setting?.value || ENV_PASSWORD
-  } catch {
-    return ENV_PASSWORD
-  }
-}
-
-/** Login — verify password */
+/** Login — verify password and issue session token */
 export async function POST(request: Request) {
   try {
+    // Rate limit: 5 attempts per minute per IP
+    const ip = getClientIP(request)
+    const rateLimitResult = rateLimit(`auth:${ip}`, 5, 60_000)
+    if (rateLimitResult) return rateLimitResult
+
     const body = await request.json()
     const { password } = body
 
@@ -26,12 +30,22 @@ export async function POST(request: Request) {
       )
     }
 
-    const effectivePassword = await getEffectivePassword()
+    if (!validateLength(password, 1, 128)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid password format.' },
+        { status: 400 }
+      )
+    }
 
-    if (password === effectivePassword) {
+    const isValid = await verifyAdminPassword(password)
+
+    if (isValid) {
+      const token = generateToken()
+      createSession(token)
       return NextResponse.json({
         success: true,
         message: 'Authentication successful.',
+        token,
       })
     }
 
@@ -47,9 +61,66 @@ export async function POST(request: Request) {
   }
 }
 
+/** Validate session token */
+export async function GET(request: Request) {
+  try {
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ valid: false }, { status: 401 })
+    }
+
+    const token = authHeader.substring(7)
+    const isValid = validateSession(token)
+
+    if (!isValid) {
+      return NextResponse.json({ valid: false }, { status: 401 })
+    }
+
+    return NextResponse.json({ valid: true })
+  } catch {
+    return NextResponse.json({ valid: false }, { status: 401 })
+  }
+}
+
+/** Logout — destroy session */
+export async function DELETE(request: Request) {
+  try {
+    const authHeader = request.headers.get('Authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7)
+      destroySession(token)
+    }
+    return NextResponse.json({ success: true, message: 'Logged out.' })
+  } catch {
+    return NextResponse.json({ success: true, message: 'Logged out.' })
+  }
+}
+
 /** Change password — requires current password + new password */
 export async function PUT(request: Request) {
   try {
+    // Rate limit: 3 attempts per minute per IP
+    const ip = getClientIP(request)
+    const rateLimitResult = rateLimit(`changepw:${ip}`, 3, 60_000)
+    if (rateLimitResult) return rateLimitResult
+
+    // Require active session
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required.' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    if (!validateSession(token)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired session.' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const { currentPassword, newPassword } = body
 
@@ -67,16 +138,16 @@ export async function PUT(request: Request) {
       )
     }
 
-    if (newPassword.length < 6) {
+    if (!validateLength(newPassword, 8, 128)) {
       return NextResponse.json(
-        { success: false, error: 'New password must be at least 6 characters long.' },
+        { success: false, error: 'New password must be at least 8 characters long.' },
         { status: 400 }
       )
     }
 
     // Verify current password
-    const effectivePassword = await getEffectivePassword()
-    if (currentPassword !== effectivePassword) {
+    const isValid = await verifyAdminPassword(currentPassword)
+    if (!isValid) {
       return NextResponse.json(
         { success: false, error: 'Current password is incorrect.' },
         { status: 401 }
@@ -90,12 +161,8 @@ export async function PUT(request: Request) {
       )
     }
 
-    // Save new password to database (overrides env var)
-    await db.siteSetting.upsert({
-      where: { key: 'adminPassword' },
-      update: { value: newPassword },
-      create: { key: 'adminPassword', value: newPassword },
-    })
+    // Save new hashed password to database
+    await setAdminPassword(newPassword)
 
     return NextResponse.json({
       success: true,

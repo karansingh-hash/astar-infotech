@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/security'
 
-export async function GET() {
+// Seed endpoint - ADMIN ONLY. Use for initial database population only.
+export async function GET(request: Request) {
   try {
+    const authError = requireAdmin(request)
+    if (authError) return authError
+
     // Seed Services
     const existingServices = await db.service.count()
     if (existingServices === 0) {
@@ -69,10 +74,12 @@ export async function GET() {
           { key: 'companyName', value: 'A-Star Infotech' },
           { key: 'address', value: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan' },
           { key: 'phone', value: '+91 8560074448' },
-          { key: 'email', value: 'karansinghmeertiya@gmail.com' },
+          { key: 'email', value: 'contact@astarinfotech.in' },
+          { key: 'secondaryEmail', value: 'infootechastar@gmail.com' },
           { key: 'hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
-          { key: 'heroTitle', value: 'Building Smart Websites for Growing Businesses' },
-          { key: 'heroSubtitle', value: 'We craft stunning, high-performance websites that help businesses establish a powerful online presence and drive real results.' },
+          { key: 'heroBadge', value: 'Building Smart Websites for Growing Businesses' },
+          { key: 'heroHeading', value: 'Transform Your Digital Presence With Us' },
+          { key: 'heroSubtitle', value: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.' },
           { key: 'facebook', value: 'https://facebook.com/astarinfotech' },
           { key: 'instagram', value: 'https://instagram.com/astarinfotech' },
           { key: 'linkedin', value: 'https://linkedin.com/company/astarinfotech' },
@@ -82,31 +89,15 @@ export async function GET() {
       })
     }
 
-    // Seed sample contact
-    const existingContacts = await db.contact.count()
-    if (existingContacts === 0) {
-      await db.contact.create({
-        data: {
-          name: 'A-Star Infotech',
-          email: 'astarinfotech.dev@gmail.com',
-          phone: '+91 8560074448',
-          message: 'Welcome to A-Star Infotech! This is a test message to verify the database is working correctly.',
-        },
-      })
-    }
-
     return NextResponse.json({
       success: true,
-      message: 'Database seeded successfully! All data has been populated.',
+      message: 'Database seeded successfully!',
     })
   } catch (error) {
     console.error('Seed error:', error)
+    // Don't leak error details
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to seed database.',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
+      { success: false, error: 'Failed to seed database.' },
       { status: 500 }
     )
   }
