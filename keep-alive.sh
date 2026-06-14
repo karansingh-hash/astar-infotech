@@ -1,7 +1,8 @@
 #!/bin/bash
 while true; do
   cd /home/z/my-project
-  npx next dev -p 3000 2>&1 | tee -a dev.log
-  echo "Server died, restarting in 3s..." >> dev.log
-  sleep 3
+  export DATABASE_URL="postgresql://neondb_owner:npg_Xuv8IFwdHAD9@ep-fancy-cherry-ao91sgv7-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+  export ADMIN_PASSWORD="astar@2024"
+  node node_modules/.bin/next start --port 3000
+  sleep 2
 done
