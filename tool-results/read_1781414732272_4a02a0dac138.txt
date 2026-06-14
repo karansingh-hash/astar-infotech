@@ -1,0 +1,302 @@
+   200→   200→      if (res.ok && data.success) { setIsAuthenticated(true); sessionStorage.setItem('admin_auth', 'true'); setPassword(''); toast.success('Login Successful', { description: 'Welcome to the Admin Panel!' }) }
+   201→   201→      else toast.error('Login Failed', { description: data.error || 'Invalid password.' })
+   202→   202→    } catch { toast.error('Error', { description: 'Failed to connect to server.' }) } finally { setAuthLoading(false) }
+   203→   203→  }
+   204→   204→  const handleLogout = () => { setIsAuthenticated(false); sessionStorage.removeItem('admin_auth'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' }) }
+   205→   205→
+   206→   206→  const fetchDashboard = async () => { setDashboardLoading(true); try { const r = await fetch('/api/dashboard'); setDashboard(await r.json()) } catch { toast.error('Error', { description: 'Failed to fetch dashboard data.' }) } finally { setDashboardLoading(false) } }
+   207→   207→  const fetchContacts = async () => { setContactsLoading(true); try { const r = await fetch('/api/contacts'); const d = await r.json(); setContacts(d.contacts || []) } catch { toast.error('Error', { description: 'Failed to fetch contacts.' }) } finally { setContactsLoading(false) } }
+   208→   208→  const fetchServices = async () => { setServicesLoading(true); try { const r = await fetch('/api/services'); const d = await r.json(); setServices(d.services || []) } catch { toast.error('Error', { description: 'Failed to fetch services.' }) } finally { setServicesLoading(false) } }
+   209→   209→  const fetchPortfolio = async () => { setPortfolioLoading(true); try { const r = await fetch('/api/portfolio'); const d = await r.json(); setPortfolio(d.portfolio || []) } catch { toast.error('Error', { description: 'Failed to fetch portfolio.' }) } finally { setPortfolioLoading(false) } }
+   210→   210→  const fetchTestimonials = async () => { setTestimonialsLoading(true); try { const r = await fetch('/api/testimonials'); const d = await r.json(); setTestimonials(d.testimonials || []) } catch { toast.error('Error', { description: 'Failed to fetch testimonials.' }) } finally { setTestimonialsLoading(false) } }
+   211→   211→  const fetchStats = async () => { setStatsLoading(true); try { const r = await fetch('/api/stats'); const d = await r.json(); setStats(d.stats || []) } catch { toast.error('Error', { description: 'Failed to fetch stats.' }) } finally { setStatsLoading(false) } }
+   212→   212→  const fetchSettings = async () => { setSettingsLoading(true); try { const r = await fetch('/api/settings'); const d = await r.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || '', address: d.settings.address || '', phone: d.settings.phone || '', email: d.settings.email || '', secondaryEmail: d.settings.secondaryEmail || '', hours: d.settings.hours || '', facebook: d.settings.facebook || '', instagram: d.settings.instagram || '', linkedin: d.settings.linkedin || '', youtube: d.settings.youtube || '', brandColor: d.settings.brandColor || '', heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) } catch { toast.error('Error', { description: 'Failed to fetch settings.' }) } finally { setSettingsLoading(false) } }
+   213→   213→
+   214→   214→  const handleDeleteContact = async (id: string) => { setDeletingId(id); try { const r = await fetch('/api/contacts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); if (r.ok) { setContacts(p => p.filter(c => c.id !== id)); toast.success('Deleted', { description: 'Contact has been deleted.' }) } else { const d = await r.json(); toast.error('Error', { description: d.error || 'Failed to delete.' }) } } catch { toast.error('Error', { description: 'Failed to delete contact.' }) } finally { setDeletingId(null) } }
+   215→   215→
+   216→   216→  const apiCall = async (url: string, method: string, body?: unknown) => { const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }); const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Request failed'); return d }
+   217→   217→
+   218→   218→  const openServiceDialog = (mode: 'add' | 'edit', item?: ServiceItem) => { if (mode === 'edit' && item) { setServiceForm({ title: item.title, description: item.description, icon: item.icon, color: item.color, bgColor: item.bgColor, order: item.order }); setServiceDialog({ open: true, mode: 'edit', item }) } else { setServiceForm({ title: '', description: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', order: services.length }); setServiceDialog({ open: true, mode: 'add', item: null }) } }
+   219→   219→  const handleSaveService = async () => { setSaving(true); try { if (serviceDialog.mode === 'add') { await apiCall('/api/services', 'POST', serviceForm); toast.success('Service Added') } else { await apiCall('/api/services', 'PUT', { id: serviceDialog.item?.id, ...serviceForm }); toast.success('Service Updated') } setServiceDialog({ open: false, mode: 'add', item: null }); fetchServices() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save.' }) } finally { setSaving(false) } }
+   220→   220→  const handleDeleteService = async (id: string) => { setDeletingId(id); try { await apiCall('/api/services', 'DELETE', { id }); setServices(p => p.filter(s => s.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
+   221→   221→
+   222→   222→  const openPortfolioDialog = (mode: 'add' | 'edit', item?: PortfolioItem) => { if (mode === 'edit' && item) { setPortfolioForm({ title: item.title, category: item.category, description: item.description, tech: item.tech, color: item.color, image: item.image, order: item.order }); setPortfolioDialog({ open: true, mode: 'edit', item }) } else { setPortfolioForm({ title: '', category: '', description: '', tech: '', color: 'from-emerald-500 to-emerald-700', image: '', order: portfolio.length }); setPortfolioDialog({ open: true, mode: 'add', item: null }) } }
+   223→   223→  const handleSavePortfolio = async () => { setSaving(true); try { if (portfolioDialog.mode === 'add') { await apiCall('/api/portfolio', 'POST', portfolioForm); toast.success('Portfolio Item Added') } else { await apiCall('/api/portfolio', 'PUT', { id: portfolioDialog.item?.id, ...portfolioForm }); toast.success('Portfolio Updated') } setPortfolioDialog({ open: false, mode: 'add', item: null }); fetchPortfolio() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setSaving(false) } }
+   224→   224→  const handleDeletePortfolio = async (id: string) => { setDeletingId(id); try { await apiCall('/api/portfolio', 'DELETE', { id }); setPortfolio(p => p.filter(x => x.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
+   225→   225→
+   226→   226→  const openTestimonialDialog = (mode: 'add' | 'edit', item?: TestimonialItem) => { if (mode === 'edit' && item) { setTestimonialForm({ name: item.name, company: item.company, review: item.review, rating: item.rating, order: item.order }); setTestimonialDialog({ open: true, mode: 'edit', item }) } else { setTestimonialForm({ name: '', company: '', review: '', rating: 5, order: testimonials.length }); setTestimonialDialog({ open: true, mode: 'add', item: null }) } }
+   227→   227→  const handleSaveTestimonial = async () => { setSaving(true); try { if (testimonialDialog.mode === 'add') { await apiCall('/api/testimonials', 'POST', testimonialForm); toast.success('Testimonial Added') } else { await apiCall('/api/testimonials', 'PUT', { id: testimonialDialog.item?.id, ...testimonialForm }); toast.success('Testimonial Updated') } setTestimonialDialog({ open: false, mode: 'add', item: null }); fetchTestimonials() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setSaving(false) } }
+   228→   228→  const handleDeleteTestimonial = async (id: string) => { setDeletingId(id); try { await apiCall('/api/testimonials', 'DELETE', { id }); setTestimonials(p => p.filter(t => t.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
+   229→   229→
+   230→   230→  const openStatDialog = (mode: 'add' | 'edit', item?: StatItem) => { if (mode === 'edit' && item) { setStatForm({ value: item.value, label: item.label, order: item.order }); setStatDialog({ open: true, mode: 'edit', item }) } else { setStatForm({ value: '', label: '', order: stats.length }); setStatDialog({ open: true, mode: 'add', item: null }) } }
+   231→   231→  const handleSaveStat = async () => { setSaving(true); try { if (statDialog.mode === 'add') { await apiCall('/api/stats', 'POST', statForm); toast.success('Stat Added') } else { await apiCall('/api/stats', 'PUT', { id: statDialog.item?.id, ...statForm }); toast.success('Stat Updated') } setStatDialog({ open: false, mode: 'add', item: null }); fetchStats() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setSaving(false) } }
+   232→   232→  const handleDeleteStat = async (id: string) => { setDeletingId(id); try { await apiCall('/api/stats', 'DELETE', { id }); setStats(p => p.filter(s => s.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
+   233→   233→
+   234→   234→  const handleSaveSettings = async () => { setSaving(true); try { await apiCall('/api/settings', 'PUT', { settings: siteSettings }); toast.success('Settings Saved', { description: 'Business information has been updated.' }) } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save settings.' }) } finally { setSaving(false) } }
+   235→   235→
+   236→   236→  const handleChangePassword = async () => {
+   237→   237→    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) { toast.error('Error', { description: 'All fields are required.' }); return }
+   238→   238→    if (passwordForm.newPassword.length < 6) { toast.error('Error', { description: 'New password must be at least 6 characters.' }); return }
+   239→   239→    if (passwordForm.newPassword !== passwordForm.confirmPassword) { toast.error('Error', { description: 'Passwords do not match.' }); return }
+   240→   240→    setChangingPassword(true)
+   241→   241→    try {
+   242→   242→      const res = await fetch('/api/admin/auth', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword }) })
+   243→   243→      const data = await res.json()
+   244→   244→      if (res.ok && data.success) {
+   245→   245→        toast.success('Password Changed', { description: 'Your admin password has been updated successfully. Use the new password next time you log in.' })
+   246→   246→        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+   247→   247→        setPasswordVis({ current: false, new: false, confirm: false })
+   248→   248→      } else {
+   249→   249→        toast.error('Error', { description: data.error || 'Failed to change password.' })
+   250→   250→      }
+   251→   251→    } catch { toast.error('Error', { description: 'Failed to change password. Please try again.' }) }
+   252→   252→    finally { setChangingPassword(false) }
+   253→   253→  }
+   254→   254→
+   255→   255→  // Neon spinner component
+   256→   256→  const Spinner = () => <div className="flex items-center justify-center py-20"><div className="animate-spin w-10 h-10 border-4 border-neon/30 border-t-neon rounded-full" /></div>
+   257→   257→  const SectionHeader = ({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) => (
+   258→   258→    <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+   259→   259→      <div><h2 className="text-xl font-semibold text-foreground">{title}</h2><p className="text-sm text-muted-foreground mt-1">{subtitle}</p></div>
+   260→   260→      {action}
+   261→   261→    </div>
+   262→   262→  )
+   263→   263→
+   264→   264→  if (!isOpen) return null
+   265→   265→
+   266→   266→  if (!isAuthenticated) {
+   267→   267→    return (
+   268→   268→      <>
+   269→   269→        <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center p-4">
+   270→   270→          <div className="absolute top-20 right-20 w-72 h-72 bg-neon/5 rounded-full blur-3xl" />
+   271→   271→          <div className="absolute bottom-20 left-20 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
+   272→   272→          <Card className="w-full max-w-md glass-card border-neon/20 relative">
+   273→   273→            <CardContent className="p-8">
+   274→   274→              <div className="text-center mb-8">
+   275→   275→                <div className="w-16 h-16 bg-neon/10 border border-neon/30 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-neon/10">
+   276→   276→                  <Lock className="w-8 h-8 text-neon" />
+   277→   277→                </div>
+   278→   278→                <h2 className="text-2xl font-bold text-foreground">Admin Panel</h2>
+   279→   279→                <p className="text-sm text-muted-foreground mt-1">A-Star Infotech</p>
+   280→   280→              </div>
+   281→   281→              <form onSubmit={handleLogin} className="space-y-4">
+   282→   282→                <div className="space-y-2">
+   283→   283→                  <label htmlFor="admin-password" className="text-sm font-medium text-foreground">Password</label>
+   284→   284→                  <Input id="admin-password" type="password" placeholder="Enter admin password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus disabled={authLoading} className="futuristic-input h-11" />
+   285→   285→                </div>
+   286→   286→                <Button type="submit" className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-11" disabled={authLoading || !password.trim()}>
+   287→   287→                  {authLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Verifying...</> : <><Lock className="w-4 h-4 mr-2" />Login</>}
+   288→   288→                </Button>
+   289→   289→              </form>
+   290→   290→              <Button variant="ghost" className="w-full mt-3 text-muted-foreground" onClick={() => { setIsOpen(false); setPassword('') }}>Cancel</Button>
+   291→   291→            </CardContent>
+   292→   292→          </Card>
+   293→   293→        </div>
+   294→   294→      </>
+   295→   295→    )
+   296→   296→  }
+   297→   297→
+   298→   298→  return (
+   299→   299→    <>
+   300→   300→      <div className="fixed inset-0 z-[9999] bg-background flex">
+   301→   301→        {sidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
+   302→   302→        <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-dark-surface border-r border-border flex flex-col shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+   303→   303→          <div className="p-5 border-b border-border">
+   304→   304→            <div className="flex items-center gap-3">
+   305→   305→              <div className="w-10 h-10 bg-neon/10 border border-neon/30 rounded-xl flex items-center justify-center"><LayoutDashboard className="w-5 h-5 text-neon" /></div>
+   306→   306→              <div><div className="font-bold text-sm text-foreground">A-Star Infotech</div><div className="text-xs text-neon">Admin Panel</div></div>
+   307→   307→            </div>
+   308→   308→          </div>
+   309→   309→          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+   310→   310→            {TAB_CONFIG.map(tab => (
+   311→   311→              <button key={tab.key} onClick={() => { setActiveTab(tab.key); setSidebarOpen(false) }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.key ? 'bg-neon/10 text-neon border border-neon/20' : 'text-muted-foreground hover:bg-neon/5 hover:text-foreground'}`}>
+   312→   312→                <tab.icon className="w-5 h-5" />{tab.label}
+   313→   313→                {tab.key === 'inquiries' && dashboard && dashboard.totalContacts > 0 && <Badge className="ml-auto bg-neon/20 text-neon border-neon/30 text-xs px-1.5 py-0.5">{dashboard.totalContacts}</Badge>}
+   314→   314→              </button>
+   315→   315→            ))}
+   316→   316→          </nav>
+   317→   317→          <div className="p-3 border-t border-border">
+   318→   318→            <button onClick={() => { setIsOpen(false); setSidebarOpen(false); onExternalClose?.() }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-neon/5 hover:text-foreground transition-colors"><Eye className="w-5 h-5" />View Website</button>
+   319→   319→          </div>
+   320→   320→        </aside>
+   321→   321→        <main className="flex-1 flex flex-col min-w-0">
+   322→   322→          <header className="h-16 border-b border-border bg-dark-surface shrink-0 flex items-center justify-between px-4 md:px-6">
+   323→   323→            <div className="flex items-center gap-3">
+   324→   324→              <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 rounded-md hover:bg-neon/5 transition-colors" aria-label="Open sidebar"><Menu className="w-5 h-5 text-foreground" /></button>
+   325→   325→              <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab === 'inquiries' ? 'Inquiries' : activeTab}</h1>
+   326→   326→            </div>
+   327→   327→            <div className="flex items-center gap-2">
+   328→   328→              <Button variant="ghost" size="sm" onClick={() => { setIsOpen(false); onExternalClose?.() }} className="text-muted-foreground hidden sm:flex hover:bg-neon/5"><Eye className="w-4 h-4 mr-1.5" />View Website</Button>
+   329→   329→              {mounted && (
+   330→   330→                <button
+   331→   331→                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+   332→   332→                  className="p-2 rounded-lg hover:bg-neon/10 transition-colors"
+   333→   333→                  aria-label="Toggle theme"
+   334→   334→                  title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+   335→   335→                >
+   336→   336→                  {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-foreground" />}
+   337→   337→                </button>
+   338→   338→              )}
+   339→   339→              <button
+   340→   340→                onClick={handleLogout}
+   341→   341→                className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
+   342→   342→                aria-label="Logout"
+   343→   343→                title="Logout"
+   344→   344→              >
+   345→   345→                <LogOut className="w-5 h-5 text-red-400/80 hover:text-red-400" />
+   346→   346→              </button>
+   347→   347→            </div>
+   348→   348→          </header>
+   349→   349→          <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-background">
+   350→   350→
+   351→   351→            {/* Dashboard */}
+   352→   352→            {activeTab === 'dashboard' && (
+   353→   353→              <div>
+   354→   354→                <SectionHeader title="Dashboard" subtitle="Overview of your website activity" />
+   355→   355→                {dashboardLoading ? <Spinner /> : (
+   356→   356→                  <>
+   357→   357→                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+   358→   358→                      {[
+   359→   359→                        { label: 'Total Contacts', value: dashboard?.totalContacts ?? 0, icon: Users, color: 'text-neon', bg: 'bg-neon/10' },
+   360→   360→                        { label: 'Today', value: dashboard?.todayContacts ?? 0, icon: Calendar, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+   361→   361→                        { label: 'This Week', value: dashboard?.weekContacts ?? 0, icon: BarChart3, color: 'text-neon', bg: 'bg-neon/10' },
+   362→   362→                        { label: 'This Month', value: dashboard?.monthContacts ?? 0, icon: BarChart3, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+   363→   363→                      ].map((item, i) => (
+   364→   364→                        <Card key={i} className="glass-card border-border">
+   365→   365→                          <CardContent className="p-4 md:p-6">
+   366→   366→                            <div className="flex items-center justify-between">
+   367→   367→                              <div><p className="text-xs md:text-sm text-muted-foreground">{item.label}</p><p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{item.value}</p></div>
+   368→   368→                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${item.bg} flex items-center justify-center`}><item.icon className={`w-5 h-5 md:w-6 md:h-6 ${item.color}`} /></div>
+   369→   369→                            </div>
+   370→   370→                          </CardContent>
+   371→   371→                        </Card>
+   372→   372→                      ))}
+   373→   373→                    </div>
+   374→   374→                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+   375→   375→                      {[
+   376→   376→                        { label: 'Services', value: dashboard?.totalServices ?? 0, icon: Globe },
+   377→   377→                        { label: 'Portfolio', value: dashboard?.totalPortfolio ?? 0, icon: Briefcase },
+   378→   378→                        { label: 'Testimonials', value: dashboard?.totalTestimonials ?? 0, icon: Star },
+   379→   379→                      ].map((item, i) => (
+   380→   380→                        <Card key={i} className={`glass-card border-border ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`}>
+   381→   381→                          <CardContent className="p-4 md:p-6">
+   382→   382→                            <div className="flex items-center justify-between">
+   383→   383→                              <div><p className="text-xs md:text-sm text-muted-foreground">{item.label}</p><p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{item.value}</p></div>
+   384→   384→                              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-neon/10 flex items-center justify-center"><item.icon className="w-5 h-5 md:w-6 md:h-6 text-neon" /></div>
+   385→   385→                            </div>
+   386→   386→                          </CardContent>
+   387→   387→                        </Card>
+   388→   388→                      ))}
+   389→   389→                    </div>
+   390→   390→                    <Card className="glass-card border-border mb-6">
+   391→   391→                      <CardContent className="p-4 md:p-6">
+   392→   392→                        <h3 className="text-lg font-semibold text-foreground mb-4">Recent Contacts</h3>
+   393→   393→                        {!dashboard?.recentContacts?.length ? <p className="text-sm text-muted-foreground text-center py-8">No contact activity yet</p> : (
+   394→   394→                          <div className="space-y-3 max-h-64 overflow-y-auto">
+   395→   395→                            {dashboard.recentContacts.map(c => (
+   396→   396→                              <div key={c.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+   397→   397→                                <div className="w-8 h-8 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center text-neon font-semibold text-xs shrink-0">{c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</div>
+   398→   398→                                <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{c.name}</p><p className="text-xs text-muted-foreground truncate">{c.email}</p></div>
+   399→   399→                                <p className="text-xs text-muted-foreground shrink-0">{new Date(c.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}</p>
+   400→   400→                              </div>
+   401→   401→                            ))}
+   402→   402→                          </div>
+   403→   403→                        )}
+   404→   404→                      </CardContent>
+   405→   405→                    </Card>
+   406→   406→                    <Card className="glass-card border-border">
+   407→   407→                      <CardContent className="p-4 md:p-6">
+   408→   408→                        <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
+   409→   409→                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+   410→   410→                          {[
+   411→   411→                            { label: 'View Inquiries', icon: Inbox, tab: 'inquiries' as AdminTab },
+   412→   412→                            { label: 'Manage Services', icon: Globe, tab: 'services' as AdminTab },
+   413→   413→                            { label: 'Manage Portfolio', icon: Briefcase, tab: 'portfolio' as AdminTab },
+   414→   414→                            { label: 'Edit Settings', icon: Wrench, tab: 'settings' as AdminTab },
+   415→   415→                          ].map(a => (
+   416→   416→                            <button key={a.tab} onClick={() => setActiveTab(a.tab)} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border hover:border-neon/30 hover:bg-neon/5 transition-all duration-200">
+   417→   417→                              <div className="w-10 h-10 rounded-lg bg-neon/10 flex items-center justify-center"><a.icon className="w-5 h-5 text-neon" /></div>
+   418→   418→                              <span className="text-xs font-medium text-foreground text-center">{a.label}</span>
+   419→   419→                            </button>
+   420→   420→                          ))}
+   421→   421→                        </div>
+   422→   422→                      </CardContent>
+   423→   423→                    </Card>
+   424→   424→                  </>
+   425→   425→                )}
+   426→   426→              </div>
+   427→   427→            )}
+   428→   428→
+   429→   429→            {/* Inquiries */}
+   430→   430→            {activeTab === 'inquiries' && (
+   431→   431→              <div>
+   432→   432→                <SectionHeader title="Contact Submissions" subtitle="Manage all contact form inquiries" action={<Button variant="outline" size="sm" onClick={fetchContacts} disabled={contactsLoading} className="border-neon/30 text-neon hover:bg-neon/10">{contactsLoading ? <span className="animate-spin mr-1.5 inline-block w-3.5 h-3.5 border-2 border-neon border-t-transparent rounded-full" /> : null}Refresh</Button>} />
+   433→   433→                {contactsLoading ? <Spinner /> : contacts.length === 0 ? (
+   434→   434→                  <div className="text-center py-20"><Inbox className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-medium text-muted-foreground">No contacts yet</h3></div>
+   435→   435→                ) : (
+   436→   436→                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+   437→   437→                    {contacts.map(c => (
+   438→   438→                      <Card key={c.id} className="glass-card border-border hover:border-neon/20 transition-colors">
+   439→   439→                        <CardContent className="p-5">
+   440→   440→                          <div className="flex items-start justify-between gap-4">
+   441→   441→                            <div className="flex-1 min-w-0">
+   442→   442→                              <div className="flex items-center gap-2 flex-wrap">
+   443→   443→                                <div className="w-9 h-9 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center text-neon font-semibold text-xs shrink-0">{c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</div>
+   444→   444→                                <span className="font-semibold text-foreground">{c.name}</span>
+   445→   445→                                {c.phone && <a href={`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-neon hover:text-neon/80 bg-neon/10 px-2 py-0.5 rounded-full"><MessageCircle className="w-3 h-3" />WhatsApp</a>}
+   446→   446→                              </div>
+   447→   447→                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-0 sm:ml-11 flex-wrap">
+   448→   448→                                <span className="flex items-center gap-1"><MailCheck className="w-3.5 h-3.5" /><a href={`mailto:${c.email}`} className="hover:text-neon transition-colors">{c.email}</a></span>
+   449→   449→                                {c.phone && <span className="flex items-center gap-1"><PhoneCall className="w-3.5 h-3.5" />{c.phone}</span>}
+   450→   450→                                <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(c.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+   451→   451→                              </div>
+   452→   452→                              <p className="mt-3 text-sm text-foreground/80 bg-dark-surface rounded-lg p-3 ml-0 sm:ml-11 leading-relaxed border border-border">{c.message}</p>
+   453→   453→                            </div>
+   454→   454→                            <Button variant="ghost" size="sm" onClick={() => handleDeleteContact(c.id)} disabled={deletingId === c.id} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 shrink-0">
+   455→   455→                              {deletingId === c.id ? <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <Trash2 className="w-4 h-4" />}
+   456→   456→                            </Button>
+   457→   457→                          </div>
+   458→   458→                        </CardContent>
+   459→   459→                      </Card>
+   460→   460→                    ))}
+   461→   461→                  </div>
+   462→   462→                )}
+   463→   463→              </div>
+   464→   464→            )}
+   465→   465→
+   466→   466→            {/* Services */}
+   467→   467→            {activeTab === 'services' && (
+   468→   468→              <div>
+   469→   469→                <SectionHeader title="Services" subtitle="Manage your service offerings" action={<Button size="sm" className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30" onClick={() => openServiceDialog('add')}><Plus className="w-4 h-4 mr-1.5" />Add Service</Button>} />
+   470→   470→                {servicesLoading ? <Spinner /> : services.length === 0 ? (
+   471→   471→                  <div className="text-center py-20"><Globe className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-medium text-muted-foreground">No services yet</h3></div>
+   472→   472→                ) : (
+   473→   473→                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+   474→   474→                    {services.sort((a, b) => a.order - b.order).map(s => (
+   475→   475→                      <Card key={s.id} className="glass-card border-border hover:border-neon/20 transition-colors">
+   476→   476→                        <CardContent className="p-5">
+   477→   477→                          <div className="flex items-start justify-between gap-4">
+   478→   478→                            <div className="flex-1 min-w-0">
+   479→   479→                              <div className="flex items-center gap-3">
+   480→   480→                                <div className={`w-10 h-10 rounded-xl ${s.bgColor || 'bg-neon/10'} flex items-center justify-center shrink-0`}><Globe className={`w-5 h-5 ${s.color || 'text-neon'}`} /></div>
+   481→   481→                                <div><h3 className="font-semibold text-foreground">{s.title}</h3><p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{s.description}</p></div>
+   482→   482→                              </div>
+   483→   483→                              <div className="flex items-center gap-3 mt-2 ml-13 text-xs text-muted-foreground">
+   484→   484→                                <Badge variant="secondary" className="text-xs bg-neon/10 text-neon border-neon/20">Icon: {s.icon}</Badge>
+   485→   485→                                <Badge variant="secondary" className="text-xs bg-dark-card text-muted-foreground border-border">Order: {s.order}</Badge>
+   486→   486→                              </div>
+   487→   487→                            </div>
+   488→   488→                            <div className="flex items-center gap-1 shrink-0">
+   489→   489→                              <Button variant="ghost" size="sm" onClick={() => openServiceDialog('edit', s)} className="text-neon hover:text-neon/80 hover:bg-neon/10"><Pencil className="w-4 h-4" /></Button>
+   490→   490→                              <Button variant="ghost" size="sm" onClick={() => handleDeleteService(s.id)} disabled={deletingId === s.id} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">{deletingId === s.id ? <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <Trash2 className="w-4 h-4" />}</Button>
+   491→   491→                            </div>
+   492→   492→                          </div>
+   493→   493→                        </CardContent>
+   494→   494→                      </Card>
+   495→   495→                    ))}
+   496→   496→                  </div>
+   497→   497→                )}
+   498→   498→                <Dialog open={serviceDialog.open} onOpenChange={o => setServiceDialog(p => ({ ...p, open: o }))}>
+   499→   499→                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-dark-surface border-neon/20">
+
+[showing lines 200-499 of 1459; use offset=500 with limit to continue reading]
