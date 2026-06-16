@@ -1,19 +1,12 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
-import { validateSession } from '@/lib/admin-auth'
-
-async function checkAuth(request: Request): Promise<boolean> {
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '')
-  if (!token) return false
-  return validateSession(token)
-}
+import { requireAdmin } from '@/lib/security'
 
 // DELETE - Delete contact
 export async function DELETE(request: Request) {
-  if (!(await checkAuth(request))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const authError = await requireAdmin(request)
+  if (authError) return authError
 
   try {
     const { searchParams } = new URL(request.url)
@@ -24,6 +17,8 @@ export async function DELETE(request: Request) {
     }
 
     await db.contact.delete({ where: { id } })
+
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Delete contact error:', error)

@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 // ─── Password Hashing ───
 const SALT_ROUNDS = 12
@@ -66,52 +66,83 @@ export async function setAdminPassword(newPassword: string): Promise<void> {
   await db.siteSetting.deleteMany({ where: { key: 'adminPassword' } })
 }
 
-// ─── Session Token Management ───
-const ACTIVE_TOKENS = new Map<string, { createdAt: number }>()
+// ─── Session Token Management (DB-backed) ───
 const SESSION_DURATION = 24 * 60 * 60 * 1000 // 24 hours
+const MAX_ACTIVE_SESSIONS = 10 // Limit concurrent sessions
 
-export function generateToken(): string {
+function generateSecureToken(): string {
   const bytes = new Uint8Array(32)
   crypto.getRandomValues(bytes)
   return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
 }
 
-export function createSession(token: string): void {
-  ACTIVE_TOKENS.set(token, { createdAt: Date.now() })
-}
+export async function createSession(token?: string): Promise<string> {
+  const sessionToken = token || generateSecureToken()
+  const expiresAt = new Date(Date.now() + SESSION_DURATION)
 
-export function validateSession(token: string): boolean {
-  const session = ACTIVE_TOKENS.get(token)
-  if (!session) return false
-  if (Date.now() - session.createdAt > SESSION_DURATION) {
-    ACTIVE_TOKENS.delete(token)
-    return false
-  }
-  return true
-}
-
-export function destroySession(token: string): void {
-  ACTIVE_TOKENS.delete(token)
-}
-
-// Clean up expired sessions periodically
-setInterval(() => {
-  const now = Date.now()
-  for (const [token, session] of ACTIVE_TOKENS.entries()) {
-    if (now - session.createdAt > SESSION_DURATION) {
-      ACTIVE_TOKENS.delete(token)
+  // Check active session count and evict oldest if needed
+  const activeCount = await db.adminSession.count()
+  if (activeCount >= MAX_ACTIVE_SESSIONS) {
+    // Delete the oldest session
+    const oldest = await db.adminSession.findFirst({ orderBy: { expiresAt: 'asc' } })
+    if (oldest) {
+      await db.adminSession.delete({ where: { id: oldest.id } }).catch(() => {})
     }
   }
-}, 60 * 60 * 1000) // Every hour
 
-// ─── Admin Auth Middleware ───
-export function requireAdmin(request: Request): NextResponse | null {
+  await db.adminSession.create({
+    data: { token: sessionToken, expiresAt },
+  })
+
+  return sessionToken
+}
+
+export async function validateSession(token: string): Promise<boolean> {
+  if (!token) return false
+
+  try {
+    const session = await db.adminSession.findUnique({ where: { token } })
+
+    if (!session) return false
+    if (new Date() > session.expiresAt) {
+      // Clean up expired session
+      await db.adminSession.delete({ where: { token } }).catch(() => {})
+      return false
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+export async function destroySession(token: string): Promise<void> {
+  try {
+    await db.adminSession.delete({ where: { token } })
+  } catch {
+    // Ignore if session doesn't exist
+  }
+}
+
+export async function cleanExpiredSessions(): Promise<void> {
+  try {
+    await db.adminSession.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    })
+  } catch {
+    // Ignore errors
+  }
+}
+
+// ─── Admin Auth Middleware (async - uses DB) ───
+export async function requireAdmin(request: Request): Promise<NextResponse | null> {
   const authHeader = request.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: 'Authentication required.' }, { status: 401 })
   }
   const token = authHeader.substring(7)
-  if (!validateSession(token)) {
+  const isValid = await validateSession(token)
+  if (!isValid) {
     return NextResponse.json({ error: 'Invalid or expired session.' }, { status: 401 })
   }
   return null // Auth passed
@@ -119,30 +150,39 @@ export function requireAdmin(request: Request): NextResponse | null {
 
 // ─── Rate Limiting ───
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const MAX_RATE_LIMIT_ENTRIES = 10000
 
 export function rateLimit(key: string, maxRequests: number, windowMs: number): NextResponse | null {
   const now = Date.now()
+
+  // Periodic cleanup of rate limit map to prevent memory leak
+  if (rateLimitMap.size > MAX_RATE_LIMIT_ENTRIES) {
+    for (const [k, v] of rateLimitMap.entries()) {
+      if (now > v.resetAt) rateLimitMap.delete(k)
+    }
+  }
+
   const entry = rateLimitMap.get(key)
-  
+
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(key, { count: 1, resetAt: now + windowMs })
     return null
   }
-  
+
   if (entry.count >= maxRequests) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       { status: 429 }
     )
   }
-  
+
   entry.count++
   return null
 }
 
 export function getClientIP(request: Request): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
-    || request.headers.get('x-real-ip') 
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
     || 'unknown'
 }
 

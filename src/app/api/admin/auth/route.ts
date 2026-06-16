@@ -2,13 +2,11 @@ import { NextResponse } from 'next/server'
 import {
   verifyAdminPassword,
   setAdminPassword,
-  generateToken,
   createSession,
   validateSession,
   destroySession,
   rateLimit,
   getClientIP,
-  sanitizeString,
   validateLength,
 } from '@/lib/security'
 
@@ -40,8 +38,7 @@ export async function POST(request: Request) {
     const isValid = await verifyAdminPassword(password)
 
     if (isValid) {
-      const token = generateToken()
-      createSession(token)
+      const token = await createSession()
       return NextResponse.json({
         success: true,
         message: 'Authentication successful.',
@@ -70,7 +67,7 @@ export async function GET(request: Request) {
     }
 
     const token = authHeader.substring(7)
-    const isValid = validateSession(token)
+    const isValid = await validateSession(token)
 
     if (!isValid) {
       return NextResponse.json({ valid: false }, { status: 401 })
@@ -88,7 +85,7 @@ export async function DELETE(request: Request) {
     const authHeader = request.headers.get('Authorization')
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7)
-      destroySession(token)
+      await destroySession(token)
     }
     return NextResponse.json({ success: true, message: 'Logged out.' })
   } catch {
@@ -114,7 +111,7 @@ export async function PUT(request: Request) {
     }
 
     const token = authHeader.substring(7)
-    if (!validateSession(token)) {
+    if (!(await validateSession(token))) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired session.' },
         { status: 401 }

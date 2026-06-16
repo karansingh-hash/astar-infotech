@@ -9,7 +9,7 @@ import { requireAdmin } from '@/lib/security'
  */
 export async function GET(request: Request) {
   try {
-    const authError = requireAdmin(request)
+    const authError = await requireAdmin(request)
     if (authError) return authError
 
     const { searchParams } = new URL(request.url)
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
-    const authError = requireAdmin(request)
+    const authError = await requireAdmin(request)
     if (authError) return authError
 
     const body = await request.json()

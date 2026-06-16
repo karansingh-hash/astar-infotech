@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Keys that should NEVER be exposed to the public
+const PRIVATE_KEYS = new Set(['adminPassword', 'adminPasswordHash'])
+
 export async function GET() {
   try {
     const [settings, services, portfolio, testimonials, stats] = await Promise.all([
@@ -11,10 +14,12 @@ export async function GET() {
       db.stat.findMany({ orderBy: { order: 'asc' } }),
     ])
 
-    // Convert settings array to object
+    // Convert settings array to object — filter out private keys
     const settingsObj: Record<string, string> = {}
     for (const s of settings) {
-      settingsObj[s.key] = s.value
+      if (!PRIVATE_KEYS.has(s.key)) {
+        settingsObj[s.key] = s.value
+      }
     }
 
     return NextResponse.json({

@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/security'
 // Seed endpoint - ADMIN ONLY. Use for initial database population only.
 export async function GET(request: Request) {
   try {
-    const authError = requireAdmin(request)
+    const authError = await requireAdmin(request)
     if (authError) return authError
 
     // Seed Services

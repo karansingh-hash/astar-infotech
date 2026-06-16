@@ -1,21 +1,25 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
-import { validateSession } from '@/lib/admin-auth'
+import { requireAdmin, sanitizeString } from '@/lib/security'
 
-async function checkAuth(request: Request): Promise<string | null> {
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '')
-  if (!token) return null
-  const valid = await validateSession(token)
-  return valid ? token : null
-}
+// Settings keys that are allowed to be updated via admin content API
+const ALLOWED_SETTINGS_KEYS = new Set([
+  'companyName', 'address', 'phone', 'email', 'secondaryEmail', 'hours',
+  'facebook', 'instagram', 'linkedin', 'youtube', 'brandColor',
+  'heroBadge', 'heroHeading', 'heroSubtitle',
+  'aboutHeading', 'aboutDescription1', 'aboutDescription2',
+  'aboutVision', 'aboutMission', 'aboutValues',
+  'whyChooseUsIntro',
+])
+
+// Keys that should NEVER be exposed in API responses
+const PRIVATE_KEYS = new Set(['adminPassword', 'adminPasswordHash'])
 
 // GET all content for admin
 export async function GET(request: Request) {
-  const token = await checkAuth(request)
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const authError = await requireAdmin(request)
+  if (authError) return authError
 
   try {
     const [settings, services, portfolio, testimonials, stats, contacts] = await Promise.all([
@@ -27,10 +31,12 @@ export async function GET(request: Request) {
       db.contact.findMany({ orderBy: { createdAt: 'desc' } }),
     ])
 
-    // Convert settings array to object
+    // Convert settings array to object, filtering out private keys
     const settingsObj: Record<string, string> = {}
     for (const s of settings) {
-      settingsObj[s.key] = s.value
+      if (!PRIVATE_KEYS.has(s.key)) {
+        settingsObj[s.key] = s.value
+      }
     }
 
     return NextResponse.json({
@@ -49,10 +55,8 @@ export async function GET(request: Request) {
 
 // PUT update site settings
 export async function PUT(request: Request) {
-  const token = await checkAuth(request)
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const authError = await requireAdmin(request)
+  if (authError) return authError
 
   try {
     const { settings } = await request.json()
@@ -61,16 +65,25 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Settings object is required' }, { status: 400 })
     }
 
-    const updates = Object.entries(settings).map(([key, value]) =>
+    // Only allow whitelisted keys — prevent writing to adminPassword, adminPasswordHash, etc.
+    const filteredSettings: Record<string, string> = {}
+    for (const [key, value] of Object.entries(settings)) {
+      if (ALLOWED_SETTINGS_KEYS.has(key) && typeof value === 'string') {
+        filteredSettings[key] = sanitizeString(value, 5000)
+      }
+    }
+
+    const updates = Object.entries(filteredSettings).map(([key, value]) =>
       db.siteSetting.upsert({
         where: { key },
-        update: { value: String(value) },
-        create: { key, value: String(value) },
+        update: { value },
+        create: { key, value },
       })
     )
 
     await Promise.all(updates)
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Update settings error:', error)
