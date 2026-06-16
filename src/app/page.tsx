@@ -1059,22 +1059,22 @@ export default function Home() {
         {/* Coding computer background image */}
         <div className="absolute inset-0">
           <img src="/coding-bg.png" alt="" className="w-full h-full object-cover object-center hero-bg-image" aria-hidden="true" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 sm:via-background/[0.93] to-background/80 sm:to-background/[0.67]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 sm:via-transparent to-background/90 sm:to-background/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 sm:via-background/60 to-background/30 sm:to-background/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60 sm:to-background/40" />
         </div>
-        <div className="absolute inset-0 hero-grid" />
-        <div className="absolute inset-0 scanline-overlay" />
+        <div className="absolute inset-0 hero-grid opacity-30" />
+        <div className="absolute inset-0 scanline-overlay opacity-30" />
         <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl animate-neon-pulse" />
         <div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
-          <div className="max-w-3xl">
+          <div className="max-w-3xl bg-background/40 backdrop-blur-sm rounded-2xl p-6 sm:p-8 -m-6 sm:-m-8">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
             </motion.div>
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
               {siteSettings.heroHeading}
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/60 max-w-2xl leading-relaxed">
+            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">
               {siteSettings.heroSubtitle}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
