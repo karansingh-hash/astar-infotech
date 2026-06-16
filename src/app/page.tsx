@@ -88,7 +88,7 @@ const DEFAULT_SETTINGS = {
   address: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan',
   phone: '+91 8560074448',
   email: 'contact@astarinfotech.in',
-  secondaryEmail: 'infootechastar@gmail.com',
+  secondaryEmail: '',
   hours: 'Mon – Sat: 10:00 AM – 7:00 PM',
   facebook: 'https://facebook.com/astarinfotech',
   instagram: 'https://instagram.com/astarinfotech',
@@ -1326,8 +1326,8 @@ export default function Home() {
                     {[
                       { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
                       { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
-                      { icon: Mail, label: 'Primary Email', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
-                      ...(siteSettings.secondaryEmail ? [{ icon: Mail, label: 'Secondary Email', value: siteSettings.secondaryEmail, href: `mailto:${siteSettings.secondaryEmail}` }] : []),
+                      { icon: Mail, label: 'Email', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
+
                       { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
                     ].map((item, i) => (
                       <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 group cursor-pointer">
@@ -1434,7 +1434,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col">
                     <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
-                    {siteSettings.secondaryEmail && siteSettings.secondaryEmail !== siteSettings.email && <a href={`mailto:${siteSettings.secondaryEmail}`} className="text-xs text-muted-foreground/70 hover:text-neon transition-colors break-all mt-0.5">{siteSettings.secondaryEmail}</a>}
+
                   </div>
                 </li>
               </ul>
