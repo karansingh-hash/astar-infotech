@@ -71,3 +71,10 @@ model SiteSetting {
   key   String @unique
   value String
 }
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
