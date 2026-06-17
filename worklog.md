@@ -395,3 +395,34 @@ Stage Summary:
 - Input sanitization and length limits on all routes
 - Security headers added via middleware
 - Deployed to https://astarinfotech.in via Vercel
+
+---
+Task ID: 1-9
+Agent: Main Agent
+Task: Fix website not loading on www.astarinfotech.in - main content blank
+
+Work Log:
+- User reported website not working at https://www.astarinfotech.in
+- Investigated: www domain now returns HTTP 200 (user added it in Vercel dashboard)
+- Used agent-browser to load page and took screenshot
+- VLM analysis revealed: navigation and footer load, but main content area (hero, services, portfolio, testimonials) was BLANK
+- Tested API endpoints: /api/services, /api/portfolio, /api/testimonials, /api/stats all returned HTTP 308 redirects
+- Root cause: REDIRECT LOOP on API endpoints
+  - www.astarinfotech.in/api/* → vercel.json rule redirected to astarinfotech.in/api/* (my earlier fix)
+  - astarinfotech.in/api/* → Vercel dashboard setting redirected to www.astarinfotech.in/api/* (user's config)
+  - Infinite loop = API never responds = main content stays blank
+- Fix: Removed the conflicting www→non-www redirect rule from vercel.json (since user chose www as primary domain in Vercel)
+- Committed and pushed fix to GitHub (auto-deployed to Vercel)
+- Waited 90 seconds for deployment
+- Verified all API endpoints now return HTTP 200 with correct data
+- Verified via agent-browser: all page sections (hero, about, services, portfolio, testimonials, contact, footer) now load with content
+- Final test: www.astarinfotech.in → HTTP 200 (130KB), astarinfotech.in → 307 redirect to www → 200, all APIs → 200
+
+Stage Summary:
+- Website fully functional at https://www.astarinfotech.in
+- Primary domain: www.astarinfotech.in (HTTP 200)
+- Non-www domain: astarinfotech.in redirects to www (HTTP 307 → 200)
+- All API endpoints working: services, portfolio, testimonials, stats, settings all return HTTP 200
+- All page sections rendering with content: hero, about, services, portfolio, testimonials, contact, footer
+- Root cause was conflicting redirect rules between vercel.json and Vercel dashboard settings
+- Fix deployed and verified end-to-end
