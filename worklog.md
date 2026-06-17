@@ -426,3 +426,38 @@ Stage Summary:
 - All page sections rendering with content: hero, about, services, portfolio, testimonials, contact, footer
 - Root cause was conflicting redirect rules between vercel.json and Vercel dashboard settings
 - Fix deployed and verified end-to-end
+
+---
+Task ID: 1-10
+Agent: Main Agent
+Task: Add show/hide password eye toggle in admin login password field
+
+Work Log:
+- User requested eye icon in admin panel login password box to show/hide password
+- Located password input at line 298 of src/app/page.tsx
+- Verified Eye and EyeOff icons already imported from lucide-react
+- Added showPassword state (boolean) to AdminPanel component
+- Wrapped password Input in a relative container
+- Added eye toggle button positioned absolute right-3, vertically centered
+- Button toggles input type between 'password' (hidden) and 'text' (visible)
+- Eye icon shows when password hidden, EyeOff icon shows when visible
+- Added aria-labels for accessibility (Show password / Hide password)
+- Added hover effect: icon turns neon color on hover
+- Added pr-11 to input to prevent text overlap with button
+- Set tabIndex=-1 on button so it doesn't interfere with form tab order
+- Ran lint: only pre-existing seed.js error, my changes clean
+- Committed and pushed to GitHub (auto-deployed to Vercel)
+- Verified on live site https://www.astarinfotech.in using agent-browser:
+  - Clicked Admin Panel button → login form appeared
+  - Default state: type="password", button labeled "Show password"
+  - Clicked eye button → type changed to "text", button labeled "Hide password"
+  - Typed password "MySecretPass123" → visible as plain text when toggled
+  - VLM confirmed: eye icon present, password text visible when toggled
+
+Stage Summary:
+- Eye toggle feature deployed and verified working on live site
+- Password field now has show/hide eye icon button on the right side
+- Click eye to reveal password as plain text, click again to hide as dots
+- Icon switches between Eye (show) and EyeOff (hide) states
+- Accessible with proper aria-labels
+- Matches the existing pattern used in the Change Password form
