@@ -1,5 +1,18 @@
 {
   "buildCommand": "npx prisma generate && next build",
   "framework": "nextjs",
-  "regions": ["bom1"]
+  "regions": ["bom1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.astarinfotech.in"
+        }
+      ],
+      "destination": "https://astarinfotech.in/:path*",
+      "permanent": true
+    }
+  ]
 }
