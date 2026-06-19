@@ -461,3 +461,41 @@ Stage Summary:
 - Icon switches between Eye (show) and EyeOff (hide) states
 - Accessible with proper aria-labels
 - Matches the existing pattern used in the Change Password form
+
+---
+Task ID: 1-12
+Agent: Main Agent
+Task: Create Privacy Policy and Terms of Service pages
+
+Work Log:
+- User requested Privacy Policy and Terms of Service for the website
+- Found footer already had "Privacy Policy" and "Terms of Service" links but they pointed to "#" (non-functional)
+- Created /src/components/legal-modal.tsx with full legal content:
+  - Privacy Policy: 11 sections (Information Collection, Usage, Disclosure, Tracking, Third-Party, Security, Retention, Rights, Children, Changes, Contact)
+  - Terms of Service: 15 sections (Services, Acceptance, IP, Client Responsibilities, Payment Terms, Timeline, Revisions, Liability, Warranties, Third-Party, Confidentiality, Termination, Governing Law, Changes, Contact)
+  - Both include auto-updating "Last updated" date
+  - Contact info: contact@astarinfotech.in, +91 8560074448, New Delhi address
+  - Scrollable modal with proper typography, neon accents, section icons
+- Created /src/types/global.d.ts with Window.openLegal type declaration
+- Updated src/app/page.tsx:
+  - Imported LegalModal component
+  - Added <LegalModal /> after AdminPanel
+  - Changed footer links from <a href="#"> to <button onClick={window.openLegal}>
+  - Added sm:pr-16 to footer bottom bar to prevent WhatsApp button overlap
+- Ran lint: only pre-existing seed.js error, new code clean
+- Committed and pushed to GitHub (auto-deployed to Vercel)
+- Verified on live site https://www.astarinfotech.in:
+  - Scrolled to footer, found Privacy Policy and Terms of Service buttons
+  - Clicked Privacy Policy → modal opened with full policy text
+  - Closed modal, clicked Terms of Service → modal opened with full terms text
+  - Both modals show "Last updated: 19 June 2026" and all sections
+  - VLM confirmed: "professional with proper formatting, clear structure, readable text"
+
+Stage Summary:
+- Privacy Policy and Terms of Service are now live and functional
+- Both open as scrollable modal dialogs from the footer links
+- Privacy Policy covers all standard requirements (GDPR-style data protection)
+- Terms of Service covers web development agency requirements (payments, IP, liability, Indian law)
+- Fixed WhatsApp button overlap issue with footer padding
+- Auto-updates "Last updated" date dynamically
+- Professional design matching the site's dark theme with neon accents
