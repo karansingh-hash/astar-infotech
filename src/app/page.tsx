@@ -529,7 +529,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
         <main className="flex-1 flex flex-col min-w-0">
           <header className="h-16 border-b border-border bg-dark-surface shrink-0 flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-3">
-              <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 rounded-md hover:bg-neon/5 transition-colors" aria-label="Open sidebar"><Menu className="w-5 h-5 text-foreground" /></button>
+              <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2.5 -ml-2 rounded-md hover:bg-neon/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Open sidebar"><Menu className="w-5 h-5 text-foreground" /></button>
               <h1 className="text-lg font-semibold text-foreground capitalize">{activeTab === 'inquiries' ? 'Inquiries' : activeTab}</h1>
             </div>
             <div className="flex items-center gap-2">
@@ -537,7 +537,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 rounded-lg hover:bg-neon/10 transition-colors"
+                  className="p-2.5 rounded-lg hover:bg-neon/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Toggle theme"
                   title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                 >
@@ -546,7 +546,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
               )}
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
+                className="p-2.5 rounded-lg hover:bg-red-500/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Logout"
                 title="Logout"
               >
@@ -652,8 +652,8 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                                 <span className="font-semibold text-foreground">{c.name}</span>
                                 {c.phone && <a href={`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-neon hover:text-neon/80 bg-neon/10 px-2 py-0.5 rounded-full"><MessageCircle className="w-3 h-3" />WhatsApp</a>}
                               </div>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-0 sm:ml-11 flex-wrap">
-                                <span className="flex items-center gap-1"><MailCheck className="w-3.5 h-3.5" /><a href={`mailto:${c.email}`} className="hover:text-neon transition-colors">{c.email}</a></span>
+                              <div className="flex items-center gap-2 sm:gap-4 mt-2 text-xs text-muted-foreground ml-0 sm:ml-11 flex-wrap">
+                                <span className="flex items-center gap-1"><MailCheck className="w-3.5 h-3.5" /><a href={`mailto:${c.email}`} className="hover:text-neon transition-colors break-all">{c.email}</a></span>
                                 {c.phone && <span className="flex items-center gap-1"><PhoneCall className="w-3.5 h-3.5" />{c.phone}</span>}
                                 <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{new Date(c.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' })}</span>
                               </div>
@@ -1084,8 +1084,8 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                     </div>
                     {/* ─── Two-Factor Authentication Card ─── */}
                     <Card className="glass-card border-neon/20 mt-6">
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold text-foreground mb-1 flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-neon" />Two-Factor Authentication (2FA)</h3>
+                      <CardContent className="p-4 sm:p-6">
+                        <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-neon" />Two-Factor Authentication (2FA)</h3>
                         <p className="text-sm text-muted-foreground mb-4">Add an extra layer of security. After enabling, you&rsquo;ll need a 6-digit code from Google Authenticator on every login.</p>
                         {/* Status badge */}
                         <div className="flex items-center gap-2 mb-4">
@@ -1104,7 +1104,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                         {!twoFactorEnabled && twoFactorSetup && (
                           <div className="space-y-4">
                             <div className="bg-white p-3 rounded-lg inline-block">
-                              <img src={twoFactorSetup.qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                              <img src={twoFactorSetup.qrCode} alt="2FA QR Code" className="w-40 h-40 sm:w-48 sm:h-48" />
                             </div>
                             <div className="space-y-1">
                               <p className="text-xs text-muted-foreground">Can&rsquo;t scan? Enter this key manually in Google Authenticator:</p>
@@ -1253,14 +1253,14 @@ export default function Home() {
                 <span>Admin</span>
               </button>
             </nav>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-md text-foreground hover:bg-neon/10 transition-colors" aria-label="Toggle menu">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 -mr-2 rounded-md text-foreground hover:bg-neon/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ type: 'tween', duration: 0.3 }} className="fixed inset-0 z-[60] md:hidden bg-background/98 backdrop-blur-xl flex flex-col">
+            <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ type: 'tween', duration: 0.3 }} className="fixed inset-0 z-[60] md:hidden bg-background flex flex-col">
               <div className="flex items-center justify-between px-4 sm:px-6 h-16 sm:h-20 border-b border-border">
                 <a href="#home" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
                   <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 rounded-lg object-contain" />
@@ -1313,7 +1313,7 @@ export default function Home() {
         <div className="absolute inset-0 scanline-overlay opacity-30" />
         <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl animate-neon-pulse" />
         <div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-32 lg:py-40">
           <div className="max-w-3xl">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
@@ -1321,18 +1321,18 @@ export default function Home() {
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
               {siteSettings.heroHeading}
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">
+            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-5 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">
               {siteSettings.heroSubtitle}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25">Start Your Project<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
-              <a href="#portfolio"><Button size="lg" variant="outline" className="border-foreground/20 text-foreground bg-foreground/5 hover:bg-foreground/10 hover:text-foreground hover:border-foreground/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
+              <a href="#contact" className="block"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25 w-full sm:w-auto">Start Your Project<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
+              <a href="#portfolio" className="block"><Button size="lg" variant="outline" className="border-foreground/20 text-foreground bg-foreground/5 hover:bg-foreground/10 hover:text-foreground hover:border-foreground/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm w-full sm:w-auto">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-10 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 sm:gap-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 sm:gap-8">
               {statItems.map(stat => (
                 <div key={stat.label} className="text-center sm:text-left">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-neon animate-neon-pulse">{stat.value}</div>
-                  <div className="text-[11px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">{stat.label}</div>
+                  <div className="text-2xl sm:text-2xl md:text-3xl font-bold text-neon animate-neon-pulse">{stat.value}</div>
+                  <div className="text-xs sm:text-xs md:text-sm text-muted-foreground mt-1 sm:mt-1">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -1569,7 +1569,7 @@ export default function Home() {
               <Card className="glass-card border-neon/20">
                 <CardContent className="p-4 sm:p-6">
                   <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-5">Get In Touch</h3>
-                  <div className="space-y-4 sm:space-y-5">
+                  <div className="space-y-5 sm:space-y-5">
                     {[
                       { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
                       { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
@@ -1577,9 +1577,9 @@ export default function Home() {
 
                       { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
                     ].map((item, i) => (
-                      <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 group cursor-pointer">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 group-hover:border-neon/30 transition-colors"><item.icon className="w-5 h-5 text-neon" /></div>
-                        <div><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors">{item.value}</div></div>
+                      <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 group min-h-[44px]">
+                        <div className="w-11 h-11 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 group-hover:border-neon/30 transition-colors"><item.icon className="w-5 h-5 text-neon" /></div>
+                        <div className="pt-1"><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors break-words">{item.value}</div></div>
                       </a>
                     ))}
                   </div>
@@ -1594,7 +1594,7 @@ export default function Home() {
               </a>
               <Card className="glass-card border-neon/20">
                 <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Follow Us</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-5">Follow Us</h3>
                   <div className="flex gap-3 flex-wrap">
                     {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
                     {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
@@ -1610,8 +1610,8 @@ export default function Home() {
 
       {/* ─── Footer ─── */}
       <footer className="bg-background border-t border-border mt-auto">
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="py-12 sm:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-10 sm:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
             {/* Company Info */}
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2.5 mb-5">
@@ -1623,19 +1623,19 @@ export default function Home() {
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
               <div className="mt-5 flex gap-3">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-4 h-4 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
               </div>
             </div>
             {/* Quick Links */}
             <div>
               <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {NAV_LINKS.map(link => (
                   <li key={link.href}>
-                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group">
+                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[44px]">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {link.label}
                     </a>
@@ -1646,10 +1646,10 @@ export default function Home() {
             {/* Our Services */}
             <div>
               <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Our Services</h4>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {services.map(s => (
                   <li key={s.title}>
-                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group">
+                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[44px]">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {s.title}
                     </a>
@@ -1662,22 +1662,22 @@ export default function Home() {
               <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 group">
-                    <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
-                      <MapPin className="w-3.5 h-3.5 text-neon/60 group-hover:text-neon transition-colors" />
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 group min-h-[44px]">
+                    <div className="w-9 h-9 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
+                      <MapPin className="w-4 h-4 text-neon/60 group-hover:text-neon transition-colors" />
                     </div>
-                    <span className="text-sm text-muted-foreground leading-relaxed pt-1 group-hover:text-neon transition-colors">{siteSettings.address}</span>
+                    <span className="text-sm text-muted-foreground leading-relaxed pt-1.5 group-hover:text-neon transition-colors">{siteSettings.address}</span>
                   </a>
                 </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
-                    <Phone className="w-3.5 h-3.5 text-neon/60" />
+                <li className="flex items-center gap-3 min-h-[44px]">
+                  <div className="w-9 h-9 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
+                    <Phone className="w-4 h-4 text-neon/60" />
                   </div>
                   <a href={`tel:${siteSettings.phone}`} className="text-sm text-muted-foreground hover:text-neon transition-colors pt-0.5">{siteSettings.phone}</a>
                 </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
-                    <Mail className="w-3.5 h-3.5 text-neon/60" />
+                <li className="flex items-center gap-3 min-h-[44px]">
+                  <div className="w-9 h-9 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 text-neon/60" />
                   </div>
                   <div className="flex flex-col">
                     <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
@@ -1688,12 +1688,12 @@ export default function Home() {
             </div>
           </div>
           {/* Bottom Bar */}
-          <div className="border-t border-border py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4 sm:pr-16">
-            <p className="text-sm text-muted-foreground/70">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
-            <div className="flex gap-6 text-sm text-muted-foreground/70">
-              <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors">Privacy Policy</button>
-              <span className="text-foreground/10">|</span>
-              <button onClick={() => window.openLegal?.('terms')} className="hover:text-neon transition-colors">Terms of Service</button>
+          <div className="border-t border-border py-6 sm:py-8 pb-24 sm:pb-8 flex flex-col sm:flex-row justify-between items-center gap-4 pr-16 sm:pr-16">
+            <p className="text-xs sm:text-sm text-muted-foreground/70 text-center sm:text-left">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
+            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground/70">
+              <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors min-h-[44px] flex items-center">Privacy Policy</button>
+              <span className="text-foreground/10 hidden sm:inline">|</span>
+              <button onClick={() => window.openLegal?.('terms')} className="hover:text-neon transition-colors min-h-[44px] flex items-center">Terms of Service</button>
             </div>
           </div>
         </div>
