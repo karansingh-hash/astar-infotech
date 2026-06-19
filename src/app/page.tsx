@@ -1463,7 +1463,7 @@ export default function Home() {
             </div>
           </div>
           {/* Bottom Bar */}
-          <div className="border-t border-border py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="border-t border-border py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4 sm:pr-16">
             <p className="text-sm text-muted-foreground/70">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
             <div className="flex gap-6 text-sm text-muted-foreground/70">
               <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors">Privacy Policy</button>
