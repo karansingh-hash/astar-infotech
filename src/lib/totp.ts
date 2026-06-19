@@ -1,10 +1,6 @@
-import { authenticator, totp } from 'otplib'
+import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import { db } from '@/lib/db'
-
-// Configure TOTP
-// 6-digit codes, 30-second window, allow 1 step before/after for clock drift
-totp.options = { digits: 6, step: 30, window: 1 }
 
 const ISSUER = 'A-Star Infotech'
 const ACCOUNT_NAME = 'admin@astarinfotech.in'
@@ -13,14 +9,24 @@ const ACCOUNT_NAME = 'admin@astarinfotech.in'
  * Generate a new TOTP secret (base32 encoded)
  */
 export function generateTOTPSecret(): string {
-  return authenticator.generateSecret()
+  const secret = speakeasy.generateSecret({
+    length: 20,
+    name: ACCOUNT_NAME,
+    issuer: ISSUER,
+  })
+  return secret.base32
 }
 
 /**
  * Generate the otpauth:// URI for QR code scanning
  */
 export function generateOTPAuthURI(secret: string): string {
-  return authenticator.keyuri(ACCOUNT_NAME, ISSUER, secret)
+  return speakeasy.otpauthURL({
+    secret,
+    label: ACCOUNT_NAME,
+    issuer: ISSUER,
+    encoding: 'base32',
+  })
 }
 
 /**
@@ -37,13 +43,19 @@ export async function generateQRCodeDataUrl(otpauthUri: string): Promise<string>
 
 /**
  * Verify a TOTP token against a secret
+ * Allows 1 step before/after for clock drift (30s window each way)
  */
 export function verifyTOTP(token: string, secret: string): boolean {
   try {
     // Remove spaces and non-digits
     const cleanToken = token.replace(/\D/g, '')
     if (cleanToken.length !== 6) return false
-    return totp.verify({ token: cleanToken, secret })
+    return speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token: cleanToken,
+      window: 1, // allow 1 step before/after (30s each way)
+    })
   } catch {
     return false
   }
