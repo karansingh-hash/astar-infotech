@@ -9,6 +9,7 @@ import {
   getClientIP,
   validateLength,
 } from '@/lib/security'
+import { isTwoFactorEnabled, verifyTOTP, getTOTPSecret } from '@/lib/totp'
 
 /** Login — verify password and issue session token */
 export async function POST(request: Request) {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     if (rateLimitResult) return rateLimitResult
 
     const body = await request.json()
-    const { password } = body
+    const { password, totpCode } = body
 
     if (!password || typeof password !== 'string') {
       return NextResponse.json(
@@ -38,6 +39,41 @@ export async function POST(request: Request) {
     const isValid = await verifyAdminPassword(password)
 
     if (isValid) {
+      // Check if 2FA is enabled
+      const twoFactorEnabled = await isTwoFactorEnabled()
+
+      if (twoFactorEnabled) {
+        // Require TOTP code
+        if (!totpCode || typeof totpCode !== 'string') {
+          return NextResponse.json(
+            {
+              success: false,
+              requiresTwoFactor: true,
+              error: 'Two-factor authentication code required.',
+            },
+            { status: 200 }
+          )
+        }
+
+        // Verify TOTP code
+        const secret = await getTOTPSecret()
+        if (!secret) {
+          return NextResponse.json(
+            { success: false, error: '2FA secret not found. Please contact support.' },
+            { status: 500 }
+          )
+        }
+
+        const totpValid = verifyTOTP(totpCode, secret)
+        if (!totpValid) {
+          return NextResponse.json(
+            { success: false, requiresTwoFactor: true, error: 'Invalid Google Authenticator code.' },
+            { status: 401 }
+          )
+        }
+      }
+
+      // Password (and TOTP if enabled) verified — create session
       const token = await createSession()
       return NextResponse.json({
         success: true,

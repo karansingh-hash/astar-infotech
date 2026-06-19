@@ -9,7 +9,7 @@ import {
   Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target,
   Shield, Rocket, Eye, Trash2, Inbox, Lock, LayoutDashboard,
   BarChart3, LogOut, Calendar, MailCheck, PhoneCall, Briefcase,
-  Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound,
+  Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound, ShieldCheck,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LegalModal } from '@/components/legal-modal'
@@ -149,6 +149,8 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [authLoading, setAuthLoading] = useState(false)
+  const [requiresTwoFactor, setRequiresTwoFactor] = useState(false)
+  const [totpCode, setTotpCode] = useState('')
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, setTheme } = useTheme()
@@ -181,6 +183,11 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [passwordVis, setPasswordVis] = useState({ current: false, new: false, confirm: false })
   const [changingPassword, setChangingPassword] = useState(false)
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [twoFactorSetup, setTwoFactorSetup] = useState<{ qrCode: string; secret: string } | null>(null)
+  const [twoFactorVerifyCode, setTwoFactorVerifyCode] = useState('')
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false)
+  const [disable2faForm, setDisable2faForm] = useState({ password: '', code: '' })
 
   useEffect(() => {
     const token = sessionStorage.getItem('admin_token')
@@ -200,22 +207,39 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
     if (activeTab === 'portfolio') fetchPortfolio()
     if (activeTab === 'testimonials') fetchTestimonials()
     if (activeTab === 'statistics') { fetchDashboard(); fetchStats() }
-    if (activeTab === 'settings') fetchSettings()
+    if (activeTab === 'settings') { fetchSettings(); fetchTwoFactorStatus() }
   }, [isOpen, isAuthenticated, activeTab])
 
   const handleLogin = async (e: FormEvent) => {
-    e.preventDefault(); if (!password.trim()) return; setAuthLoading(true)
+    e.preventDefault()
+    if (requiresTwoFactor) {
+      // Step 2: Verify TOTP code
+      if (!totpCode.trim() || totpCode.replace(/\D/g, '').length !== 6) { toast.error('Invalid Code', { description: 'Please enter the 6-digit code from Google Authenticator.' }); return }
+      setAuthLoading(true)
+      try {
+        const res = await fetch('/api/admin/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password, totpCode }) })
+        const data = await res.json()
+        if (res.ok && data.success && data.token) {
+          setAdminToken(data.token); setIsAuthenticated(true); sessionStorage.setItem('admin_token', data.token); setPassword(''); setTotpCode(''); setRequiresTwoFactor(false); toast.success('Login Successful', { description: 'Welcome to the Admin Panel!' })
+        } else toast.error('Login Failed', { description: data.error || 'Invalid authentication code.' })
+      } catch { toast.error('Error', { description: 'Failed to connect to server.' }) } finally { setAuthLoading(false) }
+      return
+    }
+    if (!password.trim()) return; setAuthLoading(true)
     try {
       const res = await fetch('/api/admin/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) })
       const data = await res.json()
       if (res.ok && data.success && data.token) {
         setAdminToken(data.token); setIsAuthenticated(true); sessionStorage.setItem('admin_token', data.token); setPassword(''); toast.success('Login Successful', { description: 'Welcome to the Admin Panel!' })
+      } else if (data.requiresTwoFactor) {
+        // 2FA required — show TOTP input
+        setRequiresTwoFactor(true); setAuthLoading(false); toast.info('Two-Factor Authentication', { description: 'Enter the code from your Google Authenticator app.' })
       } else toast.error('Login Failed', { description: data.error || 'Invalid password.' })
     } catch { toast.error('Error', { description: 'Failed to connect to server.' }) } finally { setAuthLoading(false) }
   }
   const handleLogout = async () => {
     try { await fetch('/api/admin/auth', { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } }) } catch {}
-    setIsAuthenticated(false); setAdminToken(''); sessionStorage.removeItem('admin_token'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' })
+    setIsAuthenticated(false); setAdminToken(''); sessionStorage.removeItem('admin_token'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setRequiresTwoFactor(false); setTotpCode(''); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' })
   }
 
   const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` })
@@ -268,6 +292,46 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
     finally { setChangingPassword(false) }
   }
 
+  // ─── 2FA Handlers ───
+  const fetchTwoFactorStatus = async () => {
+    try {
+      const r = await fetch('/api/admin/2fa/status', { headers: { 'Authorization': `Bearer ${adminToken}` } })
+      if (r.ok) { const d = await r.json(); setTwoFactorEnabled(d.enabled) }
+    } catch {}
+  }
+  const handleSetup2FA = async () => {
+    setTwoFactorLoading(true)
+    try {
+      const r = await fetch('/api/admin/2fa/setup', { method: 'POST', headers: authHeaders() })
+      const d = await r.json()
+      if (r.ok && d.success) { setTwoFactorSetup({ qrCode: d.qrCode, secret: d.secret }); toast.info('Scan QR Code', { description: 'Open Google Authenticator and scan this code.' }) }
+      else toast.error('Error', { description: d.error || 'Failed to set up 2FA.' })
+    } catch { toast.error('Error', { description: 'Failed to connect to server.' }) }
+    finally { setTwoFactorLoading(false) }
+  }
+  const handleVerify2FA = async () => {
+    if (twoFactorVerifyCode.replace(/\D/g, '').length !== 6) { toast.error('Invalid Code', { description: 'Enter the 6-digit code.' }); return }
+    setTwoFactorLoading(true)
+    try {
+      const r = await fetch('/api/admin/2fa/verify', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ token: twoFactorVerifyCode }) })
+      const d = await r.json()
+      if (r.ok && d.success) { setTwoFactorEnabled(true); setTwoFactorSetup(null); setTwoFactorVerifyCode(''); toast.success('2FA Enabled', { description: 'Two-factor authentication is now active!' }) }
+      else toast.error('Error', { description: d.error || 'Invalid code.' })
+    } catch { toast.error('Error', { description: 'Failed to connect to server.' }) }
+    finally { setTwoFactorLoading(false) }
+  }
+  const handleDisable2FA = async () => {
+    if (!disable2faForm.password || disable2faForm.code.replace(/\D/g, '').length !== 6) { toast.error('Error', { description: 'Password and 6-digit code required.' }); return }
+    setTwoFactorLoading(true)
+    try {
+      const r = await fetch('/api/admin/2fa/disable', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ password: disable2faForm.password, token: disable2faForm.code }) })
+      const d = await r.json()
+      if (r.ok && d.success) { setTwoFactorEnabled(false); setDisable2faForm({ password: '', code: '' }); toast.success('2FA Disabled', { description: 'Two-factor authentication has been turned off.' }) }
+      else toast.error('Error', { description: d.error || 'Failed to disable 2FA.' })
+    } catch { toast.error('Error', { description: 'Failed to connect to server.' }) }
+    finally { setTwoFactorLoading(false) }
+  }
+
   // Neon spinner component
   const Spinner = () => <div className="flex items-center justify-center py-20"><div className="animate-spin w-10 h-10 border-4 border-neon/30 border-t-neon rounded-full" /></div>
   const SectionHeader = ({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) => (
@@ -295,35 +359,66 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                 <p className="text-sm text-muted-foreground mt-1">A-Star Infotech</p>
               </div>
               <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="admin-password" className="text-sm font-medium text-foreground">Password</label>
-                  <div className="relative">
-                    <Input
-                      id="admin-password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter admin password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      autoFocus
-                      disabled={authLoading}
-                      className="futuristic-input h-11 pr-11"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-neon transition-colors focus:outline-none focus:text-neon"
-                      tabIndex={-1}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {!requiresTwoFactor ? (
+                  <div className="space-y-2">
+                    <label htmlFor="admin-password" className="text-sm font-medium text-foreground">Password</label>
+                    <div className="relative">
+                      <Input
+                        id="admin-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter admin password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoFocus
+                        disabled={authLoading}
+                        className="futuristic-input h-11 pr-11"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((s) => !s)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-neon transition-colors focus:outline-none focus:text-neon"
+                        tabIndex={-1}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="bg-neon/5 border border-neon/20 rounded-lg p-3 flex items-start gap-3">
+                      <Smartphone className="w-5 h-5 text-neon shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Two-Factor Authentication</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Enter the 6-digit code from your Google Authenticator app.</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="totp-code" className="text-sm font-medium text-foreground">Authenticator Code</label>
+                      <Input
+                        id="totp-code"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        placeholder="000000"
+                        value={totpCode}
+                        onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                        autoFocus
+                        disabled={authLoading}
+                        className="futuristic-input h-12 text-center text-2xl tracking-[0.5em] font-mono"
+                      />
+                    </div>
+                    <button type="button" onClick={() => { setRequiresTwoFactor(false); setTotpCode('') }} className="text-xs text-muted-foreground hover:text-neon transition-colors w-full text-left">
+                      ← Back to password
                     </button>
                   </div>
-                </div>
-                <Button type="submit" className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-11" disabled={authLoading || !password.trim()}>
-                  {authLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Verifying...</> : <><Lock className="w-4 h-4 mr-2" />Login</>}
+                )}
+                <Button type="submit" className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-11" disabled={authLoading || (!requiresTwoFactor ? !password.trim() : totpCode.replace(/\D/g, '').length !== 6)}>
+                  {authLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Verifying...</> : <>{requiresTwoFactor ? <><ShieldCheck className="w-4 h-4 mr-2" />Verify Code</> : <><Lock className="w-4 h-4 mr-2" />Login</>}</>}
                 </Button>
               </form>
-              <Button variant="ghost" className="w-full mt-3 text-muted-foreground" onClick={() => { setIsOpen(false); setPassword('') }}>Cancel</Button>
+              <Button variant="ghost" className="w-full mt-3 text-muted-foreground" onClick={() => { setIsOpen(false); setPassword(''); setRequiresTwoFactor(false); setTotpCode('') }}>Cancel</Button>
             </CardContent>
           </Card>
         </div>
@@ -910,6 +1005,59 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                         {saving ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save All Settings</>}
                       </Button>
                     </div>
+                    {/* ─── Two-Factor Authentication Card ─── */}
+                    <Card className="glass-card border-neon/20 mt-6">
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-1 flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-neon" />Two-Factor Authentication (2FA)</h3>
+                        <p className="text-sm text-muted-foreground mb-4">Add an extra layer of security. After enabling, you&rsquo;ll need a 6-digit code from Google Authenticator on every login.</p>
+                        {/* Status badge */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${twoFactorEnabled ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${twoFactorEnabled ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                            {twoFactorEnabled ? 'Enabled' : 'Not Enabled'}
+                          </span>
+                        </div>
+                        {/* If not enabled and no setup in progress: show Enable button */}
+                        {!twoFactorEnabled && !twoFactorSetup && (
+                          <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 min-h-[44px]" onClick={handleSetup2FA} disabled={twoFactorLoading}>
+                            {twoFactorLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Loading...</> : <><Smartphone className="w-4 h-4 mr-2" />Enable 2FA</>}
+                          </Button>
+                        )}
+                        {/* If setup in progress: show QR code + verify */}
+                        {!twoFactorEnabled && twoFactorSetup && (
+                          <div className="space-y-4">
+                            <div className="bg-white p-3 rounded-lg inline-block">
+                              <img src={twoFactorSetup.qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground">Can&rsquo;t scan? Enter this key manually in Google Authenticator:</p>
+                              <code className="block bg-dark-card border border-border rounded px-3 py-2 text-xs font-mono text-neon break-all">{twoFactorSetup.secret}</code>
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-foreground">Enter 6-digit code from app to confirm</label>
+                              <Input type="text" inputMode="numeric" maxLength={6} placeholder="000000" value={twoFactorVerifyCode} onChange={e => setTwoFactorVerifyCode(e.target.value.replace(/\D/g, ''))} className="futuristic-input h-12 text-center text-2xl tracking-[0.5em] font-mono" disabled={twoFactorLoading} />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30" onClick={handleVerify2FA} disabled={twoFactorLoading || twoFactorVerifyCode.length !== 6}>
+                                {twoFactorLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Verifying...</> : <><ShieldCheck className="w-4 h-4 mr-2" />Confirm &amp; Enable</>}
+                              </Button>
+                              <Button variant="ghost" className="text-muted-foreground" onClick={() => { setTwoFactorSetup(null); setTwoFactorVerifyCode('') }} disabled={twoFactorLoading}>Cancel</Button>
+                            </div>
+                          </div>
+                        )}
+                        {/* If enabled: show Disable section */}
+                        {twoFactorEnabled && (
+                          <div className="space-y-3 border-t border-border pt-4">
+                            <p className="text-sm font-medium text-foreground">Disable 2FA (requires password + current code)</p>
+                            <Input type="password" placeholder="Current admin password" value={disable2faForm.password} onChange={e => setDisable2faForm(f => ({ ...f, password: e.target.value }))} className="futuristic-input h-11" disabled={twoFactorLoading} />
+                            <Input type="text" inputMode="numeric" maxLength={6} placeholder="6-digit authenticator code" value={disable2faForm.code} onChange={e => setDisable2faForm(f => ({ ...f, code: e.target.value.replace(/\D/g, '') }))} className="futuristic-input h-11 text-center text-lg tracking-[0.3em] font-mono" disabled={twoFactorLoading} />
+                            <Button variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/10 min-h-[44px]" onClick={handleDisable2FA} disabled={twoFactorLoading || !disable2faForm.password || disable2faForm.code.length !== 6}>
+                              {twoFactorLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />Disabling...</> : <><Shield className="w-4 h-4 mr-2" />Disable 2FA</>}
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   </>
                 )}
               </div>
