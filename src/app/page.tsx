@@ -1481,7 +1481,7 @@ export default function Home() {
 
       <AdminPanel externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />
 
-      <LegalModal />
+      <LegalModal contactInfo={{ address: siteSettings.address, phone: siteSettings.phone, email: siteSettings.email }} />
 
       {/* Scroll to Top */}
       <AnimatePresence>

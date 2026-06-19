@@ -1,14 +1,27 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { ScrollText, Shield, FileText, X } from 'lucide-react'
+import { ScrollText, Shield, FileText } from 'lucide-react'
 
 type LegalDoc = 'privacy' | 'terms' | null
 
-export function LegalModal() {
+interface LegalModalProps {
+  contactInfo?: {
+    address?: string
+    phone?: string
+    email?: string
+  }
+}
+
+export function LegalModal({ contactInfo }: LegalModalProps) {
   const [open, setOpen] = useState<LegalDoc>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const address = contactInfo?.address || 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan'
+  const phone = contactInfo?.phone || '+91 8560074448'
+  const email = contactInfo?.email || 'contact@astarinfotech.in'
 
   // Expose a global function to open the modal
   useEffect(() => {
@@ -16,28 +29,74 @@ export function LegalModal() {
     return () => { delete window.openLegal }
   }, [])
 
+  // Reset scroll position when opening
+  useEffect(() => {
+    if (open && scrollRef.current) {
+      scrollRef.current.scrollTop = 0
+    }
+  }, [open])
+
+  // Keyboard scrolling support (arrow up/down, page up/down)
+  useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!scrollRef.current) return
+      const el = scrollRef.current
+      const scrollAmount = 60
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          el.scrollBy({ top: scrollAmount, behavior: 'smooth' })
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          el.scrollBy({ top: -scrollAmount, behavior: 'smooth' })
+          break
+        case 'PageDown':
+          e.preventDefault()
+          el.scrollBy({ top: el.clientHeight * 0.8, behavior: 'smooth' })
+          break
+        case 'PageUp':
+          e.preventDefault()
+          el.scrollBy({ top: -el.clientHeight * 0.8, behavior: 'smooth' })
+          break
+        case 'Home':
+          e.preventDefault()
+          el.scrollTo({ top: 0, behavior: 'smooth' })
+          break
+        case 'End':
+          e.preventDefault()
+          el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+          break
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open])
+
   return (
     <Dialog open={open !== null} onOpenChange={(v) => !v && setOpen(null)}>
-      <DialogContent className="max-w-3xl max-h-[85vh] p-0 gap-0 overflow-hidden">
+      <DialogContent
+        className="max-w-3xl max-h-[85vh] p-0 gap-0 overflow-hidden flex flex-col"
+        showCloseButton={true}
+      >
         <DialogHeader className="px-6 py-5 border-b border-border bg-dark-surface shrink-0">
-          <DialogTitle className="flex items-center gap-3 text-xl font-bold text-foreground">
+          <DialogTitle className="flex items-center gap-3 text-xl font-bold text-foreground pr-10">
             {open === 'privacy' ? (
-              <><Shield className="w-6 h-6 text-neon" /> Privacy Policy</>
+              <><Shield className="w-6 h-6 text-neon shrink-0" /> Privacy Policy</>
             ) : (
-              <><ScrollText className="w-6 h-6 text-neon" /> Terms of Service</>
+              <><ScrollText className="w-6 h-6 text-neon shrink-0" /> Terms of Service</>
             )}
-            <button
-              onClick={() => setOpen(null)}
-              className="ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto px-6 py-6 legal-content max-h-[calc(85vh-100px)]">
-          {open === 'privacy' ? <PrivacyContent /> : <TermsContent />}
+        <div
+          ref={scrollRef}
+          className="overflow-y-auto px-6 py-6 legal-content flex-1 focus:outline-none"
+          tabIndex={0}
+          style={{ scrollbarWidth: 'thin' }}
+        >
+          {open === 'privacy' ? <PrivacyContent address={address} phone={phone} email={email} /> : <TermsContent address={address} phone={phone} email={email} />}
         </div>
 
         <div className="px-6 py-4 border-t border-border bg-dark-surface shrink-0 flex justify-end">
@@ -50,7 +109,7 @@ export function LegalModal() {
   )
 }
 
-function PrivacyContent() {
+function PrivacyContent({ address, phone, email }: { address: string; phone: string; email: string }) {
   return (
     <div className="space-y-6 text-sm text-muted-foreground leading-relaxed">
       <p className="text-foreground/80 italic">Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -111,7 +170,7 @@ function PrivacyContent() {
           <li><strong className="text-foreground">Right to Erasure:</strong> You may request that we delete your personal information, subject to certain legal exceptions.</li>
           <li><strong className="text-foreground">Right to Opt-Out:</strong> You may opt-out of receiving promotional communications from us at any time.</li>
         </ul>
-        <p>To exercise any of these rights, please contact us at <a href="mailto:contact@astarinfotech.in" className="text-neon hover:underline">contact@astarinfotech.in</a>.</p>
+        <p>To exercise any of these rights, please contact us at <a href={`mailto:${email}`} className="text-neon hover:underline break-all">{email}</a>.</p>
       </Section>
 
       <Section title="9. Children&rsquo;s Privacy">
@@ -124,18 +183,13 @@ function PrivacyContent() {
 
       <Section title="11. Contact Us">
         <p>If you have questions or comments about this Privacy Policy, please contact us at:</p>
-        <div className="bg-dark-card border border-border rounded-lg p-4 mt-3 space-y-1">
-          <p className="text-foreground font-semibold">A-Star Infotech</p>
-          <p>Email: <a href="mailto:contact@astarinfotech.in" className="text-neon hover:underline">contact@astarinfotech.in</a></p>
-          <p>Phone: <a href="tel:+918560074448" className="text-neon hover:underline">+91 8560074448</a></p>
-          <p>Address: A-313, Street No. 9, Vishwas Park, Uttam Nagar, New Delhi - 110059</p>
-        </div>
+        <ContactCard address={address} phone={phone} email={email} />
       </Section>
     </div>
   )
 }
 
-function TermsContent() {
+function TermsContent({ address, phone, email }: { address: string; phone: string; email: string }) {
   return (
     <div className="space-y-6 text-sm text-muted-foreground leading-relaxed">
       <p className="text-foreground/80 italic">Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -220,12 +274,7 @@ function TermsContent() {
 
       <Section title="15. Contact Information">
         <p>If you have any questions about these Terms of Service, please contact us at:</p>
-        <div className="bg-dark-card border border-border rounded-lg p-4 mt-3 space-y-1">
-          <p className="text-foreground font-semibold">A-Star Infotech</p>
-          <p>Email: <a href="mailto:contact@astarinfotech.in" className="text-neon hover:underline">contact@astarinfotech.in</a></p>
-          <p>Phone: <a href="tel:+918560074448" className="text-neon hover:underline">+91 8560074448</a></p>
-          <p>Address: A-313, Street No. 9, Vishwas Park, Uttam Nagar, New Delhi - 110059</p>
-        </div>
+        <ContactCard address={address} phone={phone} email={email} />
       </Section>
     </div>
   )
@@ -253,5 +302,16 @@ function SubList({ items }: { items: [string, string][] }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+function ContactCard({ address, phone, email }: { address: string; phone: string; email: string }) {
+  return (
+    <div className="bg-dark-card border border-border rounded-lg p-4 mt-3 space-y-1">
+      <p className="text-foreground font-semibold">A-Star Infotech</p>
+      <p>Email: <a href={`mailto:${email}`} className="text-neon hover:underline break-all">{email}</a></p>
+      <p>Phone: <a href={`tel:${phone.replace(/\s/g, '')}`} className="text-neon hover:underline">{phone}</a></p>
+      <p>Address: {address}</p>
+    </div>
   )
 }
