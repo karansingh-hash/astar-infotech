@@ -499,3 +499,49 @@ Stage Summary:
 - Fixed WhatsApp button overlap issue with footer padding
 - Auto-updates "Last updated" date dynamically
 - Professional design matching the site's dark theme with neon accents
+
+---
+Task ID: 1-13
+Agent: Main Agent
+Task: Fix legal modal - wrong address, duplicate close buttons, scrolling issues
+
+Work Log:
+- User reported 3 issues with Privacy Policy/Terms of Service modals:
+  1. Wrong address showing (Delhi address, not their real Jaipur address)
+  2. Cannot scroll the modal content
+  3. Cannot use keyboard arrow keys to scroll
+  4. Two X (close) buttons showing instead of one
+- Root causes:
+  1. Address was hardcoded as "A-313, Street No. 9, Vishwas Park, Uttam Nagar, New Delhi" in legal-modal.tsx
+  2. Scroll container needed proper flex layout and tabIndex for keyboard focus
+  3. No keyboard event handlers for arrow keys (Dialog focus trap was intercepting them)
+  4. Both the shadcn Dialog built-in close button AND my custom X button were rendering
+- Fixes applied to src/components/legal-modal.tsx:
+  - Added LegalModalProps interface accepting contactInfo {address, phone, email}
+  - Removed custom X button from DialogTitle (kept only Dialog's built-in close)
+  - Added pr-10 to DialogTitle to prevent overlap with built-in close button
+  - Added flex flex-col to DialogContent for proper layout
+  - Added flex-1 to scroll container to fill available space
+  - Added tabIndex=0 and ref to scroll container for keyboard focus
+  - Added useEffect with keyboard event handler for ArrowUp/Down/PageUp/Down/Home/End
+  - Each key press calls e.preventDefault() then smooth scrolls the container
+  - Added scroll position reset to top when modal opens
+  - Replaced all hardcoded address/phone/email with props passed from parent
+  - Added ContactCard component using dynamic address/phone/email
+- Updated src/app/page.tsx:
+  - Pass siteSettings (address, phone, email) to LegalModal as contactInfo prop
+  - Dynamic address now comes from database site settings (D-49, Shiv Marg, Balaji Sagar-15, Jaipur)
+- Committed and pushed to GitHub (auto-deployed to Vercel)
+- Verified on live site https://www.astarinfotech.in:
+  - Privacy Policy modal: 1 close button (was 2), correct address "D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan"
+  - Terms of Service modal: 1 close button, correct address
+  - Keyboard scrolling: Arrow Down x3 → 157px, Page Down → 437px, Home → 0px (all working)
+  - Mouse scroll also works
+
+Stage Summary:
+- All 4 issues fixed and verified on live site
+- Address now dynamically pulled from site settings (correct Jaipur address)
+- Only one X close button (removed duplicate)
+- Keyboard scrolling works: Arrow Up/Down, Page Up/Down, Home/End
+- Mouse wheel scrolling also works
+- Scroll resets to top when modal opens
