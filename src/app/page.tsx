@@ -12,6 +12,7 @@ import {
   Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LegalModal } from '@/components/legal-modal'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
@@ -1465,9 +1466,9 @@ export default function Home() {
           <div className="border-t border-border py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground/70">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
             <div className="flex gap-6 text-sm text-muted-foreground/70">
-              <a href="#" className="hover:text-neon transition-colors">Privacy Policy</a>
+              <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors">Privacy Policy</button>
               <span className="text-foreground/10">|</span>
-              <a href="#" className="hover:text-neon transition-colors">Terms of Service</a>
+              <button onClick={() => window.openLegal?.('terms')} className="hover:text-neon transition-colors">Terms of Service</button>
             </div>
           </div>
         </div>
@@ -1479,6 +1480,8 @@ export default function Home() {
       </a>
 
       <AdminPanel externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />
+
+      <LegalModal />
 
       {/* Scroll to Top */}
       <AnimatePresence>
