@@ -57,12 +57,12 @@ async function main() {
 
   // Seed Services
   const services = [
-    { icon: 'Globe', title: 'Website Design', description: 'Beautiful, modern designs that capture your brand identity and engage visitors from the first click.', color: 'text-emerald-600', bg: 'bg-emerald-50', order: 1 },
-    { icon: 'Code2', title: 'Website Development', description: 'Robust, scalable web applications built with the latest technologies for peak performance and reliability.', color: 'text-amber-600', bg: 'bg-amber-50', order: 2 },
-    { icon: 'ShoppingCart', title: 'E-Commerce Development', description: 'Feature-rich online stores with secure payments, inventory management, and seamless shopping experiences.', color: 'text-emerald-600', bg: 'bg-emerald-50', order: 3 },
-    { icon: 'Smartphone', title: 'Responsive Websites', description: 'Websites that look stunning on every device — from desktop monitors to the smallest smartphones.', color: 'text-amber-600', bg: 'bg-amber-50', order: 4 },
-    { icon: 'Settings', title: 'Website Maintenance', description: 'Ongoing support, updates, and optimization to keep your website running smoothly and securely.', color: 'text-emerald-600', bg: 'bg-emerald-50', order: 5 },
-    { icon: 'Search', title: 'SEO Services', description: 'Data-driven SEO strategies that boost your visibility and drive organic traffic to your website.', color: 'text-amber-600', bg: 'bg-amber-50', order: 6 },
+    { icon: 'Globe', title: 'Website Design', description: 'Beautiful, modern designs that capture your brand identity and engage visitors from the first click.', color: 'text-emerald-600', bgColor: 'bg-emerald-50', order: 1 },
+    { icon: 'Code2', title: 'Website Development', description: 'Robust, scalable web applications built with the latest technologies for peak performance and reliability.', color: 'text-amber-600', bgColor: 'bg-amber-50', order: 2 },
+    { icon: 'ShoppingCart', title: 'E-Commerce Development', description: 'Feature-rich online stores with secure payments, inventory management, and seamless shopping experiences.', color: 'text-emerald-600', bgColor: 'bg-emerald-50', order: 3 },
+    { icon: 'Smartphone', title: 'Responsive Websites', description: 'Websites that look stunning on every device — from desktop monitors to the smallest smartphones.', color: 'text-amber-600', bgColor: 'bg-amber-50', order: 4 },
+    { icon: 'Settings', title: 'Website Maintenance', description: 'Ongoing support, updates, and optimization to keep your website running smoothly and securely.', color: 'text-emerald-600', bgColor: 'bg-emerald-50', order: 5 },
+    { icon: 'Search', title: 'SEO Services', description: 'Data-driven SEO strategies that boost your visibility and drive organic traffic to your website.', color: 'text-amber-600', bgColor: 'bg-amber-50', order: 6 },
   ]
 
   for (const service of services) {

@@ -151,9 +151,13 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   const [authLoading, setAuthLoading] = useState(false)
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false)
   const [totpCode, setTotpCode] = useState('')
-  const [showReset2fa, setShowReset2fa] = useState(false)
-  const [reset2faPassword, setReset2faPassword] = useState('')
-  const [reset2faLoading, setReset2faLoading] = useState(false)
+  const [showResetPassword, setShowResetPassword] = useState(false)
+  const [resetTotpCode, setResetTotpCode] = useState('')
+  const [resetNewPassword, setResetNewPassword] = useState('')
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('')
+  const [showResetNewPassword, setShowResetNewPassword] = useState(false)
+  const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false)
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, setTheme } = useTheme()
@@ -215,8 +219,8 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
-    // Reset mode handles its own submission via handleReset2FA
-    if (showReset2fa) return
+    // Reset mode handles its own submission via handleResetPassword
+    if (showResetPassword) return
     if (requiresTwoFactor) {
       // Step 2: Verify TOTP code
       if (!totpCode.trim() || totpCode.replace(/\D/g, '').length !== 6) { toast.error('Invalid Code', { description: 'Please enter the 6-digit code from Google Authenticator.' }); return }
@@ -244,7 +248,7 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
   }
   const handleLogout = async () => {
     try { await fetch('/api/admin/auth', { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } }) } catch {}
-    setIsAuthenticated(false); setAdminToken(''); sessionStorage.removeItem('admin_token'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setRequiresTwoFactor(false); setTotpCode(''); setShowReset2fa(false); setReset2faPassword(''); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' })
+    setIsAuthenticated(false); setAdminToken(''); sessionStorage.removeItem('admin_token'); setIsOpen(false); setActiveTab('dashboard'); setSidebarOpen(false); setRequiresTwoFactor(false); setTotpCode(''); setShowResetPassword(false); setResetTotpCode(''); setResetNewPassword(''); setResetConfirmPassword(''); setContacts([]); setServices([]); setPortfolio([]); setTestimonials([]); setStats([]); setDashboard(null); onExternalClose?.(); toast.success('Logged Out', { description: 'You have been logged out successfully.' })
   }
 
   const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` })
@@ -337,30 +341,34 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
     finally { setTwoFactorLoading(false) }
   }
 
-  // ─── Emergency 2FA Reset (locked-out recovery) ───
-  const handleReset2FA = async () => {
-    if (!reset2faPassword.trim()) { toast.error('Error', { description: 'Please enter your admin password.' }); return }
-    setReset2faLoading(true)
+  // ─── Reset Admin Password via Google Authenticator ───
+  const handleResetPassword = async () => {
+    const cleanCode = resetTotpCode.replace(/\D/g, '')
+    if (cleanCode.length !== 6) { toast.error('Invalid Code', { description: 'Please enter the 6-digit code from Google Authenticator.' }); return }
+    if (resetNewPassword.length < 8 || resetNewPassword.length > 128) { toast.error('Invalid Password', { description: 'New password must be at least 8 characters long.' }); return }
+    if (resetNewPassword !== resetConfirmPassword) { toast.error('Passwords Do Not Match', { description: 'The new password and confirmation do not match.' }); return }
+    setResetPasswordLoading(true)
     try {
-      const r = await fetch('/api/admin/2fa/reset', {
+      const r = await fetch('/api/admin/password/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: reset2faPassword }),
+        body: JSON.stringify({ totpCode: cleanCode, newPassword: resetNewPassword }),
       })
       const d = await r.json()
       if (r.ok && d.success) {
-        toast.success('2FA Reset Successful', { description: 'Two-factor authentication has been disabled. You can now log in with just your password and set up 2FA again inside the admin panel.' })
-        // Return to the password login screen with the password pre-filled
+        toast.success('Password Reset Successful', { description: 'Your admin password has been updated. You can now log in with your new password and Google Authenticator code.' })
+        // Return to the password login screen
+        setShowResetPassword(false)
         setRequiresTwoFactor(false)
-        setShowReset2fa(false)
-        setTotpCode('')
-        setReset2faPassword('')
-        setPassword(reset2faPassword)
+        setResetTotpCode('')
+        setResetNewPassword('')
+        setResetConfirmPassword('')
+        setPassword('')
       } else {
-        toast.error('Reset Failed', { description: d.error || 'Failed to reset 2FA.' })
+        toast.error('Reset Failed', { description: d.error || 'Failed to reset password.' })
       }
     } catch { toast.error('Error', { description: 'Failed to connect to server.' }) }
-    finally { setReset2faLoading(false) }
+    finally { setResetPasswordLoading(false) }
   }
 
   // Neon spinner component
@@ -390,7 +398,88 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                 <p className="text-sm text-muted-foreground mt-1">A-Star Infotech</p>
               </div>
               <form onSubmit={handleLogin} className="space-y-4">
-                {!requiresTwoFactor ? (
+                {showResetPassword ? (
+                  <div className="space-y-3">
+                    <div className="bg-neon/5 border border-neon/20 rounded-lg p-3 flex items-start gap-3">
+                      <ShieldCheck className="w-5 h-5 text-neon shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Reset Admin Password</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Forgot your password? Enter your Google Authenticator code and a new password to regain access to the admin panel.</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="reset-totp" className="text-sm font-medium text-foreground">Google Authenticator Code</label>
+                      <Input
+                        id="reset-totp"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        placeholder="000000"
+                        value={resetTotpCode}
+                        onChange={(e) => setResetTotpCode(e.target.value.replace(/\D/g, ''))}
+                        autoFocus
+                        disabled={resetPasswordLoading}
+                        className="futuristic-input h-12 text-center text-2xl tracking-[0.5em] font-mono"
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleResetPassword() } }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="reset-newpw" className="text-sm font-medium text-foreground">New Password</label>
+                      <div className="relative">
+                        <Input
+                          id="reset-newpw"
+                          type={showResetNewPassword ? 'text' : 'password'}
+                          placeholder="Enter new password (min 8 chars)"
+                          value={resetNewPassword}
+                          onChange={(e) => setResetNewPassword(e.target.value)}
+                          disabled={resetPasswordLoading}
+                          className="futuristic-input h-11 pr-11"
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleResetPassword() } }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowResetNewPassword((s) => !s)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-neon transition-colors focus:outline-none focus:text-neon"
+                          tabIndex={-1}
+                          aria-label={showResetNewPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showResetNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="reset-confirmpw" className="text-sm font-medium text-foreground">Confirm New Password</label>
+                      <div className="relative">
+                        <Input
+                          id="reset-confirmpw"
+                          type={showResetConfirmPassword ? 'text' : 'password'}
+                          placeholder="Re-enter new password"
+                          value={resetConfirmPassword}
+                          onChange={(e) => setResetConfirmPassword(e.target.value)}
+                          disabled={resetPasswordLoading}
+                          className="futuristic-input h-11 pr-11"
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleResetPassword() } }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowResetConfirmPassword((s) => !s)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-neon transition-colors focus:outline-none focus:text-neon"
+                          tabIndex={-1}
+                          aria-label={showResetConfirmPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showResetConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </div>
+                    <Button type="button" onClick={handleResetPassword} className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-11" disabled={resetPasswordLoading || resetTotpCode.replace(/\D/g, '').length !== 6 || !resetNewPassword.trim() || !resetConfirmPassword.trim()}>
+                      {resetPasswordLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Resetting...</> : <><ShieldCheck className="w-4 h-4 mr-2" />Reset Password</>}
+                    </Button>
+                    <button type="button" onClick={() => { setShowResetPassword(false); setResetTotpCode(''); setResetNewPassword(''); setResetConfirmPassword('') }} className="text-xs text-muted-foreground hover:text-neon transition-colors w-full text-left">
+                      ← Back to login
+                    </button>
+                  </div>
+                ) : !requiresTwoFactor ? (
                   <div className="space-y-2">
                     <label htmlFor="admin-password" className="text-sm font-medium text-foreground">Password</label>
                     <div className="relative">
@@ -414,46 +503,8 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                  </div>
-                ) : showReset2fa ? (
-                  <div className="space-y-3">
-                    <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 flex items-start gap-3">
-                      <KeyRound className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Reset Two-Factor Authentication</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Lost access to your authenticator app? Enter your admin password to disable 2FA so you can log in and set it up again.</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="reset-2fa-password" className="text-sm font-medium text-foreground">Admin Password</label>
-                      <div className="relative">
-                        <Input
-                          id="reset-2fa-password"
-                          type={showPassword ? 'text' : 'password'}
-                          placeholder="Enter admin password"
-                          value={reset2faPassword}
-                          onChange={(e) => setReset2faPassword(e.target.value)}
-                          autoFocus
-                          disabled={reset2faLoading}
-                          className="futuristic-input h-11 pr-11"
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleReset2FA() } }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((s) => !s)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-neon transition-colors focus:outline-none focus:text-neon"
-                          tabIndex={-1}
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                    </div>
-                    <Button type="button" onClick={handleReset2FA} className="w-full glow-button bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 h-11" disabled={reset2faLoading || !reset2faPassword.trim()}>
-                      {reset2faLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full" />Resetting...</> : <><KeyRound className="w-4 h-4 mr-2" />Reset 2FA</>}
-                    </Button>
-                    <button type="button" onClick={() => { setShowReset2fa(false); setReset2faPassword('') }} className="text-xs text-muted-foreground hover:text-neon transition-colors w-full text-left">
-                      ← Back to authenticator code
+                    <button type="button" onClick={() => { setShowResetPassword(true); setPassword(''); setRequiresTwoFactor(false) }} className="text-xs text-neon/80 hover:text-neon transition-colors w-full text-left">
+                      Forgot password? Reset with Google Authenticator →
                     </button>
                   </div>
                 ) : (
@@ -484,18 +535,15 @@ function AdminPanel({ externalOpen, onExternalClose }: { externalOpen?: boolean;
                     <button type="button" onClick={() => { setRequiresTwoFactor(false); setTotpCode('') }} className="text-xs text-muted-foreground hover:text-neon transition-colors w-full text-left">
                       ← Back to password
                     </button>
-                    <button type="button" onClick={() => { setShowReset2fa(true); setTotpCode('') }} className="text-xs text-amber-400/80 hover:text-amber-400 transition-colors w-full text-left">
-                      Lost your authenticator? Reset 2FA with password →
-                    </button>
                   </div>
                 )}
-                {!showReset2fa && (
+                {!showResetPassword && (
                 <Button type="submit" className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-11" disabled={authLoading || (!requiresTwoFactor ? !password.trim() : totpCode.replace(/\D/g, '').length !== 6)}>
                   {authLoading ? <><span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" />Verifying...</> : <>{requiresTwoFactor ? <><ShieldCheck className="w-4 h-4 mr-2" />Verify Code</> : <><Lock className="w-4 h-4 mr-2" />Login</>}</>}
                 </Button>
                 )}
               </form>
-              <Button variant="ghost" className="w-full mt-3 text-muted-foreground" onClick={() => { setIsOpen(false); setPassword(''); setRequiresTwoFactor(false); setTotpCode(''); setShowReset2fa(false); setReset2faPassword('') }}>Cancel</Button>
+              <Button variant="ghost" className="w-full mt-3 text-muted-foreground" onClick={() => { setIsOpen(false); setPassword(''); setRequiresTwoFactor(false); setTotpCode(''); setShowResetPassword(false); setResetTotpCode(''); setResetNewPassword(''); setResetConfirmPassword('') }}>Cancel</Button>
             </CardContent>
           </Card>
         </div>
