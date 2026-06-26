@@ -1659,10 +1659,10 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="bg-background border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-10 sm:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+          <div className="py-8 sm:py-12 lg:py-14 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
             {/* Company Info */}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2.5 mb-5">
+            <div className="col-span-2 lg:col-span-1">
+              <div className="flex items-center gap-2.5 mb-4">
                 <img src="/logo.png" alt="A-Star Infotech Logo" className="w-10 h-10 rounded-lg object-contain" />
                 <div>
                   <div className="font-bold text-foreground text-lg leading-tight">A-Star</div>
@@ -1670,20 +1670,20 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
-              <div className="mt-5 flex gap-3">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-5 h-5 text-muted-foreground hover:text-neon" /></a>}
+              <div className="mt-4 flex gap-2.5">
+                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
+                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
               </div>
             </div>
             {/* Quick Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-              <ul className="space-y-4">
+              <h4 className="font-semibold text-foreground mb-2.5 sm:mb-3 text-sm uppercase tracking-wider">Quick Links</h4>
+              <ul className="space-y-1 sm:space-y-1.5">
                 {NAV_LINKS.map(link => (
                   <li key={link.href}>
-                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[44px]">
+                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[28px] sm:min-h-[32px]">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {link.label}
                     </a>
@@ -1693,11 +1693,11 @@ export default function Home() {
             </div>
             {/* Our Services */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Our Services</h4>
-              <ul className="space-y-4">
+              <h4 className="font-semibold text-foreground mb-2.5 sm:mb-3 text-sm uppercase tracking-wider">Our Services</h4>
+              <ul className="space-y-1 sm:space-y-1.5">
                 {services.map(s => (
                   <li key={s.title}>
-                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[44px]">
+                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[28px] sm:min-h-[32px]">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {s.title}
                     </a>
@@ -1706,26 +1706,26 @@ export default function Home() {
               </ul>
             </div>
             {/* Contact Info */}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 group min-h-[44px]">
-                    <div className="w-9 h-9 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
-                      <MapPin className="w-4 h-4 text-neon/60 group-hover:text-neon transition-colors" />
+            <div className="col-span-2 lg:col-span-1">
+              <h4 className="font-semibold text-foreground mb-2.5 sm:mb-3 text-sm uppercase tracking-wider">Contact Info</h4>
+              <ul className="space-y-2 sm:space-y-2.5">
+                <li className="flex items-start gap-2.5">
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2.5 group">
+                    <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
+                      <MapPin className="w-3.5 h-3.5 text-neon/60 group-hover:text-neon transition-colors" />
                     </div>
-                    <span className="text-sm text-muted-foreground leading-relaxed pt-1.5 group-hover:text-neon transition-colors">{siteSettings.address}</span>
+                    <span className="text-sm text-muted-foreground leading-relaxed pt-1 group-hover:text-neon transition-colors">{siteSettings.address}</span>
                   </a>
                 </li>
-                <li className="flex items-center gap-3 min-h-[44px]">
-                  <div className="w-9 h-9 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
-                    <Phone className="w-4 h-4 text-neon/60" />
+                <li className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
+                    <Phone className="w-3.5 h-3.5 text-neon/60" />
                   </div>
-                  <a href={`tel:${siteSettings.phone}`} className="text-sm text-muted-foreground hover:text-neon transition-colors pt-0.5">{siteSettings.phone}</a>
+                  <a href={`tel:${siteSettings.phone}`} className="text-sm text-muted-foreground hover:text-neon transition-colors">{siteSettings.phone}</a>
                 </li>
-                <li className="flex items-center gap-3 min-h-[44px]">
-                  <div className="w-9 h-9 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
-                    <Mail className="w-4 h-4 text-neon/60" />
+                <li className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
+                    <Mail className="w-3.5 h-3.5 text-neon/60" />
                   </div>
                   <div className="flex flex-col">
                     <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
@@ -1736,12 +1736,12 @@ export default function Home() {
             </div>
           </div>
           {/* Bottom Bar */}
-          <div className="border-t border-border py-6 sm:py-8 pb-24 sm:pb-8 flex flex-col sm:flex-row justify-between items-center gap-4 pr-16 sm:pr-16">
+          <div className="border-t border-border py-4 sm:py-6 pb-20 sm:pb-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <p className="text-xs sm:text-sm text-muted-foreground/70 text-center sm:text-left">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
             <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground/70">
-              <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors min-h-[44px] flex items-center">Privacy Policy</button>
+              <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors min-h-[36px] flex items-center">Privacy Policy</button>
               <span className="text-foreground/10 hidden sm:inline">|</span>
-              <button onClick={() => window.openLegal?.('terms')} className="hover:text-neon transition-colors min-h-[44px] flex items-center">Terms of Service</button>
+              <button onClick={() => window.openLegal?.('terms')} className="hover:text-neon transition-colors min-h-[36px] flex items-center">Terms of Service</button>
             </div>
           </div>
         </div>
