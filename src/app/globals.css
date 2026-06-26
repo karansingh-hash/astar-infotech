@@ -117,6 +117,10 @@
   --sidebar-accent-foreground: oklch(0.13 0.02 270);
   --sidebar-border: oklch(0.88 0.01 250);
   --sidebar-ring: oklch(0.55 0.15 160);
+  /* Scrollbar - high contrast for visibility (light mode) */
+  --scrollbar-track: #e9eef5;
+  --scrollbar-thumb: #94a3b8;
+  --scrollbar-thumb-hover: #475569;
 }
 
 /* ── Dark Mode ── */
@@ -173,6 +177,10 @@
   --dark-surface: #0d0d1a;
   --dark-card: #111128;
   --dark-border: #1e1e3a;
+  /* Scrollbar - high contrast for visibility (dark mode) */
+  --scrollbar-track: #14142b;
+  --scrollbar-thumb: #585894;
+  --scrollbar-thumb-hover: #8b8bc4;
 }
 
 @layer base {
@@ -184,22 +192,35 @@
   }
 }
 
-/* Custom scrollbar - dual mode */
+/* Custom scrollbar - high visibility, dual mode */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--dark-surface);
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--dark-border);
-  border-radius: 3px;
+  background: var(--scrollbar-thumb);
+  border-radius: 8px;
+  border: 3px solid var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--neon-dim);
+  background: var(--scrollbar-thumb-hover);
+  border-color: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Firefox scrollbar support */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 /* Smooth scrolling */
