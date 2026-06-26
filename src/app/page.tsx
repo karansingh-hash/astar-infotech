@@ -1595,7 +1595,7 @@ export default function Home() {
             <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Have a project in mind? We&apos;d love to hear from you. Fill out the form below or reach us directly.</p>
           </div>
           <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10 lg:gap-12">
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 lg:self-start">
               <Card className="glass-card border-neon/20 shadow-lg shadow-neon/5">
                 <CardContent className="p-4 sm:p-6 md:p-8">
                   <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Send Us a Message</h3>
