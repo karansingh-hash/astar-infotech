@@ -77,7 +77,7 @@ export async function GET(request: Request) {
           { key: 'email', value: 'contact@astarinfotech.in' },
           { key: 'secondaryEmail', value: 'infootechastar@gmail.com' },
           { key: 'hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
-          { key: 'heroBadge', value: 'Building Smart Websites for Growing Businesses' },
+          { key: 'heroBadge', value: '' },
           { key: 'heroHeading', value: 'Transform Your Digital Presence With Us' },
           { key: 'heroSubtitle', value: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.' },
           { key: 'facebook', value: 'https://facebook.com/astarinfotech' },

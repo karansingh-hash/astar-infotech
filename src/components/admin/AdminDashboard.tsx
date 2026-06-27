@@ -46,7 +46,7 @@ const DEFAULT_SETTINGS = {
   linkedin: 'https://linkedin.com/company/astarinfotech',
   youtube: 'https://youtube.com/@astarinfotech',
   brandColor: '#059669',
-  heroBadge: 'Building Smart Websites for Growing Businesses',
+  heroBadge: '',
   heroHeading: 'Transform Your Digital Presence With Us',
   heroSubtitle: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.',
   aboutHeading: 'We Build Digital Experiences That Matter',
@@ -910,7 +910,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
                         <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2"><Sparkles className="w-5 h-5 text-neon" />Hero Section</h3>
                         <div className="space-y-5">
                           {[
-                            { icon: Sparkles, label: 'Badge Text', key: 'heroBadge' as const, placeholder: 'Building Smart Websites for Growing Businesses', type: 'input' },
+                            { icon: Sparkles, label: 'Badge Text', key: 'heroBadge' as const, placeholder: 'Optional small badge text shown above the hero heading', type: 'input' },
                             { icon: Target, label: 'Main Heading', key: 'heroHeading' as const, placeholder: 'Transform Your Digital Presence With Us', type: 'input' },
                             { icon: Globe, label: 'Subtitle', key: 'heroSubtitle' as const, placeholder: 'We craft stunning, high-performance websites...', type: 'textarea' },
                           ].map(field => (

@@ -68,4 +68,6 @@ server.log
 *.db-journal
 bun.lock
 upload/
-worklog.mdscreenshots/
+worklog.md
+screenshots/
+tool-results/

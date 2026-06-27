@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "A-Star Infotech | Building Smart Websites for Growing Businesses",
+  title: "A-Star Infotech | Web Development & Digital Solutions Agency",
   description:
     "A-Star Infotech offers professional website development, e-commerce solutions, responsive design, and SEO services for small businesses, startups, and enterprises. Build your digital presence with us.",
   keywords: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     icon: "/logo.png",
   },
   openGraph: {
-    title: "A-Star Infotech | Building Smart Websites for Growing Businesses",
+    title: "A-Star Infotech | Web Development & Digital Solutions Agency",
     description:
       "Professional website development, e-commerce solutions, and digital services for growing businesses.",
     type: "website",

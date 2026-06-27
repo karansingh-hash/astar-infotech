@@ -96,7 +96,7 @@ const DEFAULT_SETTINGS = {
   linkedin: 'https://linkedin.com/company/astarinfotech',
   youtube: 'https://youtube.com/@astarinfotech',
   brandColor: '#059669',
-  heroBadge: 'Building Smart Websites for Growing Businesses',
+  heroBadge: '',
   heroHeading: 'Transform Your Digital Presence With Us',
   heroSubtitle: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.',
   aboutHeading: 'We Build Digital Experiences That Matter',
@@ -295,9 +295,11 @@ export default function Home() {
         <div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-32 lg:py-40">
           <div className="max-w-3xl">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
-            </motion.div>
+            {siteSettings.heroBadge && siteSettings.heroBadge.trim() !== '' && (
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
+              </motion.div>
+            )}
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
               {siteSettings.heroHeading}
             </motion.h1>

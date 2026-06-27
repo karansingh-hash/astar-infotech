@@ -105,9 +105,8 @@ export async function sendAutoReply(data: ContactFormData) {
     html: `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb; border-radius: 12px; overflow: hidden;">
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #059669, #047857); padding: 28px 32px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #059669, #047857); padding: 32px; text-align: center;">
           <h1 style="color: #ffffff; margin: 0; font-size: 24px;">A-Star Infotech</h1>
-          <p style="color: #d1fae5; margin: 6px 0 0; font-size: 14px;">Building Smart Websites for Growing Businesses</p>
         </div>
 
         <!-- Body -->

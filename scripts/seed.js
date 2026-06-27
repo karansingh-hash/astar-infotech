@@ -19,7 +19,7 @@ async function main() {
 
   // Seed Site Settings
   const settings = [
-    { key: 'hero_badge', value: 'Building Smart Websites for Growing Businesses' },
+    { key: 'hero_badge', value: '' },
     { key: 'hero_title', value: 'Transform Your Digital Presence With Us' },
     { key: 'hero_description', value: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.' },
     { key: 'about_title', value: 'We Build Digital Experiences That Matter' },
