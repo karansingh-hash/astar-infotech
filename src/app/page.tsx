@@ -24,7 +24,6 @@ import {
   DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import AdminDashboard from '@/components/admin/AdminDashboard'
 
 /* ── Data ── */
 const NAV_LINKS = [
@@ -152,7 +151,6 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
-  const [adminOpen, setAdminOpen] = useState(false)
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [services, setServices] = useState(DEFAULT_SERVICES)
@@ -241,15 +239,6 @@ export default function Home() {
                   {theme === 'dark' ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
                 </button>
               )}
-              <button
-                onClick={() => window.location.href = '/admin'}
-                className="ml-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-foreground/60 hover:text-foreground hover:bg-neon/10 border border-border hover:border-neon/30 transition-all"
-                aria-label="Admin Panel"
-                title="Admin Panel"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>Admin</span>
-              </button>
             </nav>
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 -mr-2 rounded-md text-foreground hover:bg-neon/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -284,13 +273,6 @@ export default function Home() {
                         {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light Mode</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark Mode</span></>}
                       </button>
                     )}
-                    <button
-                      onClick={() => { window.location.href = '/admin'; setMobileMenuOpen(false) }}
-                      className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground/60"
-                      aria-label="Admin Panel"
-                    >
-                      <Lock className="w-5 h-5" /><span className="text-sm font-medium">Admin</span>
-                    </button>
                   </div>
                 </div>
               </nav>
@@ -701,8 +683,6 @@ export default function Home() {
       <a href="https://wa.me/918560074448?text=Hello%20A-Star%20Infotech!%20I%20am%20interested%20in%20your%20web%20development%20services." target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 whatsapp-pulse" aria-label="Chat on WhatsApp">
         <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 transition-transform"><MessageCircle className="w-7 h-7 text-white" /></div>
       </a>
-
-      <AdminDashboard mode="modal" externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />
 
       <LegalModal contactInfo={{ address: siteSettings.address, phone: siteSettings.phone, email: siteSettings.email }} />
 
