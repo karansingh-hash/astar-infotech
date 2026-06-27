@@ -641,3 +641,76 @@ Stage Summary:
 - Reset endpoint requires only admin password (first factor), rate-limited 3/min to prevent brute force
 - This is a standard recovery pattern: knowing the primary credential lets you reset the second factor
 - User can now get into their admin panel and set up Google Authenticator properly
+
+---
+Task ID: 2
+Agent: full-stack-developer
+Task: Extract AdminPanel from page.tsx into AdminDashboard.tsx, create /admin route
+
+Work Log:
+- Read the full /home/z/my-project/worklog.md to understand prior work (Task 1: revalidatePath + Sonner toasts, social media editor, brand color picker, 2FA reset flow)
+- Read /home/z/my-project/src/app/page.tsx (1769 lines) completely in chunks to map the exact structure:
+  - Lines 1-26: imports (react, framer-motion, lucide icons, shadcn/ui, sonner, next-themes)
+  - Lines 28-109: data constants (NAV_LINKS, ICON_MAP, DEFAULT_SERVICES, WHY_CHOOSE_US, DEFAULT_PORTFOLIO, DEFAULT_TESTIMONIALS, DEFAULT_STATS, DEFAULT_SETTINGS)
+  - Lines 111-122: AnimatedSection helper
+  - Lines 124-143: admin types (AdminTab, ContactItem, ServiceItem, PortfolioItem, TestimonialItem, StatItem, DashboardData, SiteSettings) + TAB_CONFIG
+  - Lines 145-1195: inline AdminPanel function (login + 7-tab dashboard + 2FA + password change + CRUD)
+  - Lines 1201-1769: main Home component
+  - Line 1755: <AdminPanel externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />
+- Confirmed adminOpen/setAdminOpen is ONLY used for the admin panel trigger (lines 1205, 1295, 1338, 1755) — safe to keep as fallback
+- Noted existing src/components/admin/AdminPanel.tsx (1326 lines) is dead code (not imported anywhere) — left untouched per task scope
+- Verified eslint config has @typescript-eslint/no-unused-vars: off, so keeping duplicate types/constants in page.tsx is safe
+- Verified tsconfig has strict:true but no noUnusedLocals, so unused type declarations won't error
+
+- Created /home/z/my-project/src/components/admin/AdminDashboard.tsx (1122 lines) via a Python extraction script:
+  - Added 'use client' directive
+  - Imported ONLY the icons/hooks/components AdminPanel uses (Menu, X, Lock, LogOut, LayoutDashboard, Users, Briefcase, Star, BarChart3, Settings, Mail, Phone, MapPin, Clock, Save, Plus, Pencil, Wrench, Globe, Code2, ShoppingCart, Smartphone, Search, Award, Zap, Shield, Heart, Target, Rocket, Sparkles, MessageCircle, Inbox, ExternalLink, Eye, Trash2, Calendar, MailCheck, PhoneCall, Sun, Moon, EyeOff, KeyRound, ShieldCheck, ChevronRight, Send, Facebook, Instagram, Linkedin, Youtube + useState/useEffect/FormEvent + Button/Input/Textarea/Card/CardContent/Badge/Label/Dialog*/toast/useTheme)
+  - Copied types (AdminTab through SiteSettings) verbatim from source lines 125-133
+  - Copied DEFAULT_SETTINGS verbatim from source lines 87-109 (preserves real em-dashes/apostrophes)
+  - Copied TAB_CONFIG verbatim from source lines 135-143
+  - Copied the AdminPanel function body (source lines 145-1195) and applied 8 modifications:
+    1. Renamed function to `export default function AdminDashboard` and added `mode?: 'modal' | 'page'` prop + `const isPage = mode === 'page'`
+    2. Changed `useState(false)` for isOpen to `useState(mode === 'page')` so page mode starts open
+    3. Updated externalOpen effect: `if (mode === 'page' || externalOpen) setIsOpen(true)` with [externalOpen, mode] deps
+    4. Login screen container: `className={isPage ? 'min-h-screen flex items-center justify-center p-4' : 'fixed inset-0 z-[9999] bg-background flex items-center justify-center p-4'}`
+    5. Login "Cancel" button: wrapped in `{!isPage && <Button ...>}` so it's hidden in page mode (nothing to cancel to)
+    6. Dashboard container: `className={isPage ? 'min-h-screen bg-background flex' : 'fixed inset-0 z-[9999] bg-background flex'}`
+    7. Sidebar "View Website" button: `onClick={() => isPage ? (window.location.href = '/') : (setIsOpen(false), setSidebarOpen(false), onExternalClose?.())}`
+    8. Header "View Website" button: `onClick={() => isPage ? (window.location.href = '/') : (setIsOpen(false), onExternalClose?.())}`
+  - All 8 modifications verified present via grep (lines 71, 72, 73, 135, 315, 473, 483, 501, 511)
+  - The `if (!isOpen) return null` guard (line 310) is harmless in page mode since isOpen is always true
+  - All auth/2FA/CRUD handlers copied verbatim — login flow, sessionStorage.getItem('admin_token'), TOTP, password reset, dashboard/stats/services/portfolio/testimonials/settings tabs all unchanged
+
+- Updated /home/z/my-project/src/app/page.tsx (1769 → 719 lines):
+  - Added `import AdminDashboard from '@/components/admin/AdminDashboard'` after the Label import (line 27)
+  - Removed the inline `function AdminPanel(...)` (original lines 145-1195, 1051 lines) — kept types/TAB_CONFIG/DEFAULT_SETTINGS in page.tsx per the safety approach (Home still uses DEFAULT_SETTINGS; types/TAB_CONFIG are now unused but harmless since no-unused-vars is off)
+  - Replaced line 705: `<AdminPanel externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />` → `<AdminDashboard mode="modal" externalOpen={adminOpen} onExternalClose={() => setAdminOpen(false)} />` (kept as fallback)
+  - Updated desktop nav admin button (line 245): `onClick={() => setAdminOpen(true)}` → `onClick={() => window.location.href = '/admin'}`
+  - Updated mobile menu admin button (line 288): `onClick={() => { setAdminOpen(true); setMobileMenuOpen(false) }}` → `onClick={() => { window.location.href = '/admin'; setMobileMenuOpen(false) }}`
+  - Kept `adminOpen` state and the modal `<AdminDashboard mode="modal">` render as a fallback (harmless dead code since buttons now navigate to /admin)
+
+- Created /home/z/my-project/src/app/admin/page.tsx (7 lines):
+  ```tsx
+  'use client'
+  import AdminDashboard from '@/components/admin/AdminDashboard'
+  export default function AdminPage() {
+    return <AdminDashboard mode="page" />
+  }
+  ```
+
+- Verification:
+  - `bun run lint` → only pre-existing error in scripts/seed.js (require import). No new errors.
+  - `npx tsc --noEmit` → 3 pre-existing errors in skills/* and src/app/api/settings/route.ts. ZERO errors in the 3 files I touched (AdminDashboard.tsx, page.tsx, admin/page.tsx).
+  - Cleaned up temporary Python build scripts (build_admin_dashboard.py, update_page_tsx.py)
+
+Stage Summary:
+- Extracted the 1051-line inline AdminPanel from page.tsx into a standalone, reusable AdminDashboard component (1122 lines) at src/components/admin/AdminDashboard.tsx
+- AdminDashboard supports two rendering modes via a `mode` prop:
+  - `mode="modal"` (default): original full-screen overlay behavior with `fixed inset-0 z-[9999]`, controlled by externalOpen/onExternalClose — used as a fallback in page.tsx
+  - `mode="page"`: full-page experience with `min-h-screen` (no overlay z-index), always visible, "View Website" navigates to `/` — used by the new /admin route
+- Created /admin route (src/app/admin/page.tsx) that renders `<AdminDashboard mode="page" />` — the primary admin entry point now
+- Updated page.tsx nav buttons (desktop + mobile) to navigate to /admin instead of opening the modal
+- Auth flow preserved 1:1: password login, 2FA (TOTP) setup/verify/disable, password reset via Google Authenticator, sessionStorage admin_token check on mount, all 7 dashboard tabs (dashboard/inquiries/services/portfolio/testimonials/statistics/settings), all CRUD operations, brand color picker, social media editor, Sonner toasts
+- No API routes, Prisma schema, or auth logic were modified
+- page.tsx shrank from 1769 to 719 lines (the Home component is now isolated and much easier to maintain)
+- Lint and type-check both pass with no new errors
