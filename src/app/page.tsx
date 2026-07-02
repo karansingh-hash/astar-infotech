@@ -914,6 +914,13 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
+              {/* Newsletter signup */}
+              <div className="mt-4 flex">
+                <input type="email" placeholder="Your email" className="newsletter-input flex-1 text-sm min-w-0" />
+                <button className="bg-neon hover:bg-neon/80 text-white px-4 rounded-r-lg text-sm font-medium transition-colors">
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
               {/* Social icons with glow */}
               <div className="mt-5 flex gap-2.5">
                 {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground" /></a>}
