@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent, useCallback } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import {
   Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search,
@@ -10,6 +10,7 @@ import {
   Shield, Rocket, Eye, Trash2, Inbox, Lock, LayoutDashboard,
   BarChart3, LogOut, Calendar, MailCheck, PhoneCall, Briefcase,
   Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound, ShieldCheck,
+  ChevronDown, Quote, ArrowLeft, ArrowRight as ArrowRightIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LegalModal } from '@/components/legal-modal'
@@ -121,30 +122,149 @@ function AnimatedSection({ children, className = '', id }: { children: React.Rea
   )
 }
 
-/* ── Admin Panel ── */
-type AdminTab = 'dashboard' | 'inquiries' | 'services' | 'portfolio' | 'testimonials' | 'statistics' | 'settings'
+/* ── useCountUp Hook ── */
+function useCountUp(end: number, duration = 2000, startOnView = true) {
+  const [count, setCount] = useState(0)
+  const ref = useRef<HTMLDivElement>(null)
+  const hasStarted = useRef(false)
 
-interface ContactItem { id: string; name: string; email: string; phone: string | null; message: string; createdAt: string }
-interface ServiceItem { id: string; title: string; description: string; icon: string; color: string; bgColor: string; order: number }
-interface PortfolioItem { id: string; title: string; category: string; description: string; tech: string; color: string; image: string; order: number }
-interface TestimonialItem { id: string; name: string; company: string; review: string; rating: number; order: number }
-interface StatItem { id: string; value: string; label: string; order: number }
-interface DashboardData { totalContacts: number; totalServices: number; totalPortfolio: number; totalTestimonials: number; todayContacts: number; weekContacts: number; monthContacts: number; recentContacts: ContactItem[] }
-interface SiteSettings { companyName: string; address: string; phone: string; email: string; secondaryEmail: string; hours: string; facebook: string; instagram: string; linkedin: string; youtube: string; brandColor: string; heroBadge: string; heroHeading: string; heroSubtitle: string; aboutHeading: string; aboutDescription1: string; aboutDescription2: string; aboutVision: string; aboutMission: string; aboutValues: string; whyChooseUsIntro: string }
+  useEffect(() => {
+    if (!startOnView) {
+      hasStarted.current = true
+      const startTime = Date.now()
+      const tick = () => {
+        const elapsed = Date.now() - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setCount(Math.round(eased * end))
+        if (progress < 1) requestAnimationFrame(tick)
+      }
+      tick()
+      return
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !hasStarted.current) {
+        hasStarted.current = true
+        const startTime = Date.now()
+        const tick = () => {
+          const elapsed = Date.now() - startTime
+          const progress = Math.min(elapsed / duration, 1)
+          const eased = 1 - Math.pow(1 - progress, 3)
+          setCount(Math.round(eased * end))
+          if (progress < 1) requestAnimationFrame(tick)
+        }
+        tick()
+      }
+    }, { threshold: 0.3 })
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [end, duration, startOnView])
 
-const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { key: 'inquiries', label: 'Inquiries', icon: Inbox },
-  { key: 'services', label: 'Services', icon: Globe },
-  { key: 'portfolio', label: 'Portfolio', icon: Briefcase },
-  { key: 'testimonials', label: 'Testimonials', icon: Star },
-  { key: 'statistics', label: 'Statistics', icon: BarChart3 },
-  { key: 'settings', label: 'Site Settings', icon: Wrench },
-]
+  return { count, ref }
+}
+
+/* ── Stat Counter Component ── */
+function StatCounter({ value, label }: { value: string; label: string }) {
+  const numericPart = parseInt(value.replace(/[^0-9]/g, ''), 10) || 0
+  const suffix = value.replace(/[0-9]/g, '')
+  const { count, ref } = useCountUp(numericPart, 2000)
+
+  return (
+    <div ref={ref} className="text-center sm:text-left">
+      <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-neon counter-glow">
+        {count}{suffix}
+      </div>
+      <div className="text-xs sm:text-sm text-muted-foreground mt-1">{label}</div>
+    </div>
+  )
+}
+
+/* ── Testimonial Carousel Component ── */
+function TestimonialCarousel({ items }: { items: typeof DEFAULT_TESTIMONIALS }) {
+  const [current, setCurrent] = useState(0)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const startAuto = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(() => {
+      setCurrent(prev => (prev + 1) % items.length)
+    }, 5000)
+  }, [items.length])
+
+  useEffect(() => {
+    startAuto()
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [startAuto])
+
+  const goTo = (idx: number) => { setCurrent(idx); startAuto() }
+  const prev = () => { setCurrent((current - 1 + items.length) % items.length); startAuto() }
+  const next = () => { setCurrent((current + 1) % items.length); startAuto() }
+
+  const t = items[current]
+  if (!t) return null
+
+  return (
+    <div className="relative max-w-3xl mx-auto">
+      <div className="relative glass-card neon-border rounded-2xl p-6 sm:p-10 md:p-12 overflow-hidden min-h-[280px] flex flex-col justify-center">
+        {/* Decorative quote mark */}
+        <div className="quote-mark">&ldquo;</div>
+
+        <div className="relative z-10">
+          {/* Star rating */}
+          <div className="flex gap-1 mb-4 sm:mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className={`w-5 h-5 ${i < t.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`} />
+            ))}
+          </div>
+
+          {/* Review */}
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={t.name}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="text-muted-foreground leading-relaxed text-sm sm:text-base md:text-lg italic mb-6 sm:mb-8"
+            >
+              &ldquo;{t.review}&rdquo;
+            </motion.p>
+          </AnimatePresence>
+
+          {/* Person info */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-neon/20 to-neon/5 border-2 border-neon/30 flex items-center justify-center text-neon font-bold text-base sm:text-lg">
+              {t.name.split(' ').map(n => n[0]).join('')}
+            </div>
+            <div>
+              <div className="font-semibold text-foreground text-sm sm:text-base">{t.name}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">{t.company}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-center gap-4 mt-6 sm:mt-8">
+        <button onClick={prev} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Previous testimonial">
+          <ChevronRight className="w-4 h-4 rotate-180" />
+        </button>
+        <div className="flex items-center gap-2">
+          {items.map((_, i) => (
+            <button key={i} onClick={() => goTo(i)} className={`testimonial-dot ${i === current ? 'active' : ''}`} aria-label={`Go to testimonial ${i + 1}`} />
+          ))}
+        </div>
+        <button onClick={next} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Next testimonial">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
 
 
 /* ────────────────────────────────────────────
-   Main Page Component - Futuristic Dark Theme
+   Main Page Component - Premium Digital Agency
    ──────────────────────────────────────────── */
 
 export default function Home() {
@@ -158,6 +278,7 @@ export default function Home() {
   const [testimonialItems, setTestimonialItems] = useState(DEFAULT_TESTIMONIALS)
   const [statItems, setStatItems] = useState(DEFAULT_STATS)
   const [siteSettings, setSiteSettings] = useState(DEFAULT_SETTINGS)
+  const [portfolioFilter, setPortfolioFilter] = useState('All')
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -193,7 +314,6 @@ export default function Home() {
     const darken = (f: number) => `#${Math.round(r * f).toString(16).padStart(2, '0')}${Math.round(g * f).toString(16).padStart(2, '0')}${Math.round(b * f).toString(16).padStart(2, '0')}`
     root.style.setProperty('--brand-50', lighten(0.1)); root.style.setProperty('--brand-100', lighten(0.2)); root.style.setProperty('--brand-200', lighten(0.4)); root.style.setProperty('--brand-300', lighten(0.6)); root.style.setProperty('--brand-400', lighten(0.8))
     root.style.setProperty('--brand-500', hex); root.style.setProperty('--brand-600', hex); root.style.setProperty('--brand-700', darken(0.85)); root.style.setProperty('--brand-800', darken(0.65)); root.style.setProperty('--brand-900', darken(0.45)); root.style.setProperty('--brand-950', darken(0.28))
-    // Update neon color based on brand
     root.style.setProperty('--neon', hex)
     root.style.setProperty('--neon-dim', hex + '33')
     root.style.setProperty('--neon-glow', hex + '66')
@@ -210,6 +330,14 @@ export default function Home() {
   }
 
   const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }) }
+
+  // Portfolio filter logic
+  const categories = ['All', ...Array.from(new Set(portfolioItems.map(p => p.category)))]
+  const filteredPortfolio = portfolioFilter === 'All' ? portfolioItems : portfolioItems.filter(p => p.category === portfolioFilter)
+
+  // Stagger animation variants
+  const staggerContainer = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }
+  const staggerItem = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -230,6 +358,7 @@ export default function Home() {
                 <a key={link.href} href={link.href} className="px-3 lg:px-4 py-2 rounded-md text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-neon/10 transition-colors">{link.label}</a>
               ))}
               <a href="#contact"><Button size="sm" className="ml-2 glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30">Get a Quote</Button></a>
+              <a href="/admin"><Button size="sm" variant="ghost" className="ml-1 text-muted-foreground hover:text-foreground"><Lock className="w-4 h-4" /></Button></a>
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -264,13 +393,14 @@ export default function Home() {
                 <div className="mt-8">
                   <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-12 text-base">Get a Quote</Button></a>
                   <div className="flex gap-3 mt-4">
+                    <a href="/admin" onClick={() => setMobileMenuOpen(false)} className="flex-1"><Button variant="outline" className="w-full h-12 text-sm"><Lock className="w-4 h-4 mr-2" />Admin</Button></a>
                     {mounted && (
                       <button
                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground"
+                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground border border-border"
                         aria-label="Toggle theme"
                       >
-                        {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light Mode</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark Mode</span></>}
+                        {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark</span></>}
                       </button>
                     )}
                   </div>
@@ -281,132 +411,245 @@ export default function Home() {
         </AnimatePresence>
       </header>
 
-      {/* ─── Hero ─── */}
+      {/* ═══════════════════════════════════════
+          HERO SECTION — "Impact First"
+          ═══════════════════════════════════════ */}
       <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-background">
-        {/* Coding computer background image */}
+        {/* Background image with dark overlay */}
         <div className="absolute inset-0">
           <img src="/coding-bg.png" alt="" className="w-full h-full object-cover object-center hero-bg-image" aria-hidden="true" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 sm:via-background/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60 sm:to-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70" />
         </div>
+
+        {/* Grid overlay */}
         <div className="absolute inset-0 hero-grid opacity-30" />
         <div className="absolute inset-0 scanline-overlay opacity-30" />
+
+        {/* Floating decorative orbs */}
         <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl animate-neon-pulse" />
         <div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-neon/40 rounded-full animate-float" style={{ animationDelay: '0s' }} />
+        <div className="absolute top-1/4 right-1/3 w-2 h-2 bg-neon/30 rounded-full animate-float" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/3 right-1/4 w-4 h-4 bg-neon/20 rounded-full animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 right-20 w-2 h-2 bg-amber-400/30 rounded-full animate-float" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-cyan-400/20 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
+
+        {/* Main content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-32 lg:py-40">
           <div className="max-w-3xl">
+            {/* Hero badge */}
             {siteSettings.heroBadge && siteSettings.heroBadge.trim() !== '' && (
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                 <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
               </motion.div>
             )}
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
-              {siteSettings.heroHeading}
+
+            {/* Hero heading with animated gradient text */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
+            >
+              <span className="gradient-text animate-gradient-text">{siteSettings.heroHeading}</span>
             </motion.h1>
+
+            {/* Subtitle */}
             <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-5 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">
               {siteSettings.heroSubtitle}
             </motion.p>
+
+            {/* CTA Buttons - Glassmorphism style */}
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <a href="#contact" className="block"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25 w-full sm:w-auto">Start Your Project<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
-              <a href="#portfolio" className="block"><Button size="lg" variant="outline" className="border-foreground/20 text-foreground bg-foreground/5 hover:bg-foreground/10 hover:text-foreground hover:border-foreground/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm w-full sm:w-auto">View Our Work<ExternalLink className="ml-2 w-4 h-4" /></Button></a>
+              <a href="#contact" className="block">
+                <Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base shadow-lg shadow-amber-500/25 w-full sm:w-auto rounded-xl">
+                  Start Your Project <ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" />
+                </Button>
+              </a>
+              <a href="#portfolio" className="block">
+                <Button size="lg" className="glass-cta text-foreground font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base w-full sm:w-auto rounded-xl">
+                  View Our Work <ExternalLink className="ml-2 w-4 h-4" />
+                </Button>
+              </a>
             </motion.div>
+
+            {/* Animated stat counters */}
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 sm:gap-8">
               {statItems.map(stat => (
-                <div key={stat.label} className="text-center sm:text-left">
-                  <div className="text-2xl sm:text-2xl md:text-3xl font-bold text-neon animate-neon-pulse">{stat.value}</div>
-                  <div className="text-xs sm:text-xs md:text-sm text-muted-foreground mt-1 sm:mt-1">{stat.label}</div>
-                </div>
+                <StatCounter key={stat.label} value={stat.value} label={stat.label} />
               ))}
             </motion.div>
           </div>
         </div>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block">
-          <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-6 h-10 border-2 border-neon/30 rounded-full flex items-start justify-center p-1.5">
-            <motion.div className="w-1.5 h-1.5 bg-neon rounded-full" />
-          </motion.div>
+
+        {/* Scroll-down indicator */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2">
+          <span className="text-xs text-muted-foreground tracking-wider uppercase">Scroll</span>
+          <ChevronDown className="w-5 h-5 text-neon/60 animate-bounce-chevron" />
         </motion.div>
       </section>
 
       <div className="section-divider" />
 
-      {/* ─── About ─── */}
+      {/* ═══════════════════════════════════════
+          ABOUT SECTION — "Visual Story"
+          ═══════════════════════════════════════ */}
       <AnimatedSection id="about" className="py-16 sm:py-20 md:py-28 bg-background grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
+            {/* Left - Visual side with stacked cards */}
             <div className="relative">
-              <div className="rounded-2xl overflow-hidden border border-neon/20 shadow-xl shadow-neon/5">
-                <img src="/about-image.png" alt="A-Star Infotech team collaborating" className="w-full h-auto object-cover max-w-full" />
-              </div>
-              <div className="absolute -bottom-4 sm:-bottom-6 right-2 sm:right-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30">
+              <motion.div
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="space-y-4"
+              >
+                {/* Main image */}
+                <div className="rounded-2xl overflow-hidden border border-neon/20 shadow-xl shadow-neon/5">
+                  <img src="/about-image.png" alt="A-Star Infotech team collaborating" className="w-full h-auto object-cover max-w-full" />
+                </div>
+
+                {/* Vision / Mission / Values mini cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="glass-card rounded-xl p-4 info-card-accent">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Eye className="w-4 h-4 text-neon" />
+                      <h3 className="font-semibold text-foreground text-sm">Our Vision</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{siteSettings.aboutVision}</p>
+                  </div>
+                  <div className="glass-card rounded-xl p-4 info-card-accent" style={{ borderLeftColor: '#f59e0b' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Rocket className="w-4 h-4 text-amber-400" />
+                      <h3 className="font-semibold text-foreground text-sm">Our Mission</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{siteSettings.aboutMission}</p>
+                  </div>
+                  <div className="glass-card rounded-xl p-4 info-card-accent" style={{ borderLeftColor: '#06b6d4' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Heart className="w-4 h-4 text-cyan-400" />
+                      <h3 className="font-semibold text-foreground text-sm">Our Values</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{siteSettings.aboutValues}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Floating experience badge */}
+              <div className="absolute -bottom-4 sm:-bottom-6 right-2 sm:right-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30 z-10">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center"><Award className="w-5 h-5 sm:w-6 sm:h-6 text-neon" /></div>
                   <div><div className="font-bold text-base sm:text-lg text-foreground">5+ Years</div><div className="text-xs sm:text-sm text-muted-foreground">Trusted Experience</div></div>
                 </div>
               </div>
             </div>
-            <div>
+
+            {/* Right - Text side */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">About Us</Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">{siteSettings.aboutHeading}</h2>
-              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription1}</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight section-title-underline">{siteSettings.aboutHeading}</h2>
+              <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription1}</p>
               <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription2}</p>
-              <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-3 sm:gap-4">
-                <Card className="glass-card border-neon/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Target className="w-5 h-5 text-neon" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Vision</h3></div><p className="text-xs sm:text-sm text-muted-foreground">{siteSettings.aboutVision}</p></CardContent></Card>
-                <Card className="glass-card border-amber-500/20"><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 mb-2"><Rocket className="w-5 h-5 text-amber-400" /><h3 className="font-semibold text-foreground text-sm sm:text-base">Our Mission</h3></div><p className="text-xs sm:text-sm text-muted-foreground">{siteSettings.aboutMission}</p></CardContent></Card>
+
+              {/* Value tag pills */}
+              <div className="mt-6 sm:mt-8 flex flex-wrap gap-2">
+                {siteSettings.aboutValues.split(',').map((v: string) => v.trim()).filter(Boolean).map((v: string) => (
+                  <span key={v} className="tech-pill">{v}</span>
+                ))}
               </div>
-              <div className="mt-4 sm:mt-6 flex flex-wrap gap-1.5 sm:gap-2">
-                {siteSettings.aboutValues.split(',').map((v: string) => v.trim()).filter(Boolean).map((v: string) => <Badge key={v} variant="outline" className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm text-neon border-neon/30">{v}</Badge>)}
+
+              <div className="mt-6 sm:mt-8">
+                <a href="#contact">
+                  <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-xl">
+                    Get In Touch <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </a>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </AnimatedSection>
 
       <div className="section-divider" />
 
-      {/* ─── Services ─── */}
+      {/* ═══════════════════════════════════════
+          SERVICES SECTION — "Interactive Cards"
+          ═══════════════════════════════════════ */}
       <AnimatedSection id="services" className="py-16 sm:py-20 md:py-28 bg-dark-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section heading with gradient underline */}
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Everything You Need to <span className="gradient-text">Succeed Online</span></h2>
-            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
+              Everything You Need to <span className="gradient-text">Succeed Online</span>
+            </h2>
+            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.</p>
           </div>
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+
+          {/* Staggered grid */}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+          >
             {services.map((service, idx) => {
               const IconComp = ICON_MAP[service.icon] || Globe
               return (
-                <motion.div key={service.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                  <Card className="group h-full glass-card neon-border border-border">
-                    <CardContent className="p-4 sm:p-6 md:p-8">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform border border-border`}>
+                <motion.div key={service.title} variants={staggerItem}>
+                  <Card className="group h-full glass-card neon-border border-border card-hover-lift relative overflow-hidden">
+                    {/* Service number badge */}
+                    <span className="service-number">{String(idx + 1).padStart(2, '0')}</span>
+                    <CardContent className="p-4 sm:p-6 md:p-8 relative z-10">
+                      {/* Icon with rotating gradient ring */}
+                      <div className={`icon-ring w-12 h-12 sm:w-14 sm:h-14 rounded-full ${service.bg} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform border border-neon/20`}>
                         <IconComp className={`w-5 h-5 sm:w-6 sm:h-6 ${service.color}`} />
                       </div>
                       <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">{service.title}</h3>
                       <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{service.description}</p>
-                      <a href="#contact" className="inline-flex items-center gap-1 mt-3 sm:mt-4 text-sm font-medium text-neon hover:text-neon/80 transition-colors min-h-[44px]">Learn More<ChevronRight className="w-4 h-4" /></a>
+                      {/* Learn More with animated arrow */}
+                      <a href="#contact" className="inline-flex items-center gap-1 mt-3 sm:mt-4 text-sm font-medium text-neon hover:text-neon/80 transition-colors min-h-[44px] group/link">
+                        Learn More
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                      </a>
                     </CardContent>
                   </Card>
                 </motion.div>
               )
             })}
-          </div>
+          </motion.div>
         </div>
       </AnimatedSection>
 
       <div className="section-divider" />
 
-      {/* ─── Why Choose Us ─── */}
+      {/* ═══════════════════════════════════════
+          WHY CHOOSE US — "Feature Grid"
+          ═══════════════════════════════════════ */}
       <AnimatedSection className="py-16 sm:py-20 md:py-28 bg-background hex-pattern">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <div>
               <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Why Choose Us</Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">What Makes Us <span className="gradient-text">Stand Out</span></h2>
-              <p className="mt-4 sm:mt-5 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.whyChooseUsIntro}</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight section-title-underline">
+                What Makes Us <span className="gradient-text">Stand Out</span>
+              </h2>
+              <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.whyChooseUsIntro}</p>
               <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4 sm:gap-5">
                 {WHY_CHOOSE_US.map((item, idx) => (
-                  <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.4 }} className="flex gap-3 sm:gap-4">
-                    <div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center"><item.icon className="w-5 h-5 text-neon" /></div>
+                  <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.4 }} className="flex gap-3 sm:gap-4 group">
+                    <div className="icon-ring w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-neon/20 to-neon/5 border border-neon/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <item.icon className="w-5 h-5 text-neon" />
+                    </div>
                     <div><h3 className="font-semibold text-foreground text-sm sm:text-base">{item.title}</h3><p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{item.description}</p></div>
                   </motion.div>
                 ))}
@@ -438,135 +681,168 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      {/* ─── Portfolio ─── */}
+      {/* ═══════════════════════════════════════
+          PORTFOLIO SECTION — "Project Showcase"
+          ═══════════════════════════════════════ */}
       <AnimatedSection id="portfolio" className="py-16 sm:py-20 md:py-28 bg-dark-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Portfolio</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Projects That <span className="gradient-text">Speak for Themselves</span></h2>
-            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Explore some of our recent work and see how we&apos;ve helped businesses across industries achieve their digital goals.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
+              Projects That <span className="gradient-text">Speak for Themselves</span>
+            </h2>
+            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">Explore some of our recent work and see how we&apos;ve helped businesses across industries achieve their digital goals.</p>
           </div>
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {portfolioItems.map((project, idx) => (
-              <motion.div key={project.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                <Card className="group overflow-hidden glass-card neon-border border-border h-full">
-                  <div className="h-36 sm:h-48 relative overflow-hidden">
-                    <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4"><Badge className="bg-neon/20 text-neon border-neon/30 backdrop-blur-sm text-xs">{project.category}</Badge></div>
-                    <h3 className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 text-base sm:text-xl font-bold text-foreground z-10">{project.title}</h3>
-                  </div>
-                  <CardContent className="p-4 sm:p-6">
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{project.description}</p>
-                    <div className="mt-3 sm:mt-4 flex flex-wrap gap-1 sm:gap-2">
-                      {project.tech.split(',').map((t: string) => <Badge key={t.trim()} variant="secondary" className="text-[10px] sm:text-xs bg-neon/10 text-neon border-neon/20">{t.trim()}</Badge>)}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+
+          {/* Filter tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mt-8 sm:mt-10">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setPortfolioFilter(cat)}
+                className={`filter-tab ${portfolioFilter === cat ? 'active' : ''}`}
+              >
+                {cat}
+              </button>
             ))}
           </div>
+
+          {/* Project cards */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={portfolioFilter}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            >
+              {filteredPortfolio.map((project, idx) => (
+                <motion.div key={project.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
+                  <Card className="group overflow-hidden glass-card neon-border border-border h-full card-hover-lift">
+                    <div className="h-36 sm:h-48 relative overflow-hidden">
+                      <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent group-hover:via-background/20 transition-all duration-500" />
+                      {/* Category pill */}
+                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                        <span className="category-pill">{project.category}</span>
+                      </div>
+                      {/* Title */}
+                      <h3 className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 text-base sm:text-xl font-bold text-foreground z-10">{project.title}</h3>
+                    </div>
+                    <CardContent className="p-4 sm:p-6">
+                      <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{project.description}</p>
+                      {/* Tech stack pills */}
+                      <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5">
+                        {project.tech.split(',').map((t: string) => (
+                          <span key={t.trim()} className="tech-pill">{t.trim()}</span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
           <div className="mt-10 sm:mt-12 text-center">
-            <a href="#contact"><Button size="lg" variant="outline" className="border-neon/30 text-neon hover:bg-neon/10 min-h-[44px]">Discuss Your Project<ArrowRight className="ml-2 w-4 h-4" /></Button></a>
+            <a href="#contact"><Button size="lg" variant="outline" className="border-neon/30 text-neon hover:bg-neon/10 min-h-[44px] rounded-xl">Discuss Your Project<ArrowRight className="ml-2 w-4 h-4" /></Button></a>
           </div>
         </div>
       </AnimatedSection>
 
       <div className="section-divider" />
 
-      {/* ─── Testimonials ─── */}
+      {/* ═══════════════════════════════════════
+          TESTIMONIALS — "Social Proof Carousel"
+          ═══════════════════════════════════════ */}
       <AnimatedSection id="testimonials" className="py-16 sm:py-20 md:py-28 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Testimonials</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">What Our Clients <span className="gradient-text">Say About Us</span></h2>
-            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Don&apos;t just take our word for it — hear from the businesses we&apos;ve helped succeed.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
+              What Our Clients <span className="gradient-text">Say About Us</span>
+            </h2>
+            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">Don&apos;t just take our word for it — hear from the businesses we&apos;ve helped succeed.</p>
           </div>
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {testimonialItems.map((testimonial, idx) => (
-              <motion.div key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                <Card className="h-full glass-card neon-border border-border">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex gap-0.5 mb-3 sm:mb-4">{Array.from({ length: testimonial.rating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />)}</div>
-                    <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm md:text-base italic">&ldquo;{testimonial.review}&rdquo;</p>
-                    <div className="mt-4 sm:mt-5 flex items-center gap-3">
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center text-neon font-semibold text-xs sm:text-sm">{testimonial.name.split(' ').map(n => n[0]).join('')}</div>
-                      <div><div className="font-semibold text-foreground text-xs sm:text-sm">{testimonial.name}</div><div className="text-[11px] sm:text-xs text-muted-foreground">{testimonial.company}</div></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+
+          <div className="mt-10 sm:mt-14">
+            <TestimonialCarousel items={testimonialItems} />
           </div>
         </div>
       </AnimatedSection>
 
-      {/* ─── CTA Banner ─── */}
-      <AnimatedSection className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-dark-surface">
+      {/* ═══════════════════════════════════════
+          CTA SECTION — "Urgency Banner"
+          ═══════════════════════════════════════ */}
+      <AnimatedSection className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon" />
         <div className="absolute inset-0 hero-grid opacity-50" />
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-48 sm:w-64 h-48 sm:h-64 bg-neon/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-36 sm:w-48 h-36 sm:h-48 bg-amber-500/5 rounded-full blur-3xl" />
+
+        {/* Particle dots */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1.5 h-1.5 bg-white/20 rounded-full"
+              style={{
+                top: `${10 + Math.random() * 80}%`,
+                left: `${5 + Math.random() * 90}%`,
+                animation: `cta-particle ${3 + Math.random() * 4}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 3}s`,
+              }}
+            />
+          ))}
         </div>
+
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-48 sm:w-64 h-48 sm:h-64 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-36 sm:w-48 h-36 sm:h-48 bg-amber-500/10 rounded-full blur-3xl" />
+        </div>
+
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Ready to Take Your Business Online?</h2>
-          <p className="mt-3 sm:mt-4 text-foreground/60 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Ready to Take Your Business Online?</h2>
+          <p className="mt-3 sm:mt-4 text-white/80 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-            <a href="#contact"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base shadow-lg shadow-amber-500/25 min-h-[44px]">Get Free Consultation<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
-            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" variant="outline" className="border-foreground/20 text-foreground bg-foreground/5 hover:bg-foreground/10 hover:text-foreground hover:border-foreground/40 px-6 sm:px-8 h-12 sm:h-13 text-sm sm:text-base backdrop-blur-sm min-h-[44px]"><MessageCircle className="mr-2 w-4 sm:w-5 h-4 sm:h-5" />Chat on WhatsApp</Button></a>
+            <a href="#contact"><Button size="lg" className="bg-white hover:bg-white/90 text-neon font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base shadow-lg min-h-[44px] rounded-xl">Get Free Consultation<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
+            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" className="border-white/30 text-white bg-white/10 hover:bg-white/20 px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base backdrop-blur-sm min-h-[44px] rounded-xl"><MessageCircle className="mr-2 w-4 sm:w-5 h-4 sm:h-5" />Chat on WhatsApp</Button></a>
           </div>
         </div>
       </AnimatedSection>
 
       <div className="section-divider" />
 
-      {/* ─── Contact ─── */}
+      {/* ═══════════════════════════════════════
+          CONTACT SECTION — "Dual Panel"
+          ═══════════════════════════════════════ */}
       <AnimatedSection id="contact" className="py-16 sm:py-20 md:py-28 bg-background grid-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Contact Us</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Let&apos;s Start <span className="gradient-text">Your Project</span></h2>
-            <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg">Have a project in mind? We&apos;d love to hear from you. Fill out the form below or reach us directly.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
+              Let&apos;s Start <span className="gradient-text">Your Project</span>
+            </h2>
+            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">Have a project in mind? We&apos;d love to hear from you. Fill out the form below or reach us directly.</p>
           </div>
           <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10 lg:gap-12">
-            <div className="lg:col-span-3 lg:self-start">
-              <Card className="glass-card border-neon/20 shadow-lg shadow-neon/5">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Send Us a Message</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                      <div className="space-y-2"><label htmlFor="name" className="text-sm font-medium text-foreground">Full Name <span className="text-red-400">*</span></label><Input id="name" placeholder="John Doe" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="futuristic-input h-11" /></div>
-                      <div className="space-y-2"><label htmlFor="email" className="text-sm font-medium text-foreground">Email Address <span className="text-red-400">*</span></label><Input id="email" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="futuristic-input h-11" /></div>
-                    </div>
-                    <div className="space-y-2"><label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label><Input id="phone" type="tel" placeholder="+91 0000000000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input h-11" /></div>
-                    <div className="space-y-2"><label htmlFor="message" className="text-sm font-medium text-foreground">Your Message <span className="text-red-400">*</span></label><Textarea id="message" placeholder="Tell us about your project..." rows={4} required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="futuristic-input" /></div>
-                    <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 px-6 sm:px-8 min-h-[44px]">
-                      {isSubmitting ? <><span className="animate-spin mr-2">⏳</span>Sending...</> : <>Send Message<Send className="ml-2 w-4 h-4" /></>}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-              <Card className="glass-card border-neon/20">
-                <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-5">Get In Touch</h3>
-                  <div className="space-y-5 sm:space-y-5">
-                    {[
-                      { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
-                      { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
-                      { icon: Mail, label: 'Email', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
+            {/* Left - Business info panel */}
+            <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Get In Touch</h3>
+              {[
+                { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
+                { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
+                { icon: Mail, label: 'Email', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
+                { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
+              ].map((item, i) => (
+                <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 glass-card rounded-xl p-3 sm:p-4 group min-h-[44px] card-hover-lift">
+                  <div className="w-11 h-11 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 group-hover:border-neon/30 transition-colors"><item.icon className="w-5 h-5 text-neon" /></div>
+                  <div className="pt-1"><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors break-words">{item.value}</div></div>
+                </a>
+              ))}
 
-                      { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
-                    ].map((item, i) => (
-                      <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 group min-h-[44px]">
-                        <div className="w-11 h-11 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 group-hover:border-neon/30 transition-colors"><item.icon className="w-5 h-5 text-neon" /></div>
-                        <div className="pt-1"><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors break-words">{item.value}</div></div>
-                      </a>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Map placeholder */}
               <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="block">
                 <Card className="glass-card border-neon/20 overflow-hidden hover:border-neon/40 transition-colors cursor-pointer group">
                   <div className="h-36 sm:h-48 bg-dark-surface flex items-center justify-center border border-border group-hover:bg-neon/5 transition-colors relative">
@@ -574,15 +850,47 @@ export default function Home() {
                   </div>
                 </Card>
               </a>
-              <Card className="glass-card border-neon/20">
-                <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-5">Follow Us</h3>
-                  <div className="flex gap-3 flex-wrap">
-                    {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
-                    {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
-                    {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
-                    {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
-                  </div>
+
+              {/* Social links */}
+              <div className="glass-card rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-foreground mb-3">Follow Us</h4>
+                <div className="flex gap-3 flex-wrap">
+                  {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
+                  {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
+                  {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
+                  {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Contact form */}
+            <div className="lg:col-span-3 lg:self-start">
+              <Card className="glass-card border-neon/20 shadow-lg shadow-neon/5">
+                <CardContent className="p-4 sm:p-6 md:p-8">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Send Us a Message</h3>
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="space-y-2">
+                        <label htmlFor="name" className="text-sm font-medium text-foreground">Full Name <span className="text-red-400">*</span></label>
+                        <Input id="name" placeholder="John Doe" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="futuristic-input h-11 neon-focus" />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="email" className="text-sm font-medium text-foreground">Email Address <span className="text-red-400">*</span></label>
+                        <Input id="email" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="futuristic-input h-11 neon-focus" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label>
+                      <Input id="phone" type="tel" placeholder="+91 0000000000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input h-11 neon-focus" />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="message" className="text-sm font-medium text-foreground">Your Message <span className="text-red-400">*</span></label>
+                      <Textarea id="message" placeholder="Tell us about your project..." rows={4} required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="futuristic-input neon-focus" />
+                    </div>
+                    <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 px-6 sm:px-8 min-h-[44px] rounded-xl">
+                      {isSubmitting ? <><span className="animate-spin mr-2">⏳</span>Sending...</> : <>Send Message<Send className="ml-2 w-4 h-4" /></>}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
             </div>
@@ -590,11 +898,13 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
-      {/* ─── Footer ─── */}
-      <footer className="bg-background border-t border-border mt-auto">
+      {/* ═══════════════════════════════════════
+          FOOTER — "Complete & Professional"
+          ═══════════════════════════════════════ */}
+      <footer className="bg-dark-surface border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-8 sm:py-12 lg:py-14 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
-            {/* Company Info */}
+          <div className="py-10 sm:py-14 lg:py-16 grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+            {/* Column 1: Company Info + Newsletter */}
             <div className="col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
                 <img src="/logo.png" alt="A-Star Infotech Logo" className="w-10 h-10 rounded-lg object-contain" />
@@ -604,20 +914,29 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
-              <div className="mt-4 flex gap-2.5">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Facebook"><Facebook className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="Instagram"><Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="LinkedIn"><Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-dark-card hover:bg-neon/10 border border-border hover:border-neon/30 flex items-center justify-center transition-all duration-200" aria-label="YouTube"><Youtube className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-neon" /></a>}
+              {/* Newsletter signup */}
+              <div className="mt-4 flex">
+                <input type="email" placeholder="Your email" className="newsletter-input flex-1 text-sm min-w-0" />
+                <button className="bg-neon hover:bg-neon/80 text-white px-4 rounded-r-lg text-sm font-medium transition-colors">
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Social icons with glow */}
+              <div className="mt-5 flex gap-2.5">
+                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Instagram"><Instagram className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="YouTube"><Youtube className="w-4 h-4 text-muted-foreground" /></a>}
               </div>
             </div>
-            {/* Quick Links */}
+
+            {/* Column 2: Quick Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-2.5 sm:mb-3 text-sm uppercase tracking-wider">Quick Links</h4>
-              <ul className="space-y-1 sm:space-y-1.5">
+              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+              <ul className="space-y-2">
                 {NAV_LINKS.map(link => (
                   <li key={link.href}>
-                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[28px] sm:min-h-[32px]">
+                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[32px]">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {link.label}
                     </a>
@@ -625,13 +944,14 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            {/* Our Services */}
+
+            {/* Column 3: Services */}
             <div>
-              <h4 className="font-semibold text-foreground mb-2.5 sm:mb-3 text-sm uppercase tracking-wider">Our Services</h4>
-              <ul className="space-y-1 sm:space-y-1.5">
-                {services.map(s => (
+              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm uppercase tracking-wider">Our Services</h4>
+              <ul className="space-y-2">
+                {services.slice(0, 6).map(s => (
                   <li key={s.title}>
-                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[28px] sm:min-h-[32px]">
+                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[32px]">
                       <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
                       {s.title}
                     </a>
@@ -639,10 +959,11 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            {/* Contact Info */}
+
+            {/* Column 4: Contact Info */}
             <div className="col-span-2 lg:col-span-1">
-              <h4 className="font-semibold text-foreground mb-2.5 sm:mb-3 text-sm uppercase tracking-wider">Contact Info</h4>
-              <ul className="space-y-2 sm:space-y-2.5">
+              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+              <ul className="space-y-3">
                 <li className="flex items-start gap-2.5">
                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2.5 group">
                     <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
@@ -663,12 +984,13 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col">
                     <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
-
+                    {siteSettings.secondaryEmail && <a href={`mailto:${siteSettings.secondaryEmail}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.secondaryEmail}</a>}
                   </div>
                 </li>
               </ul>
             </div>
           </div>
+
           {/* Bottom Bar */}
           <div className="border-t border-border py-4 sm:py-6 pb-20 sm:pb-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <p className="text-xs sm:text-sm text-muted-foreground/70 text-center sm:text-left">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
