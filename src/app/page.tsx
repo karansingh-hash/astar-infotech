@@ -358,7 +358,6 @@ export default function Home() {
                 <a key={link.href} href={link.href} className="px-3 lg:px-4 py-2 rounded-md text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-neon/10 transition-colors">{link.label}</a>
               ))}
               <a href="#contact"><Button size="sm" className="ml-2 glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30">Get a Quote</Button></a>
-              <a href="/admin"><Button size="sm" variant="ghost" className="ml-1 text-muted-foreground hover:text-foreground"><Lock className="w-4 h-4" /></Button></a>
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -393,7 +392,6 @@ export default function Home() {
                 <div className="mt-8">
                   <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-12 text-base">Get a Quote</Button></a>
                   <div className="flex gap-3 mt-4">
-                    <a href="/admin" onClick={() => setMobileMenuOpen(false)} className="flex-1"><Button variant="outline" className="w-full h-12 text-sm"><Lock className="w-4 h-4 mr-2" />Admin</Button></a>
                     {mounted && (
                       <button
                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
