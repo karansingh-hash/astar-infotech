@@ -536,8 +536,8 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Floating experience badge */}
-              <div className="absolute -bottom-4 sm:-bottom-6 right-2 sm:right-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30 z-10">
+              {/* Experience badge - in normal flow to prevent overlap */}
+              <div className="mt-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30 inline-flex">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center"><Award className="w-5 h-5 sm:w-6 sm:h-6 text-neon" /></div>
                   <div><div className="font-bold text-base sm:text-lg text-foreground">5+ Years</div><div className="text-xs sm:text-sm text-muted-foreground">Trusted Experience</div></div>
@@ -671,7 +671,10 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-16 h-16 sm:w-20 sm:h-20 bg-amber-500/20 border border-amber-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/10 rotate-6"><Users className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400" /></div>
+              <div className="flex items-center gap-3 mt-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-500/20 border border-amber-500/30 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/10 rotate-3"><Users className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /></div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Trusted by <span className="text-foreground font-semibold">120+ businesses</span> worldwide</div>
+              </div>
             </div>
           </div>
         </div>
