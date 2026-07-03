@@ -75,7 +75,7 @@ export async function GET(request: Request) {
           { key: 'address', value: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan' },
           { key: 'phone', value: '+91 8560074448' },
           { key: 'email', value: 'contact@astarinfotech.in' },
-          { key: 'secondaryEmail', value: 'infootechastar@gmail.com' },
+          { key: 'secondaryEmail', value: '' },
           { key: 'hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
           { key: 'heroBadge', value: '' },
           { key: 'heroHeading', value: 'Transform Your Digital Presence With Us' },

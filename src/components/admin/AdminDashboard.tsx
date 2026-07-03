@@ -887,7 +887,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
                             { icon: MapPin, label: 'Address', key: 'address' as const, placeholder: 'Full business address', type: 'textarea' },
                             { icon: Phone, label: 'Phone', key: 'phone' as const, placeholder: '+91 0000000000', type: 'input' },
                             { icon: Mail, label: 'Primary Email', key: 'email' as const, placeholder: 'contact@astarinfotech.in', type: 'input' },
-                            { icon: Mail, label: 'Secondary Email', key: 'secondaryEmail' as const, placeholder: 'infootechastar@gmail.com', type: 'input' },
+                            { icon: Mail, label: 'Secondary Email', key: 'secondaryEmail' as const, placeholder: 'secondary@example.com', type: 'input' },
                             { icon: Clock, label: 'Business Hours', key: 'hours' as const, placeholder: 'Mon – Sat: 10:00 AM – 7:00 PM', type: 'input' },
                           ].map(field => (
                             <div key={field.key} className="flex items-start gap-4">

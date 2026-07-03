@@ -41,7 +41,7 @@ async function main() {
     { key: 'cta_title', value: 'Ready to Take Your Business Online?' },
     { key: 'cta_description', value: "Let's build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence." },
     { key: 'contact_phone', value: '+91 8560074448' },
-    { key: 'contact_email', value: 'infootechastar@gmail.com' },
+    { key: 'contact_email', value: 'contact@astarinfotech.in' },
     { key: 'contact_address', value: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan' },
     { key: 'contact_hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
     { key: 'whatsapp_number', value: '918560074448' },
