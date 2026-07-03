@@ -331,6 +331,9 @@ export default function Home() {
 
   const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
+  // Ensure URLs have protocol prefix for social links
+  const ensureProtocol = (url: string) => { if (!url) return url; if (url.startsWith('http://') || url.startsWith('https://')) return url; return 'https://' + url }
+
   // Portfolio filter logic
   const categories = ['All', ...Array.from(new Set(portfolioItems.map(p => p.category)))]
   const filteredPortfolio = portfolioFilter === 'All' ? portfolioItems : portfolioItems.filter(p => p.category === portfolioFilter)
@@ -856,10 +859,10 @@ export default function Home() {
               <div className="glass-card rounded-xl p-4">
                 <h4 className="text-sm font-semibold text-foreground mb-3">Follow Us</h4>
                 <div className="flex gap-3 flex-wrap">
-                  {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
-                  {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
-                  {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
-                  {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
+                  {siteSettings.facebook && <a href={ensureProtocol(siteSettings.facebook)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
+                  {siteSettings.instagram && <a href={ensureProtocol(siteSettings.instagram)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
+                  {siteSettings.linkedin && <a href={ensureProtocol(siteSettings.linkedin)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
+                  {siteSettings.youtube && <a href={ensureProtocol(siteSettings.youtube)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
                 </div>
               </div>
             </div>
@@ -917,10 +920,10 @@ export default function Home() {
               <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
               {/* Social icons with glow */}
               <div className="mt-5 flex gap-2.5">
-                {siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground" /></a>}
-                {siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Instagram"><Instagram className="w-4 h-4 text-muted-foreground" /></a>}
-                {siteSettings.linkedin && <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-muted-foreground" /></a>}
-                {siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="YouTube"><Youtube className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.facebook && <a href={ensureProtocol(siteSettings.facebook)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.instagram && <a href={ensureProtocol(siteSettings.instagram)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Instagram"><Instagram className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.linkedin && <a href={ensureProtocol(siteSettings.linkedin)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-muted-foreground" /></a>}
+                {siteSettings.youtube && <a href={ensureProtocol(siteSettings.youtube)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="YouTube"><Youtube className="w-4 h-4 text-muted-foreground" /></a>}
               </div>
             </div>
 
