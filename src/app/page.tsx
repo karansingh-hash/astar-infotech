@@ -1,6 +1,6 @@
 'use client'
 import {useState, useEffect, FormEvent, useCallback} from 'react'
-import {Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search, ArrowRight, Star, MapPin, Phone, Mail, Clock, Users, Award, Zap, Heart, ChevronRight, Send, Facebook, Instagram, Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target, Shield, Rocket, Sun, Moon, Palette} from 'lucide-react'
+import {Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search, ArrowRight, Star, MapPin, Phone, Mail, Clock, Users, Award, Zap, Heart, ChevronRight, Send, Facebook, Instagram, Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target, Shield, Rocket, Sun, Moon} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {LegalModal} from '@/components/legal-modal'
 import {Input} from '@/components/ui/input'
@@ -19,16 +19,11 @@ const TM=[{n:'Priya Sharma',c:'FreshMart Pvt. Ltd.',r:'A-Star Infotech transform
 const ST=[{v:'150+',l:'Projects Delivered'},{v:'120+',l:'Happy Clients'},{v:'5+',l:'Years Experience'},{v:'99%',l:'Client Satisfaction'}]
 const DF={cn:'A-Star Infotech',ad:'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan',ph:'+91 8560074448',em:'contact@astarinfotech.in',hr:'Mon-Sat: 10AM-7PM',fb:'https://facebook.com/astarinfotech',ig:'https://instagram.com/astarinfotech',li:'https://linkedin.com/company/astarinfotech',yt:'https://youtube.com/@astarinfotech',bc:'#059669',hb:'',hh:'Transform Your Digital Presence With Us',hs:'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver results.',ah:'We Build Digital Experiences That Matter',a1:'A-Star Infotech is a forward-thinking web development agency combining creativity, technology, and strategy to deliver measurable results.',a2:'From startups to established brands, we partner with clients every step of the way.',av:'To be the most trusted digital partner for businesses seeking growth through innovation.',am:'Delivering high-quality, affordable web solutions for the digital age.',al:'Innovation, Integrity, Excellence, Collaboration, Transparency',wi:'We\'re your growth partners — delivering solutions that make a real difference.'}
 
-type TT='neon-cyberpunk'|'clean-minimal'|'bold-gradient'|'executive-corporate'
-const THM:Record<TT,{l:string;n:string;a:string;p:string}>={'neon-cyberpunk':{l:'Neon Cyberpunk',n:'#06d6a0',a:'Neon Green',p:'bg-[#06d6a0]'},'clean-minimal':{l:'Clean Minimal',n:'#059669',a:'Emerald',p:'bg-emerald-600'},'bold-gradient':{l:'Bold Gradient',n:'#10b981',a:'Emerald→Purple',p:'bg-gradient-to-r from-emerald-500 to-purple-500'},'executive-corporate':{l:'Executive Corporate',n:'#d97706',a:'Gold',p:'bg-amber-600'}}
-
-function aTT(t:TT){const r=document.documentElement,v=THM[t];r.style.setProperty('--neon',v.n);r.style.setProperty('--neon-dim',v.n+'33');r.style.setProperty('--neon-glow',v.n+'66');r.classList.remove('theme-neon-cyberpunk','theme-clean-minimal','theme-bold-gradient','theme-executive-corporate');r.classList.add('theme-'+t);const m:Record<string,string[]>={'clean-minimal':['#ffffff','#f8fafc','#ffffff','#e2e8f0'],'executive-corporate':['#0f172a','#1e293b','#1e3a5f','#334155'],'bold-gradient':['#0c0a1d','#151230','#1a1740','#2d2860']};const sv=m[t]||['#06060f','#0d0d1a','#111128','#1e1e3a'];r.style.setProperty('--dark-bg',sv[0]);r.style.setProperty('--dark-surface',sv[1]);r.style.setProperty('--dark-card',sv[2]);r.style.setProperty('--dark-border',sv[3])}
-
 export default function Home(){
 const[mO,sMO]=useState(false),[sc,sSC]=useState(false),[sT,sST]=useState(false),[sub,setSub]=useState(false)
 const[fm,setFm]=useState({name:'',email:'',phone:'',message:''})
 const[svs,setSvs]=useState(SV),[pf,setPf]=useState(PF),[tms,setTms]=useState(TM),[sts,setSts]=useState(ST),[s,setS]=useState(DF)
-const[pF,sPF]=useState('All'),[tt,sTT]=useState<TT>('neon-cyberpunk'),[tO,sTO]=useState(false)
+const[pF,sPF]=useState('All')
 const{theme,setTheme}=useTheme(),[mnt,sMnt]=useState(false),[tI,sTI]=useState(0)
 const auto=useCallback(()=>setInterval(()=>sTI(p=>(p+1)%tms.length),5000),[tms.length])
 useEffect(()=>{const id=auto();return()=>clearInterval(id)},[auto])
@@ -45,16 +40,15 @@ useEffect(()=>{const h=s.bc||'#059669',r=document.documentElement,rv=parseInt(h.
 const li=(f:number)=>`#${Math.round(rv+(255-rv)*(1-f)).toString(16).padStart(2,'0')}${Math.round(gv+(255-gv)*(1-f)).toString(16).padStart(2,'0')}${Math.round(bv+(255-bv)*(1-f)).toString(16).padStart(2,'0')}`
 const da=(f:number)=>`#${Math.round(rv*f).toString(16).padStart(2,'0')}${Math.round(gv*f).toString(16).padStart(2,'0')}${Math.round(bv*f).toString(16).padStart(2,'0')}`
 r.style.setProperty('--brand-50',li(.1));r.style.setProperty('--brand-100',li(.2));r.style.setProperty('--brand-200',li(.4));r.style.setProperty('--brand-300',li(.6));r.style.setProperty('--brand-400',li(.8));r.style.setProperty('--brand-500',h);r.style.setProperty('--brand-600',h);r.style.setProperty('--brand-700',da(.85));r.style.setProperty('--brand-800',da(.65));r.style.setProperty('--brand-900',da(.45));r.style.setProperty('--brand-950',da(.28))},[s.bc])
-useEffect(()=>{const v=localStorage.getItem('template-theme') as TT|null;if(v&&THM[v]){sTT(v);aTT(v)}},[])
-const swTT=(t:TT)=>{sTT(t);aTT(t);localStorage.setItem('template-theme',t);sTO(false)}
+
 const hSub=async(e:FormEvent)=>{e.preventDefault();setSub(true);try{const res=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fm)});if(!res.ok){const d=await res.json();throw new Error(d.error||'Error')};toast.success('Message Sent!',{description:"We'll get back to you within 24 hours."});setFm({name:'',email:'',phone:'',message:''})}catch(er:unknown){toast.error('Error',{description:er instanceof Error?er.message:'Something went wrong'})}finally{setSub(false)}}
 const ep=(u:string)=>!u?u:u.startsWith('http')?u:'https://'+u
 const cats=['All',...Array.from(new Set(pf.map(p=>p.c)))]
 const fP=pF==='All'?pf:pf.filter(p=>p.c===pF)
-const tc=tt==='clean-minimal'?'bg-white border border-gray-200 shadow-sm hover:shadow-md':'glass-card neon-border border-border'
-const tb=tt==='clean-minimal'?'bg-emerald-600 hover:bg-emerald-700 text-white':tt==='executive-corporate'?'bg-amber-600 hover:bg-amber-700 text-white':'bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30'
-const th=tt==='executive-corporate'?'font-serif':''
-const ts=tt==='clean-minimal'?'bg-gray-50':'bg-dark-surface'
+const tc='glass-card neon-border border-border'
+const tb='bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30'
+const th=''
+const ts='bg-dark-surface'
 const tm=tms[tI]
 
 return(<div className="min-h-screen flex flex-col bg-background">
@@ -137,8 +131,8 @@ return(<div className="min-h-screen flex flex-col bg-background">
 </div></section>
 
 {/* CTA */}
-<section className={`py-12 md:py-20 relative overflow-hidden ${tt==='bold-gradient'?'bg-gradient-to-r from-emerald-600 via-purple-600 to-emerald-600':tt==='executive-corporate'?'bg-gradient-to-r from-[#1e3a5f] via-amber-700 to-[#1e3a5f]':''}`}>
-{tt!=='bold-gradient'&&tt!=='executive-corporate'&&<div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon"/>}<div className="absolute inset-0 hero-grid opacity-50"/>
+<section className="py-12 md:py-20 relative overflow-hidden">
+<div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon"/><div className="absolute inset-0 hero-grid opacity-50"/>
 <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><h2 className={`text-2xl sm:text-4xl font-bold text-white ${th}`}>Ready to Take Your Business Online?</h2><p className="mt-3 text-white/80 text-sm md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation.</p><div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3"><a href="#contact"><Button size="lg" className="bg-white hover:bg-white/90 text-neon font-semibold px-6 h-12 sm:h-14 shadow-lg min-h-[44px] rounded-xl">Get Free Consultation<ArrowRight className="ml-2 w-4 h-4"/></Button></a><a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" className="border-white/30 text-white bg-white/10 hover:bg-white/20 px-6 h-12 sm:h-14 backdrop-blur-sm min-h-[44px] rounded-xl"><MessageCircle className="mr-2 w-4 h-4"/>WhatsApp</Button></a></div></div>
 </section>
 
@@ -176,12 +170,4 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <a href="https://wa.me/918560074448?text=Hello%20A-Star!" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 whatsapp-pulse" aria-label="Chat on WhatsApp"><div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"><MessageCircle className="w-7 h-7 text-white"/></div></a>
 <LegalModal contactInfo={{address:s.ad,phone:s.ph,email:s.em}}/>
 <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className={`fixed bottom-6 left-6 z-50 w-12 h-12 bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${sT?'opacity-100 scale-100':'opacity-0 scale-75 pointer-events-none'}`} aria-label="Scroll to top"><ChevronUp className="w-5 h-5"/></button>
-
-{/* Theme Switcher */}
-<div className="fixed bottom-20 left-6 z-50">
-<button onClick={()=>sTO(!tO)} className="w-12 h-12 bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-full flex items-center justify-center shadow-lg transition-colors" aria-label="Change theme"><Palette className="w-5 h-5"/></button>
-<div className={`absolute bottom-14 left-0 w-56 rounded-xl border border-border bg-dark-surface/95 backdrop-blur-xl shadow-2xl transition-all duration-300 origin-bottom-left ${tO?'opacity-100 scale-100 pointer-events-auto':'opacity-0 scale-90 pointer-events-none'}`}>
-<div className="p-3"><h4 className="text-xs font-semibold text-foreground mb-2 uppercase tracking-wider">Template Theme</h4><div className="space-y-1">
-{(Object.entries(THM) as [TT,{l:string;a:string;p:string}][]).map(([k,v])=><button key={k} onClick={()=>swTT(k)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${tt===k?'bg-neon/15 text-neon':'hover:bg-neon/5 text-foreground'}`}><div className={`w-4 h-4 rounded-full ${v.p} shrink-0`}/><div className="flex-1 min-w-0"><div className="text-sm font-medium truncate">{v.l}</div><div className="text-[10px] text-muted-foreground">{v.a}</div></div>{tt===k&&<div className="w-2 h-2 rounded-full bg-neon shrink-0"/>}</button>)}
-</div></div></div></div>
 </div>)}
