@@ -27,7 +27,7 @@ import { useTheme } from 'next-themes'
 type AdminTab = 'dashboard' | 'inquiries' | 'services' | 'portfolio' | 'testimonials' | 'statistics' | 'settings'
 
 interface ContactItem { id: string; name: string; email: string; phone: string | null; message: string; createdAt: string }
-interface ServiceItem { id: string; title: string; description: string; icon: string; color: string; bgColor: string; image: string; order: number }
+interface ServiceItem { id: string; title: string; description: string; icon: string; color: string; bgColor: string; order: number }
 interface PortfolioItem { id: string; title: string; category: string; description: string; tech: string; color: string; image: string; order: number }
 interface TestimonialItem { id: string; name: string; company: string; review: string; rating: number; order: number }
 interface StatItem { id: string; value: string; label: string; order: number }
@@ -110,7 +110,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
   const [portfolioDialog, setPortfolioDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: PortfolioItem | null }>({ open: false, mode: 'add', item: null })
   const [testimonialDialog, setTestimonialDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: TestimonialItem | null }>({ open: false, mode: 'add', item: null })
   const [statDialog, setStatDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: StatItem | null }>({ open: false, mode: 'add', item: null })
-  const [serviceForm, setServiceForm] = useState({ title: '', description: '', icon: '', color: '', bgColor: '', image: '', order: 0 })
+  const [serviceForm, setServiceForm] = useState({ title: '', description: '', icon: '', color: '', bgColor: '', order: 0 })
   const [portfolioForm, setPortfolioForm] = useState({ title: '', category: '', description: '', tech: '', color: '', image: '', order: 0 })
   const [testimonialForm, setTestimonialForm] = useState({ name: '', company: '', review: '', rating: 5, order: 0 })
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 })
@@ -191,7 +191,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
 
   const apiCall = async (url: string, method: string, body?: unknown) => { const r = await fetch(url, { method, headers: authHeaders(), body: body ? JSON.stringify(body) : undefined }); if (r.status === 401) { handleLogout(); throw new Error('Session expired. Please log in again.') } const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Request failed'); return d }
 
-  const openServiceDialog = (mode: 'add' | 'edit', item?: ServiceItem) => { if (mode === 'edit' && item) { setServiceForm({ title: item.title, description: item.description, icon: item.icon, color: item.color, bgColor: item.bgColor, image: item.image || '', order: item.order }); setServiceDialog({ open: true, mode: 'edit', item }) } else { setServiceForm({ title: '', description: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', image: '', order: services.length }); setServiceDialog({ open: true, mode: 'add', item: null }) } }
+  const openServiceDialog = (mode: 'add' | 'edit', item?: ServiceItem) => { if (mode === 'edit' && item) { setServiceForm({ title: item.title, description: item.description, icon: item.icon, color: item.color, bgColor: item.bgColor, order: item.order }); setServiceDialog({ open: true, mode: 'edit', item }) } else { setServiceForm({ title: '', description: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', order: services.length }); setServiceDialog({ open: true, mode: 'add', item: null }) } }
   const handleSaveService = async () => { setSaving(true); try { if (serviceDialog.mode === 'add') { await apiCall('/api/services', 'POST', serviceForm); toast.success('Service Added') } else { await apiCall('/api/services', 'PUT', { id: serviceDialog.item?.id, ...serviceForm }); toast.success('Service Updated') } setServiceDialog({ open: false, mode: 'add', item: null }); fetchServices() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save.' }) } finally { setSaving(false) } }
   const handleDeleteService = async (id: string) => { setDeletingId(id); try { await apiCall('/api/services', 'DELETE', { id }); setServices(p => p.filter(s => s.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
 
@@ -692,7 +692,6 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
                         <div className="space-y-2"><Label htmlFor="svc-color">Color Class</Label><Input id="svc-color" value={serviceForm.color} onChange={e => setServiceForm(p => ({ ...p, color: e.target.value }))} placeholder="text-emerald-400" className="futuristic-input" /></div>
                         <div className="space-y-2"><Label htmlFor="svc-bg">Background Class</Label><Input id="svc-bg" value={serviceForm.bgColor} onChange={e => setServiceForm(p => ({ ...p, bgColor: e.target.value }))} placeholder="bg-emerald-500/10" className="futuristic-input" /></div>
                       </div>
-                      <div className="space-y-2"><Label htmlFor="svc-image">Image URL</Label><Input id="svc-image" value={serviceForm.image} onChange={e => setServiceForm(p => ({ ...p, image: e.target.value }))} placeholder="/service-web-design.png" className="futuristic-input" /></div>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setServiceDialog(p => ({ ...p, open: false }))} className="border-neon/20">Cancel</Button>

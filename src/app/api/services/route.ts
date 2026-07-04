@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (authError) return authError
 
     const body = await request.json()
-    const { title, description, icon, color, bgColor, image, order } = body
+    const { title, description, icon, color, bgColor, order } = body
 
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required.' }, { status: 400 })
@@ -38,7 +38,6 @@ export async function POST(request: Request) {
         icon: sanitizeString(icon || 'Globe', 50),
         color: sanitizeString(color || 'text-emerald-600', 50),
         bgColor: sanitizeString(bgColor || 'bg-emerald-50', 50),
-        image: sanitizeString(image || '', 500),
         order: typeof order === 'number' ? order : 0,
       },
     })
@@ -76,7 +75,6 @@ export async function PUT(request: Request) {
         ...(icon !== undefined && { icon: sanitizeString(icon, 50) }),
         ...(color !== undefined && { color: sanitizeString(color, 50) }),
         ...(bgColor !== undefined && { bgColor: sanitizeString(bgColor, 50) }),
-        ...(image !== undefined && { image: sanitizeString(image, 500) }),
         ...(order !== undefined && typeof order === 'number' && { order }),
       },
     })
