@@ -893,3 +893,130 @@ html, body {
 .counter-glow {
   text-shadow: 0 0 20px var(--neon-glow), 0 0 40px var(--neon-dim);
 }
+
+/* ═══════════════════════════════════════════
+   TEMPLATE THEME OVERRIDES
+   ═══════════════════════════════════════════ */
+
+/* ── Clean Minimal Theme ── */
+.theme-clean-minimal .glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #e5e7eb;
+}
+.theme-clean-minimal .glass-card:hover {
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08);
+}
+.theme-clean-minimal .neon-border::before {
+  display: none;
+}
+.theme-clean-minimal .gradient-text {
+  background: linear-gradient(135deg, #059669, #047857);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.theme-clean-minimal .glow-button::before {
+  display: none;
+}
+.theme-clean-minimal .glow-button:hover {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+}
+.theme-clean-minimal .hero-grid {
+  background-image:
+    linear-gradient(rgba(5, 150, 105, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5, 150, 105, 0.03) 1px, transparent 1px);
+}
+.theme-clean-minimal .section-divider {
+  background: linear-gradient(90deg, transparent, rgba(5, 150, 105, 0.15), transparent);
+}
+.theme-clean-minimal .futuristic-input {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+.theme-clean-minimal .futuristic-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+/* ── Bold Gradient Theme ── */
+.theme-bold-gradient .glass-card {
+  background: rgba(26, 23, 64, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+.theme-bold-gradient .glass-card:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.1);
+}
+.theme-bold-gradient .gradient-text {
+  background: linear-gradient(135deg, #10b981, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.theme-bold-gradient .glow-button:hover {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.3), 0 0 60px rgba(139, 92, 246, 0.15);
+}
+.theme-bold-gradient .section-divider {
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), rgba(139, 92, 246, 0.3), transparent);
+}
+
+/* ── Executive Corporate Theme ── */
+.theme-executive-corporate .glass-card {
+  background: rgba(30, 58, 95, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 119, 6, 0.15);
+}
+.theme-executive-corporate .glass-card:hover {
+  border-color: rgba(217, 119, 6, 0.4);
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.08);
+}
+.theme-executive-corporate .gradient-text {
+  background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.theme-executive-corporate .neon-border::before {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.4), transparent 40%, transparent 60%, rgba(245, 158, 11, 0.4));
+}
+.theme-executive-corporate .glow-button::before {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), transparent);
+}
+.theme-executive-corporate .glow-button:hover {
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.2), 0 0 40px rgba(217, 119, 6, 0.06);
+}
+.theme-executive-corporate .section-divider {
+  background: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.3), transparent);
+}
+.theme-executive-corporate .tech-pill {
+  border-color: rgba(217, 119, 6, 0.2);
+  color: var(--neon);
+  background: rgba(217, 119, 6, 0.1);
+}
+.theme-executive-corporate .category-pill {
+  background: var(--neon);
+}
+.theme-executive-corporate .futuristic-input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+.theme-executive-corporate .futuristic-input:focus {
+  border-color: rgba(217, 119, 6, 0.5);
+  box-shadow: 0 0 15px rgba(217, 119, 6, 0.1);
+}
+.theme-executive-corporate .icon-ring::before {
+  background: conic-gradient(var(--neon), transparent, var(--neon));
+}
+.theme-executive-corporate .testimonial-dot.active {
+  background: var(--neon);
+}
+.theme-executive-corporate .filter-tab.active {
+  background: var(--neon);
+  border-color: var(--neon);
+}

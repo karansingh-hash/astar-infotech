@@ -1,0 +1,673 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from 'next-themes'
+import { toast } from 'sonner'
+import { LegalModal } from '@/components/legal-modal'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Palette, Globe, Code2, ShoppingCart, Smartphone, Settings, Search,
+  ChevronDown, ChevronUp, Star, Menu, X, Sun, Moon, ArrowRight, Eye,
+  CheckCircle2, Zap, Shield, Clock, Users, Award, Mail, Phone,
+  MapPin, Send, MessageCircle, ChevronLeft, ChevronRight,
+  ExternalLink, Minus, Sparkles, Building2,
+} from 'lucide-react'
+
+type TId = 'neon' | 'minimal' | 'gradient' | 'corporate'
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Globe, Code2, ShoppingCart, Smartphone, Settings, Search, Palette, Zap, Shield, Clock, Users, Award, Building2,
+}
+
+const THEMES: { id: TId; name: string; icon: React.ComponentType<{ className?: string }>; colors: string[] }[] = [
+  { id: 'neon', name: 'Neon Cyberpunk', icon: Zap, colors: ['#06d6a0', '#0d0d1a', '#22d3ee'] },
+  { id: 'minimal', name: 'Clean Minimal', icon: Minus, colors: ['#059669', '#ffffff', '#f9fafb'] },
+  { id: 'gradient', name: 'Bold Gradient', icon: Sparkles, colors: ['#10b981', '#8b5cf6', '#14b8a6'] },
+  { id: 'corporate', name: 'Executive Corporate', icon: Building2, colors: ['#1e3a5f', '#d97706', '#f8fafc'] },
+]
+
+/* ── Compact theme helpers ── */
+const C = {
+  card: (t: TId) => t === 'neon' ? 'glass-card neon-border rounded-xl'
+    : t === 'minimal' ? 'bg-white border border-gray-200 shadow-sm rounded-lg'
+    : t === 'gradient' ? 'bg-white border border-teal-200 shadow-md rounded-xl'
+    : 'bg-white border-l-4 border-l-amber-500 border border-gray-200 shadow-sm rounded-lg',
+
+  heroBg: (t: TId) => t === 'neon' ? 'bg-dark-bg hero-grid' : t === 'minimal' ? 'bg-white'
+    : t === 'gradient' ? 'bg-gradient-to-br from-emerald-50 via-white to-purple-50' : 'bg-slate-50',
+
+  overlay: (t: TId) => t === 'neon' ? 'scanline-overlay' : t === 'gradient' ? 'bg-gradient-to-r from-emerald-500/5 to-purple-500/5' : '',
+
+  accent: (t: TId) => t === 'neon' ? 'gradient-text' : t === 'minimal' ? 'text-emerald-600'
+    : t === 'gradient' ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-purple-600' : 'text-amber-600',
+
+  heading: (t: TId) => t === 'neon' ? 'text-foreground' : t === 'minimal' ? 'text-gray-900'
+    : t === 'gradient' ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600' : 'text-[#1e3a5f] font-serif',
+
+  btn1: (t: TId) => t === 'neon' ? 'glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30'
+    : t === 'minimal' ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-0'
+    : t === 'gradient' ? 'bg-gradient-to-r from-emerald-500 to-purple-600 hover:from-emerald-600 hover:to-purple-700 text-white border-0'
+    : 'bg-[#1e3a5f] hover:bg-[#2d4f7a] text-white border-0',
+
+  btn2: (t: TId) => t === 'neon' ? 'bg-dark-surface hover:bg-dark-card text-foreground border border-dark-border'
+    : t === 'minimal' ? 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300'
+    : t === 'gradient' ? 'bg-white/80 hover:bg-white text-gray-700 border border-teal-200'
+    : 'bg-white hover:bg-slate-50 text-[#1e3a5f] border border-gray-300',
+
+  secBg: (t: TId, alt: boolean) => alt
+    ? t === 'neon' ? 'bg-dark-surface' : t === 'minimal' ? 'bg-gray-50' : t === 'gradient' ? 'bg-gradient-to-r from-emerald-50/50 to-purple-50/50' : 'bg-slate-100'
+    : t === 'neon' ? 'bg-dark-bg' : t === 'minimal' ? 'bg-white' : t === 'gradient' ? 'bg-white' : 'bg-white',
+
+  statV: (t: TId) => t === 'neon' ? 'counter-glow text-neon' : t === 'minimal' ? 'text-emerald-600'
+    : t === 'gradient' ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-purple-600' : 'text-[#1e3a5f]',
+
+  filterA: (t: TId) => t === 'neon' ? 'bg-neon text-white border-neon' : t === 'minimal' ? 'bg-emerald-600 text-white border-emerald-600'
+    : t === 'gradient' ? 'bg-gradient-to-r from-emerald-500 to-purple-600 text-white border-emerald-500' : 'bg-[#1e3a5f] text-white border-[#1e3a5f]',
+
+  div: (t: TId) => t === 'neon' ? 'section-divider' : t === 'minimal' ? 'h-px bg-gray-200'
+    : t === 'gradient' ? 'h-px bg-gradient-to-r from-transparent via-teal-300 to-transparent' : 'h-px bg-gray-300',
+
+  inp: (t: TId) => t === 'neon' ? 'futuristic-input neon-focus'
+    : t === 'minimal' ? 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-500'
+    : t === 'gradient' ? 'border-teal-200 focus:border-emerald-500 focus:ring-emerald-500'
+    : 'border-gray-300 focus:border-amber-500 focus:ring-amber-500',
+
+  footer: (t: TId) => t === 'neon' ? 'bg-dark-bg border-t border-dark-border' : t === 'minimal' ? 'bg-gray-900 text-white'
+    : t === 'gradient' ? 'bg-gradient-to-r from-emerald-900 to-purple-900 text-white' : 'bg-[#1e3a5f] text-white',
+
+  muted: (t: TId) => t === 'neon' ? 'text-foreground/60' : 'text-gray-600',
+  muted5: (t: TId) => t === 'neon' ? 'text-foreground/50' : 'text-gray-500',
+  bold: (t: TId) => t === 'neon' ? 'text-foreground' : t === 'corporate' ? 'text-[#1e3a5f]' : 'text-gray-900',
+  badge: (t: TId) => t === 'neon' ? 'bg-neon/10 text-neon border border-neon/20'
+    : t === 'minimal' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+    : t === 'gradient' ? 'bg-gradient-to-r from-emerald-50 to-purple-50 text-emerald-600 border border-teal-200'
+    : 'bg-amber-50 text-amber-700 border border-amber-200',
+
+  header: (t: TId, sc: boolean) => sc
+    ? t === 'neon' ? 'bg-dark-bg/90 backdrop-blur-md border-b border-dark-border'
+    : 'bg-white/90 backdrop-blur-md shadow-sm'
+    : 'bg-transparent',
+
+  ctaBg: (t: TId) => t === 'neon' ? 'bg-dark-surface' : t === 'minimal' ? 'bg-emerald-600'
+    : t === 'gradient' ? 'bg-gradient-to-r from-emerald-600 to-purple-700' : 'bg-[#1e3a5f]',
+}
+
+export default function Home() {
+  const [tt, setTt] = useState<TId>('neon')
+  const [mounted, setMounted] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [themePanel, setThemePanel] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [pFilter, setPFilter] = useState('All')
+  const [tIdx, setTIdx] = useState(0)
+  const [settings, setSettings] = useState<Record<string, string>>({})
+  const [services, setServices] = useState<{ id: string; title: string; description: string; icon: string; color: string; bgColor: string }[]>([])
+  const [portfolio, setPortfolio] = useState<{ id: string; title: string; category: string; description: string; tech: string; color: string; image: string }[]>([])
+  const [testimonials, setTestimonials] = useState<{ id: string; name: string; company: string; review: string; rating: number }[]>([])
+  const [stats, setStats] = useState<{ id: string; value: string; label: string }[]>([])
+  const [cf, setCf] = useState({ name: '', email: '', phone: '', message: '' })
+  const [submitting, setSubmitting] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const refs = useRef<Record<string, HTMLElement | null>>({})
+  const initRef = useRef(false)
+
+  useEffect(() => {
+    if (initRef.current) return; initRef.current = true
+    requestAnimationFrame(() => {
+      setMounted(true)
+      const sv = localStorage.getItem('template-theme') as TId | null
+      if (sv && THEMES.find(x => x.id === sv)) setTt(sv)
+    })
+    const load = async () => {
+      try {
+        const [sr, vr, pr, tr, xr] = await Promise.all([
+          fetch('/api/settings'), fetch('/api/services'), fetch('/api/portfolio'),
+          fetch('/api/testimonials'), fetch('/api/stats'),
+        ])
+        if (sr.ok) { const d = await sr.json(); setSettings(d.settings || {}) }
+        if (vr.ok) { const d = await vr.json(); setServices(d.services || []) }
+        if (pr.ok) { const d = await pr.json(); setPortfolio(d.portfolio || []) }
+        if (tr.ok) { const d = await tr.json(); setTestimonials(d.testimonials || []) }
+        if (xr.ok) { const d = await xr.json(); setStats(d.stats || []) }
+      } catch (e) { console.error('Fetch error:', e) }
+    }; load()
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    const r = document.documentElement
+    const vars: Record<TId, [string, string, string]> = {
+      neon: ['#06d6a0', '#06d6a033', '#06d6a066'],
+      minimal: ['#059669', '#05966933', '#05966944'],
+      gradient: ['#10b981', '#10b98133', '#10b98144'],
+      corporate: ['#d97706', '#d9770633', '#d9770644'],
+    }
+    r.style.setProperty('--neon', vars[tt][0])
+    r.style.setProperty('--neon-dim', vars[tt][1])
+    r.style.setProperty('--neon-glow', vars[tt][2])
+    localStorage.setItem('template-theme', tt)
+  }, [tt, mounted])
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  useEffect(() => {
+    if (testimonials.length <= 1) return
+    const tm = setInterval(() => setTIdx(i => (i + 1) % testimonials.length), 5000)
+    return () => clearInterval(tm)
+  }, [testimonials.length])
+
+  const s = (k: string, fb: string) => settings[k] || fb
+  const scroll = (id: string) => { refs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' }); setMobileOpen(false) }
+  const pCats = ['All', ...Array.from(new Set(portfolio.map(p => p.category)))]
+  const fPort = pFilter === 'All' ? portfolio : portfolio.filter(p => p.category === pFilter)
+  const waNum = s('whatsapp_number', '918560074448')
+  const waLink = `https://wa.me/${waNum}?text=${encodeURIComponent('Hi! I visited your website and would like to know more about your services.')}`
+  const navItems = [{ l: 'Home', id: 'hero' }, { l: 'About', id: 'about' }, { l: 'Services', id: 'services' }, { l: 'Portfolio', id: 'portfolio' }, { l: 'Contact', id: 'contact' }]
+  const whyItems = [
+    { icon: Shield, title: 'Secure & Reliable', desc: 'Every project is built with security best practices and reliable infrastructure.' },
+    { icon: Clock, title: 'On-Time Delivery', desc: 'We respect deadlines and deliver projects on schedule, every time.' },
+    { icon: Users, title: 'Dedicated Support', desc: 'Get personal attention from our team throughout the project lifecycle.' },
+    { icon: Award, title: 'Quality Assured', desc: 'Rigorous testing and quality checks ensure pixel-perfect results.' },
+  ]
+  const getIcon = (n: string) => ICON_MAP[n] || Globe
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!cf.name || !cf.email || !cf.message) { toast.error('Please fill in all required fields.'); return }
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cf) })
+      const data = await res.json()
+      if (res.ok) { toast.success(data.message || 'Message sent!'); setCf({ name: '', email: '', phone: '', message: '' }) }
+      else toast.error(data.error || 'Failed to send.')
+    } catch { toast.error('Something went wrong.') }
+    finally { setSubmitting(false) }
+  }
+
+  if (!mounted) return <div className="min-h-screen bg-background" />
+
+  const t = tt
+
+  return (
+    <div className={`min-h-screen flex flex-col ${t === 'neon' ? 'bg-dark-bg text-foreground' : ''}`}>
+      {/* HEADER */}
+      <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${C.header(t, scrolled)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <button onClick={() => scroll('hero')} className="flex items-center gap-2">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg ${C.btn1(t)}`}>A</div>
+              <span className={`font-bold text-lg hidden sm:inline ${t === 'neon' ? 'text-foreground' : 'text-gray-900'}`}>
+                A-Star <span className={C.accent(t)}>Infotech</span>
+              </span>
+            </button>
+            <nav className="hidden md:flex items-center gap-1">
+              {navItems.map(n => (
+                <button key={n.id} onClick={() => scroll(n.id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${t === 'neon' ? 'text-foreground/70 hover:text-neon hover:bg-neon/5' : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'}`}>
+                  {n.l}
+                </button>
+              ))}
+            </nav>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className={`p-2 rounded-lg transition-colors ${t === 'neon' ? 'text-foreground/70 hover:text-neon hover:bg-neon/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}>
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button onClick={() => scroll('contact')} className={`hidden sm:inline-flex px-5 py-2 rounded-lg text-sm font-semibold transition-all ${C.btn1(t)}`}>Get Quote</button>
+              <button onClick={() => setMobileOpen(!mobileOpen)} className={`md:hidden p-2 rounded-lg ${t === 'neon' ? 'text-foreground' : 'text-gray-700'}`}>
+                {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className={`md:hidden overflow-hidden border-t ${t === 'neon' ? 'bg-dark-bg border-dark-border' : 'bg-white border-gray-200'}`}>
+              <div className="px-4 py-3 space-y-1">
+                {navItems.map(n => (
+                  <button key={n.id} onClick={() => scroll(n.id)} className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium ${t === 'neon' ? 'text-foreground/70 hover:text-neon hover:bg-neon/5' : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'}`}>{n.l}</button>
+                ))}
+                <button onClick={() => { scroll('contact'); setMobileOpen(false) }} className={`w-full mt-2 px-4 py-3 rounded-lg text-sm font-semibold ${C.btn1(t)}`}>Get Quote</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* HERO */}
+      <section ref={el => { refs.current['hero'] = el }} id="hero" className={`relative min-h-screen flex items-center pt-20 ${C.heroBg(t)} overflow-hidden`}>
+        <div className={C.overlay(t)} />
+        {t === 'neon' && <div className="absolute inset-0 pointer-events-none"><div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon/5 rounded-full blur-3xl animate-float" /><div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl" /></div>}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              {s('hero_badge', '') && <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6 ${C.badge(t)}`}><Zap className="w-3.5 h-3.5" /> {s('hero_badge', '')}</span>}
+              <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight ${t === 'corporate' ? 'font-serif' : ''}`}>
+                <span className={t === 'neon' ? 'text-foreground' : 'text-gray-900'}>
+                  {s('hero_title', 'Transform Your Digital Presence With Us').split(' ').slice(0, -2).join(' ')}{' '}
+                </span>
+                <span className={C.accent(t)}>{s('hero_title', 'Transform Your Digital Presence With Us').split(' ').slice(-2).join(' ')}</span>
+              </h1>
+              <p className={`mt-6 text-lg leading-relaxed max-w-xl ${C.muted(t)}`}>{s('hero_description', 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.')}</p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <button onClick={() => scroll('contact')} className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${C.btn1(t)}`}>Get Started <ArrowRight className="w-4 h-4" /></button>
+                <button onClick={() => scroll('portfolio')} className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${C.btn2(t)}`}>View Our Work</button>
+              </div>
+              <div className={`mt-10 flex items-center gap-6 text-sm ${C.muted5(t)}`}>
+                <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Free Consultation</span>
+                <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> No Hidden Fees</span>
+              </div>
+            </div>
+            <div className="hidden lg:block relative">
+              <div className={`relative rounded-2xl overflow-hidden p-8 ${C.card(t)}`}>
+                <div className="grid grid-cols-2 gap-4">
+                  {stats.slice(0, 4).map(st => (
+                    <div key={st.id} className={`text-center p-4 rounded-xl ${t === 'neon' ? 'bg-dark-surface/50' : t === 'gradient' ? 'bg-gradient-to-br from-emerald-50 to-purple-50' : 'bg-gray-50'}`}>
+                      <div className={`text-3xl font-bold ${C.statV(t)}`}>{st.value}</div>
+                      <div className={`text-xs mt-1 ${C.muted5(t)}`}>{st.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className={`mt-4 p-4 rounded-xl flex items-center gap-3 ${t === 'neon' ? 'bg-neon/10 border border-neon/20' : t === 'gradient' ? 'bg-gradient-to-r from-emerald-50 to-purple-50 border border-teal-200' : 'bg-emerald-50 border border-emerald-200'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${C.btn1(t)}`}><ArrowRight className="w-5 h-5" /></div>
+                  <div>
+                    <div className={`text-sm font-semibold ${C.bold(t)}`}>Start Your Project</div>
+                    <div className={`text-xs ${C.muted5(t)}`}>Get a free quote today</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce-chevron">
+            <ChevronDown className={`w-6 h-6 ${t === 'neon' ? 'text-neon/40' : 'text-gray-400'}`} />
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* ABOUT */}
+      <section ref={el => { refs.current['about'] = el }} id="about" className={`py-20 sm:py-28 ${C.secBg(t, false)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div>
+              <div className="heading-decoration"><span className={`text-sm font-semibold uppercase tracking-wider ${C.accent(t)}`}>About Us</span></div>
+              <h2 className={`text-3xl sm:text-4xl font-bold mt-4 ${C.heading(t)}`}>{s('about_title', 'We Build Digital Experiences That Matter')}</h2>
+              <p className={`mt-6 leading-relaxed ${C.muted(t)}`}>{s('about_paragraph1', 'A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions.')}</p>
+              <p className={`mt-4 leading-relaxed ${C.muted(t)}`}>{s('about_paragraph2', 'From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way.')}</p>
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                {s('about_values', 'Innovation,Integrity,Excellence,Collaboration,Transparency').split(',').slice(0, 4).map(v => (
+                  <div key={v} className="flex items-center gap-2">
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 ${t === 'neon' ? 'text-neon' : t === 'corporate' ? 'text-amber-500' : 'text-emerald-500'}`} />
+                    <span className={`text-sm font-medium ${t === 'neon' ? 'text-foreground/80' : 'text-gray-700'}`}>{v.trim()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-6">
+              {[{ title: 'Our Vision', text: s('about_vision', 'To be the most trusted digital partner for businesses seeking growth through innovative web solutions.'), icon: Eye },
+                { title: 'Our Mission', text: s('about_mission', 'To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.'), icon: Zap },
+              ].map(item => (
+                <div key={item.title} className={`p-6 ${C.card(t)}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${C.btn1(t)}`}><item.icon className="w-5 h-5" /></div>
+                    <h3 className={`font-bold text-lg ${C.bold(t)} ${t === 'corporate' ? 'font-serif' : ''}`}>{item.title}</h3>
+                  </div>
+                  <p className={`text-sm leading-relaxed ${C.muted(t)}`}>{item.text}</p>
+                </div>
+              ))}
+              <div className={`p-6 text-center ${C.card(t)}`}>
+                <div className={`text-5xl font-bold ${C.statV(t)}`}>{s('about_years', '5+')}</div>
+                <div className={`text-sm mt-2 ${C.muted5(t)}`}>{s('about_years_label', 'Trusted Experience')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* SERVICES */}
+      <section ref={el => { refs.current['services'] = el }} id="services" className={`py-20 sm:py-28 ${C.secBg(t, true)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className={`text-sm font-semibold uppercase tracking-wider ${C.accent(t)}`}>Our Services</span>
+            <h2 className={`text-3xl sm:text-4xl font-bold mt-3 ${C.heading(t)}`}>{s('services_title', 'Everything You Need to Succeed Online')}</h2>
+            <p className={`mt-4 ${C.muted(t)}`}>{s('services_description', 'From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.')}</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((svc, i) => {
+              const Ic = getIcon(svc.icon)
+              return (
+                <motion.div key={svc.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className={`group relative p-6 card-hover-lift ${C.card(t)}`}>
+                  <span className={`service-number ${t !== 'neon' ? 'opacity-10' : ''}`}>0{i + 1}</span>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${svc.bgColor} ${svc.color}`}><Ic className="w-6 h-6" /></div>
+                  <h3 className={`text-lg font-bold mb-2 ${C.bold(t)} ${t === 'corporate' ? 'font-serif' : ''}`}>{svc.title}</h3>
+                  <p className={`text-sm leading-relaxed ${C.muted(t)}`}>{svc.description}</p>
+                  <button onClick={() => scroll('contact')} className={`mt-4 inline-flex items-center gap-1 text-sm font-medium ${C.accent(t)} group-hover:gap-2 transition-all`}>Learn More <ArrowRight className="w-3.5 h-3.5" /></button>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* PORTFOLIO */}
+      <section ref={el => { refs.current['portfolio'] = el }} id="portfolio" className={`py-20 sm:py-28 ${C.secBg(t, false)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className={`text-sm font-semibold uppercase tracking-wider ${C.accent(t)}`}>Portfolio</span>
+            <h2 className={`text-3xl sm:text-4xl font-bold mt-3 ${C.heading(t)}`}>{s('portfolio_title', 'Projects That Speak for Themselves')}</h2>
+            <p className={`mt-4 ${C.muted(t)}`}>{s('portfolio_description', "Explore some of our recent work and see how we've helped businesses across industries.")}</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 mb-10">
+            {pCats.map(c => (
+              <button key={c} onClick={() => setPFilter(c)} className={`filter-tab ${pFilter === c ? C.filterA(t) : ''}`}>{c}</button>
+            ))}
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="popLayout">
+              {fPort.map((p, i) => (
+                <motion.div key={p.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }}
+                  className={`group overflow-hidden card-hover-lift ${C.card(t)}`}>
+                  <div className={`relative h-48 bg-gradient-to-br ${p.color} overflow-hidden`}>
+                    {p.image && <img src={p.image} alt={p.title} className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" loading="lazy" />}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <ExternalLink className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <span className="category-pill absolute top-3 left-3" style={{ background: t === 'corporate' ? '#1e3a5f' : undefined }}>{p.category}</span>
+                  </div>
+                  <div className="p-5">
+                    <h3 className={`font-bold text-lg mb-2 ${C.bold(t)}`}>{p.title}</h3>
+                    <p className={`text-sm mb-3 line-clamp-2 ${C.muted(t)}`}>{p.description}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {(() => { try { return JSON.parse(p.tech || '[]') } catch { return [] } })().map((tech: string) => (
+                        <span key={tech} className="tech-pill text-[10px]">{tech}</span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* WHY CHOOSE US */}
+      <section className={`py-20 sm:py-28 ${C.secBg(t, true)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <span className={`text-sm font-semibold uppercase tracking-wider ${C.accent(t)}`}>Why Choose Us</span>
+              <h2 className={`text-3xl sm:text-4xl font-bold mt-3 ${C.heading(t)}`}>{s('why_title', 'What Makes Us Stand Out')}</h2>
+              <p className={`mt-4 ${C.muted(t)}`}>{s('why_description', "We're not just another web development agency. We're your growth partners.")}</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {whyItems.map((w, i) => (
+                <motion.div key={w.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className={`p-5 ${C.card(t)}`}>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${C.btn1(t)}`}><w.icon className="w-5 h-5" /></div>
+                  <h3 className={`font-bold mb-1 ${C.bold(t)}`}>{w.title}</h3>
+                  <p className={`text-sm ${C.muted(t)}`}>{w.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* TESTIMONIALS */}
+      <section className={`py-20 sm:py-28 ${C.secBg(t, false)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className={`text-sm font-semibold uppercase tracking-wider ${C.accent(t)}`}>Testimonials</span>
+            <h2 className={`text-3xl sm:text-4xl font-bold mt-3 ${C.heading(t)}`}>{s('testimonials_title', 'What Our Clients Say About Us')}</h2>
+          </div>
+          {testimonials.length > 0 && (
+            <div className="max-w-3xl mx-auto">
+              <div className={`relative p-8 sm:p-10 ${C.card(t)}`}>
+                <div className="quote-mark">&ldquo;</div>
+                <AnimatePresence mode="wait">
+                  <motion.div key={tIdx} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
+                    <p className={`text-lg leading-relaxed mb-6 relative z-10 ${t === 'neon' ? 'text-foreground/80' : 'text-gray-700'}`}>&ldquo;{testimonials[tIdx].review}&rdquo;</p>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${C.btn1(t)}`}>{testimonials[tIdx].name.charAt(0)}</div>
+                      <div>
+                        <div className={`font-semibold ${C.bold(t)}`}>{testimonials[tIdx].name}</div>
+                        <div className={`text-sm ${C.muted5(t)}`}>{testimonials[tIdx].company}</div>
+                      </div>
+                      <div className="ml-auto flex gap-0.5">
+                        {Array.from({ length: testimonials[tIdx].rating }).map((_, j) => (
+                          <Star key={j} className={`w-4 h-4 fill-current ${t === 'neon' ? 'text-neon' : t === 'corporate' ? 'text-amber-500' : 'text-emerald-500'}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-6">
+                <button onClick={() => setTIdx(i => (i - 1 + testimonials.length) % testimonials.length)} className={`p-2 rounded-full ${C.btn2(t)}`}><ChevronLeft className="w-4 h-4" /></button>
+                <div className="flex gap-2">
+                  {testimonials.map((_, i) => (
+                    <button key={i} onClick={() => setTIdx(i)} className={`testimonial-dot ${i === tIdx ? 'active' : ''}`} />
+                  ))}
+                </div>
+                <button onClick={() => setTIdx(i => (i + 1) % testimonials.length)} className={`p-2 rounded-full ${C.btn2(t)}`}><ChevronRight className="w-4 h-4" /></button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* STATS */}
+      <section className={`py-16 ${C.secBg(t, true)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((st, i) => (
+              <motion.div key={st.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className={`text-center p-6 ${C.card(t)}`}>
+                <div className={`text-3xl sm:text-4xl font-bold ${C.statV(t)}`}>{st.value}</div>
+                <div className={`text-sm mt-2 ${C.muted5(t)}`}>{st.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* CTA */}
+      <section className={`py-20 sm:py-28 relative overflow-hidden ${C.ctaBg(t)}`}>
+        {t === 'neon' && <div className="absolute inset-0 pointer-events-none hero-grid" />}
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className={`text-3xl sm:text-4xl font-bold ${t === 'neon' ? 'text-foreground' : 'text-white'} ${t === 'corporate' ? 'font-serif' : ''}`}>
+            {s('cta_title', 'Ready to Take Your Business Online?')}
+          </h2>
+          <p className={`mt-4 text-lg max-w-2xl mx-auto ${t === 'neon' ? 'text-foreground/60' : 'text-white/80'}`}>
+            {s('cta_description', "Let's build something amazing together. Get in touch today for a free consultation.")}
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <button onClick={() => scroll('contact')}
+              className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-lg font-semibold transition-all ${t === 'neon' ? 'glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30' : 'bg-white text-gray-900 hover:bg-gray-100'}`}>
+              Start Your Project <ArrowRight className="w-4 h-4" />
+            </button>
+            <a href={waLink} target="_blank" rel="noopener noreferrer"
+              className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-lg font-semibold transition-all ${t === 'neon' ? 'glass-cta text-foreground' : 'bg-white/20 text-white hover:bg-white/30'}`}>
+              <MessageCircle className="w-4 h-4" /> WhatsApp Us
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className={C.div(t)} />
+
+      {/* CONTACT */}
+      <section ref={el => { refs.current['contact'] = el }} id="contact" className={`py-20 sm:py-28 ${C.secBg(t, false)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className={`text-sm font-semibold uppercase tracking-wider ${C.accent(t)}`}>Contact Us</span>
+            <h2 className={`text-3xl sm:text-4xl font-bold mt-3 ${C.heading(t)}`}>Let&apos;s Work Together</h2>
+          </div>
+          <div className="grid lg:grid-cols-5 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              {[
+                { icon: Phone, label: 'Phone', value: s('contact_phone', '+91 8560074448'), href: `tel:${s('contact_phone', '+918560074448').replace(/\s/g, '')}` },
+                { icon: Mail, label: 'Email', value: s('contact_email', 'contact@astarinfotech.in'), href: `mailto:${s('contact_email', 'contact@astarinfotech.in')}` },
+                { icon: MapPin, label: 'Address', value: s('contact_address', 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan'), href: '#' },
+                { icon: Clock, label: 'Hours', value: s('contact_hours', 'Mon – Sat: 10:00 AM – 7:00 PM'), href: '#' },
+              ].map(item => (
+                <div key={item.label} className={`flex items-start gap-4 p-4 ${C.card(t)}`}>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${C.btn1(t)}`}><item.icon className="w-5 h-5" /></div>
+                  <div>
+                    <div className={`text-sm font-medium ${C.muted5(t)}`}>{item.label}</div>
+                    <a href={item.href} className={`text-sm font-semibold break-all ${C.bold(t)} ${t === 'neon' ? 'hover:text-neon' : 'hover:text-emerald-600'} transition-colors`}>{item.value}</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className={`lg:col-span-3 p-6 sm:p-8 ${C.card(t)}`}>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${t === 'neon' ? 'text-foreground/70' : 'text-gray-700'}`}>Name *</label>
+                    <Input value={cf.name} onChange={e => setCf(f => ({ ...f, name: e.target.value }))} placeholder="Your name" required className={C.inp(t)} />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${t === 'neon' ? 'text-foreground/70' : 'text-gray-700'}`}>Email *</label>
+                    <Input type="email" value={cf.email} onChange={e => setCf(f => ({ ...f, email: e.target.value }))} placeholder="your@email.com" required className={C.inp(t)} />
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1.5 ${t === 'neon' ? 'text-foreground/70' : 'text-gray-700'}`}>Phone</label>
+                  <Input type="tel" value={cf.phone} onChange={e => setCf(f => ({ ...f, phone: e.target.value }))} placeholder="+91 XXXXXXXXXX" className={C.inp(t)} />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1.5 ${t === 'neon' ? 'text-foreground/70' : 'text-gray-700'}`}>Message *</label>
+                  <Textarea value={cf.message} onChange={e => setCf(f => ({ ...f, message: e.target.value }))} placeholder="Tell us about your project..." required rows={5} className={C.inp(t)} />
+                </div>
+                <button type="submit" disabled={submitting} className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 ${C.btn1(t)}`}>
+                  {submitting ? 'Sending...' : <><Send className="w-4 h-4" /> Send Message</>}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className={`mt-auto ${C.footer(t)}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg bg-white/20 text-white">A</div>
+                <span className="font-bold text-lg text-white">A-Star Infotech</span>
+              </div>
+              <p className="text-white/60 text-sm leading-relaxed">Transforming businesses through innovative web solutions since day one.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Quick Links</h4>
+              <ul className="space-y-2">{navItems.map(n => (<li key={n.id}><button onClick={() => scroll(n.id)} className="text-white/60 hover:text-white text-sm transition-colors">{n.l}</button></li>))}</ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Services</h4>
+              <ul className="space-y-2">{services.slice(0, 5).map(sv => (<li key={sv.id}><button onClick={() => scroll('services')} className="text-white/60 hover:text-white text-sm transition-colors">{sv.title}</button></li>))}</ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Contact</h4>
+              <ul className="space-y-2 text-sm text-white/60">
+                <li className="flex items-start gap-2"><Phone className="w-4 h-4 mt-0.5 shrink-0" /> {s('contact_phone', '+91 8560074448')}</li>
+                <li className="flex items-start gap-2"><Mail className="w-4 h-4 mt-0.5 shrink-0" /> {s('contact_email', 'contact@astarinfotech.in')}</li>
+                <li className="flex items-start gap-2"><MapPin className="w-4 h-4 mt-0.5 shrink-0" /> {s('contact_address', 'D-49, Shiv Marg, Jaipur')}</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <button onClick={() => window.openLegal?.('privacy')} className="text-white/40 hover:text-white text-sm transition-colors">Privacy Policy</button>
+              <button onClick={() => window.openLegal?.('terms')} className="text-white/40 hover:text-white text-sm transition-colors">Terms of Service</button>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* WHATSAPP */}
+      <a href={waLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] rounded-full flex items-center justify-center shadow-lg whatsapp-pulse transition-colors">
+        <MessageCircle className="w-6 h-6 text-white" />
+      </a>
+
+      {/* SCROLL TO TOP */}
+      <AnimatePresence>
+        {scrolled && (
+          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className={`fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors ${t === 'neon' ? 'bg-dark-surface border border-dark-border text-foreground hover:text-neon' : 'bg-white border border-gray-200 text-gray-600 hover:text-emerald-600'}`}
+            aria-label="Scroll to top">
+            <ChevronUp className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* THEME SWITCHER */}
+      <div className="fixed bottom-20 left-6 z-50">
+        <AnimatePresence>
+          {themePanel && (
+            <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.2 }}
+              className={`absolute bottom-14 left-0 w-72 p-4 rounded-xl shadow-2xl border ${t === 'neon' ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'}`}>
+              <h3 className={`text-sm font-bold mb-3 ${C.bold(t)}`}><Palette className="w-4 h-4 inline mr-1.5" /> Choose Theme</h3>
+              <div className="space-y-2">
+                {THEMES.map(th => {
+                  const Ic = th.icon
+                  const active = tt === th.id
+                  return (
+                    <button key={th.id} onClick={() => { setTt(th.id); setThemePanel(false) }}
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
+                        active ? (t === 'neon' ? 'bg-neon/15 border border-neon/30' : t === 'minimal' ? 'bg-emerald-50 border border-emerald-200' : t === 'gradient' ? 'bg-gradient-to-r from-emerald-50 to-purple-50 border border-teal-200' : 'bg-amber-50 border border-amber-200')
+                          : t === 'neon' ? 'hover:bg-dark-surface border border-transparent' : 'hover:bg-gray-50 border border-transparent'
+                      }`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${active ? C.btn1(t) : t === 'neon' ? 'bg-dark-surface text-foreground/50' : 'bg-gray-100 text-gray-400'}`}>
+                        <Ic className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-sm font-semibold ${active ? (t === 'neon' ? 'text-neon' : t === 'corporate' ? 'text-amber-700' : 'text-emerald-700') : t === 'neon' ? 'text-foreground/70' : 'text-gray-700'}`}>{th.name}</div>
+                        <div className="flex gap-1 mt-1">{th.colors.map((c, i) => <div key={i} className="w-4 h-4 rounded-full border border-white/20" style={{ background: c }} />)}</div>
+                      </div>
+                      {active && <CheckCircle2 className={`w-4 h-4 shrink-0 ${t === 'neon' ? 'text-neon' : t === 'corporate' ? 'text-amber-500' : 'text-emerald-500'}`} />}
+                    </button>
+                  )
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <button onClick={() => setThemePanel(p => !p)}
+          className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
+            themePanel ? (t === 'neon' ? 'bg-neon text-dark-bg' : t === 'corporate' ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white')
+              : t === 'neon' ? 'bg-dark-surface border border-dark-border text-neon hover:bg-dark-card' : 'bg-white border border-gray-200 text-gray-600 hover:text-emerald-600'
+          }`} aria-label="Change theme">
+          <Palette className="w-5 h-5" />
+        </button>
+      </div>
+
+      <LegalModal contactInfo={{ address: s('contact_address', 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan'), phone: s('contact_phone', '+91 8560074448'), email: s('contact_email', 'contact@astarinfotech.in') }} />
+    </div>
+  )
+}

@@ -1,1020 +1,187 @@
 'use client'
-
-import { useState, useEffect, useRef, FormEvent, useCallback } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
-import {
-  Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search,
-  ArrowRight, Star, MapPin, Phone, Mail, Clock, Users, Award, Zap,
-  Heart, ChevronRight, Send, ExternalLink, Facebook, Instagram,
-  Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target,
-  Shield, Rocket, Eye, Trash2, Inbox, Lock, LayoutDashboard,
-  BarChart3, LogOut, Calendar, MailCheck, PhoneCall, Briefcase,
-  Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound, ShieldCheck,
-  ChevronDown, Quote, ArrowLeft, ArrowRight as ArrowRightIcon,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { LegalModal } from '@/components/legal-modal'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
-import { useTheme } from 'next-themes'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-  DialogDescription, DialogFooter,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-
-/* ── Data ── */
-const NAV_LINKS = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' },
-  { label: 'Portfolio', href: '#portfolio' },
-  { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Contact', href: '#contact' },
-]
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  Globe, Code2, ShoppingCart, Smartphone, Settings, Search,
-  Award, Zap, Shield, Heart, Target, Rocket, Star, Users,
-  BarChart3, Briefcase, LayoutDashboard, Lock,
-}
-
-const DEFAULT_SERVICES = [
-  { icon: 'Globe' as const, title: 'Website Design', description: 'Beautiful, modern designs that capture your brand identity and engage visitors from the first click.', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-  { icon: 'Code2' as const, title: 'Website Development', description: 'Robust, scalable web applications built with the latest technologies for peak performance and reliability.', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-  { icon: 'ShoppingCart' as const, title: 'E-Commerce Development', description: 'Feature-rich online stores with secure payments, inventory management, and seamless shopping experiences.', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-  { icon: 'Smartphone' as const, title: 'Responsive Websites', description: 'Websites that look stunning on every device — from desktop monitors to the smallest smartphones.', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-  { icon: 'Settings' as const, title: 'Website Maintenance', description: 'Ongoing support, updates, and optimization to keep your website running smoothly and securely.', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-  { icon: 'Search' as const, title: 'SEO Services', description: 'Data-driven SEO strategies that boost your visibility and drive organic traffic to your website.', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-]
-
-const WHY_CHOOSE_US = [
-  { icon: Award, title: 'Experienced Team', description: 'Our skilled developers bring years of expertise to every project.' },
-  { icon: Zap, title: 'Fast Delivery', description: 'We meet deadlines without compromising on quality or performance.' },
-  { icon: Shield, title: 'Secure Solutions', description: 'Every website we build follows the latest security best practices.' },
-  { icon: Heart, title: 'Client-Centric', description: 'Your vision drives our work — we listen, adapt, and deliver.' },
-  { icon: Target, title: 'Result-Oriented', description: 'We focus on outcomes that grow your business and online presence.' },
-  { icon: Rocket, title: 'Modern Technology', description: 'We use cutting-edge tools and frameworks for optimal results.' },
-]
-
-const DEFAULT_PORTFOLIO = [
-  { title: 'FreshMart Online Store', category: 'E-Commerce', description: 'A fully-featured online grocery store with real-time inventory, secure checkout, and delivery tracking.', tech: 'Next.js, Stripe, PostgreSQL', color: 'from-emerald-500 to-emerald-700', image: '/portfolio-freshmart.png' },
-  { title: 'HealthPlus Clinic', category: 'Healthcare', description: 'A responsive website for a multi-specialty clinic with appointment booking and patient portal.', tech: 'React, Node.js, MongoDB', color: 'from-amber-500 to-amber-700', image: '/portfolio-healthplus.png' },
-  { title: 'UrbanBite Restaurant', category: 'Restaurant', description: 'A beautiful restaurant website with online ordering, table reservations, and menu management.', tech: 'Next.js, Prisma, Tailwind', color: 'from-emerald-600 to-teal-700', image: '/portfolio-urbanbite.png' },
-  { title: 'EduSpark Academy', category: 'Education', description: 'An e-learning platform with course management, video streaming, and student progress tracking.', tech: 'React, Firebase, TypeScript', color: 'from-orange-500 to-amber-700', image: '/portfolio-eduspark.png' },
-  { title: 'GreenLeaf Landscaping', category: 'Local Business', description: 'A lead-generating website for a landscaping company with gallery, quote requests, and service pages.', tech: 'Next.js, Sanity CMS, Vercel', color: 'from-teal-500 to-emerald-700', image: '/portfolio-greenleaf.png' },
-  { title: 'TechVault IT Solutions', category: 'IT Services', description: 'A corporate website for an IT firm with service pages, case studies, and a knowledge base.', tech: 'React, GraphQL, AWS', color: 'from-amber-600 to-orange-700', image: '/portfolio-techvault.png' },
-]
-
-const DEFAULT_TESTIMONIALS = [
-  { name: 'Priya Sharma', company: 'FreshMart Pvt. Ltd.', review: 'A-Star Infotech transformed our online presence. Our e-commerce sales increased by 150% within the first three months. Their team is incredibly talented and responsive.', rating: 5 },
-  { name: 'Rajesh Patel', company: 'HealthPlus Clinic', review: 'The website they built for us is professional, fast, and easy to manage. Patient appointments have doubled since launch. Highly recommended!', rating: 5 },
-  { name: 'Anita Desai', company: 'UrbanBite Restaurant', review: 'From design to deployment, A-Star Infotech exceeded all our expectations. The online ordering system works flawlessly, and our customers love it.', rating: 5 },
-  { name: 'Vikram Singh', company: 'EduSpark Academy', review: 'Working with A-Star Infotech was a game-changer for our platform. They understood our vision and delivered a solution that truly supports our students.', rating: 5 },
-  { name: 'Meera Joshi', company: 'GreenLeaf Landscaping', review: 'Our new website generates leads every single day. A-Star Infotech really understands how to create sites that convert visitors into customers.', rating: 5 },
-  { name: 'Arun Kumar', company: 'TechVault IT Solutions', review: 'Professional, reliable, and creative — A-Star Infotech is the best web development partner we have ever worked with. They truly go above and beyond.', rating: 5 },
-]
-
-const DEFAULT_STATS = [
-  { value: '150+', label: 'Projects Delivered' },
-  { value: '120+', label: 'Happy Clients' },
-  { value: '5+', label: 'Years Experience' },
-  { value: '99%', label: 'Client Satisfaction' },
-]
-
-const DEFAULT_SETTINGS = {
-  companyName: 'A-Star Infotech',
-  address: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan',
-  phone: '+91 8560074448',
-  email: 'contact@astarinfotech.in',
-  secondaryEmail: '',
-  hours: 'Mon – Sat: 10:00 AM – 7:00 PM',
-  facebook: 'https://facebook.com/astarinfotech',
-  instagram: 'https://instagram.com/astarinfotech',
-  linkedin: 'https://linkedin.com/company/astarinfotech',
-  youtube: 'https://youtube.com/@astarinfotech',
-  brandColor: '#059669',
-  heroBadge: '',
-  heroHeading: 'Transform Your Digital Presence With Us',
-  heroSubtitle: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.',
-  aboutHeading: 'We Build Digital Experiences That Matter',
-  aboutDescription1: 'A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don\'t just look great — they deliver measurable results.',
-  aboutDescription2: 'From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.',
-  aboutVision: 'To be the most trusted digital partner for businesses seeking growth through innovative web solutions.',
-  aboutMission: 'To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.',
-  aboutValues: 'Innovation, Integrity, Excellence, Collaboration, Transparency',
-  whyChooseUsIntro: 'We\'re not just another web development agency. We\'re your growth partners — committed to delivering solutions that make a real difference for your business.',
-}
-
-/* ── Animated Section Wrapper ── */
-function AnimatedSection({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-80px' })
-  return (
-    <section id={id} ref={ref} className={className}>
-      <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }} transition={{ duration: 0.6, ease: 'easeOut' }}>
-        {children}
-      </motion.div>
-    </section>
-  )
-}
-
-/* ── useCountUp Hook ── */
-function useCountUp(end: number, duration = 2000, startOnView = true) {
-  const [count, setCount] = useState(0)
-  const ref = useRef<HTMLDivElement>(null)
-  const hasStarted = useRef(false)
-
-  useEffect(() => {
-    if (!startOnView) {
-      hasStarted.current = true
-      const startTime = Date.now()
-      const tick = () => {
-        const elapsed = Date.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
-        const eased = 1 - Math.pow(1 - progress, 3)
-        setCount(Math.round(eased * end))
-        if (progress < 1) requestAnimationFrame(tick)
-      }
-      tick()
-      return
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !hasStarted.current) {
-        hasStarted.current = true
-        const startTime = Date.now()
-        const tick = () => {
-          const elapsed = Date.now() - startTime
-          const progress = Math.min(elapsed / duration, 1)
-          const eased = 1 - Math.pow(1 - progress, 3)
-          setCount(Math.round(eased * end))
-          if (progress < 1) requestAnimationFrame(tick)
-        }
-        tick()
-      }
-    }, { threshold: 0.3 })
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [end, duration, startOnView])
-
-  return { count, ref }
-}
-
-/* ── Stat Counter Component ── */
-function StatCounter({ value, label }: { value: string; label: string }) {
-  const numericPart = parseInt(value.replace(/[^0-9]/g, ''), 10) || 0
-  const suffix = value.replace(/[0-9]/g, '')
-  const { count, ref } = useCountUp(numericPart, 2000)
-
-  return (
-    <div ref={ref} className="text-center sm:text-left">
-      <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-neon counter-glow">
-        {count}{suffix}
-      </div>
-      <div className="text-xs sm:text-sm text-muted-foreground mt-1">{label}</div>
-    </div>
-  )
-}
-
-/* ── Testimonial Carousel Component ── */
-function TestimonialCarousel({ items }: { items: typeof DEFAULT_TESTIMONIALS }) {
-  const [current, setCurrent] = useState(0)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-
-  const startAuto = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      setCurrent(prev => (prev + 1) % items.length)
-    }, 5000)
-  }, [items.length])
-
-  useEffect(() => {
-    startAuto()
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [startAuto])
-
-  const goTo = (idx: number) => { setCurrent(idx); startAuto() }
-  const prev = () => { setCurrent((current - 1 + items.length) % items.length); startAuto() }
-  const next = () => { setCurrent((current + 1) % items.length); startAuto() }
-
-  const t = items[current]
-  if (!t) return null
-
-  return (
-    <div className="relative max-w-3xl mx-auto">
-      <div className="relative glass-card neon-border rounded-2xl p-6 sm:p-10 md:p-12 overflow-hidden min-h-[280px] flex flex-col justify-center">
-        {/* Decorative quote mark */}
-        <div className="quote-mark">&ldquo;</div>
-
-        <div className="relative z-10">
-          {/* Star rating */}
-          <div className="flex gap-1 mb-4 sm:mb-6">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={`w-5 h-5 ${i < t.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`} />
-            ))}
-          </div>
-
-          {/* Review */}
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={t.name}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4 }}
-              className="text-muted-foreground leading-relaxed text-sm sm:text-base md:text-lg italic mb-6 sm:mb-8"
-            >
-              &ldquo;{t.review}&rdquo;
-            </motion.p>
-          </AnimatePresence>
-
-          {/* Person info */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-neon/20 to-neon/5 border-2 border-neon/30 flex items-center justify-center text-neon font-bold text-base sm:text-lg">
-              {t.name.split(' ').map(n => n[0]).join('')}
-            </div>
-            <div>
-              <div className="font-semibold text-foreground text-sm sm:text-base">{t.name}</div>
-              <div className="text-xs sm:text-sm text-muted-foreground">{t.company}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-center gap-4 mt-6 sm:mt-8">
-        <button onClick={prev} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Previous testimonial">
-          <ChevronRight className="w-4 h-4 rotate-180" />
-        </button>
-        <div className="flex items-center gap-2">
-          {items.map((_, i) => (
-            <button key={i} onClick={() => goTo(i)} className={`testimonial-dot ${i === current ? 'active' : ''}`} aria-label={`Go to testimonial ${i + 1}`} />
-          ))}
-        </div>
-        <button onClick={next} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Next testimonial">
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-
-/* ────────────────────────────────────────────
-   Main Page Component - Premium Digital Agency
-   ──────────────────────────────────────────── */
-
-export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [showScrollTop, setShowScrollTop] = useState(false)
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [services, setServices] = useState(DEFAULT_SERVICES)
-  const [portfolioItems, setPortfolioItems] = useState(DEFAULT_PORTFOLIO)
-  const [testimonialItems, setTestimonialItems] = useState(DEFAULT_TESTIMONIALS)
-  const [statItems, setStatItems] = useState(DEFAULT_STATS)
-  const [siteSettings, setSiteSettings] = useState(DEFAULT_SETTINGS)
-  const [portfolioFilter, setPortfolioFilter] = useState('All')
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [servicesRes, portfolioRes, testimonialsRes, statsRes, settingsRes] = await Promise.allSettled([
-          fetch('/api/services'), fetch('/api/portfolio'), fetch('/api/testimonials'), fetch('/api/stats'), fetch('/api/settings'),
-        ])
-        if (servicesRes.status === 'fulfilled' && servicesRes.value.ok) { const d = await servicesRes.value.json(); if (d.services?.length > 0) setServices(d.services.map((s: { icon: string; title: string; description: string; color: string; bgColor: string }) => ({ icon: s.icon || 'Globe', title: s.title, description: s.description, color: s.color || 'text-emerald-400', bg: s.bgColor || 'bg-emerald-500/10' }))) }
-        if (portfolioRes.status === 'fulfilled' && portfolioRes.value.ok) { const d = await portfolioRes.value.json(); if (d.portfolio?.length > 0) setPortfolioItems(d.portfolio.map((p: { title: string; category: string; description: string; tech: string; color: string; image: string }) => ({ title: p.title, category: p.category, description: p.description, tech: p.tech || '', color: p.color || 'from-emerald-500 to-emerald-700', image: p.image || '/portfolio-freshmart.png' }))) }
-        if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.ok) { const d = await testimonialsRes.value.json(); if (d.testimonials?.length > 0) setTestimonialItems(d.testimonials.map((t: { name: string; company: string; review: string; rating: number }) => ({ name: t.name, company: t.company, review: t.review, rating: t.rating || 5 }))) }
-        if (statsRes.status === 'fulfilled' && statsRes.value.ok) { const d = await statsRes.value.json(); if (d.stats?.length > 0) setStatItems(d.stats.map((s: { value: string; label: string }) => ({ value: s.value, label: s.label }))) }
-        if (settingsRes.status === 'fulfilled' && settingsRes.value.ok) { const d = await settingsRes.value.json(); if (d.settings) setSiteSettings({ companyName: d.settings.companyName || DEFAULT_SETTINGS.companyName, address: d.settings.address || DEFAULT_SETTINGS.address, phone: d.settings.phone || DEFAULT_SETTINGS.phone, email: d.settings.email || DEFAULT_SETTINGS.email, secondaryEmail: d.settings.secondaryEmail || DEFAULT_SETTINGS.secondaryEmail, hours: d.settings.hours || DEFAULT_SETTINGS.hours, facebook: d.settings.facebook || DEFAULT_SETTINGS.facebook, instagram: d.settings.instagram || DEFAULT_SETTINGS.instagram, linkedin: d.settings.linkedin || DEFAULT_SETTINGS.linkedin, youtube: d.settings.youtube || DEFAULT_SETTINGS.youtube, brandColor: d.settings.brandColor || DEFAULT_SETTINGS.brandColor, heroBadge: d.settings.heroBadge || DEFAULT_SETTINGS.heroBadge, heroHeading: d.settings.heroHeading || DEFAULT_SETTINGS.heroHeading, heroSubtitle: d.settings.heroSubtitle || DEFAULT_SETTINGS.heroSubtitle, aboutHeading: d.settings.aboutHeading || DEFAULT_SETTINGS.aboutHeading, aboutDescription1: d.settings.aboutDescription1 || DEFAULT_SETTINGS.aboutDescription1, aboutDescription2: d.settings.aboutDescription2 || DEFAULT_SETTINGS.aboutDescription2, aboutVision: d.settings.aboutVision || DEFAULT_SETTINGS.aboutVision, aboutMission: d.settings.aboutMission || DEFAULT_SETTINGS.aboutMission, aboutValues: d.settings.aboutValues || DEFAULT_SETTINGS.aboutValues, whyChooseUsIntro: d.settings.whyChooseUsIntro || DEFAULT_SETTINGS.whyChooseUsIntro }) }
-      } catch (error) { console.error('Failed to fetch site data:', error) }
-    }
-    fetchData()
-  }, [])
-
-  useEffect(() => {
-    const handleScroll = () => { setScrolled(window.scrollY > 20); setShowScrollTop(window.scrollY > 500) }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  // Brand color + neon dynamic application
-  useEffect(() => {
-    const hex = siteSettings.brandColor || '#059669'
-    const root = document.documentElement
-    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16)
-    const lighten = (f: number) => `#${Math.round(r + (255 - r) * (1 - f)).toString(16).padStart(2, '0')}${Math.round(g + (255 - g) * (1 - f)).toString(16).padStart(2, '0')}${Math.round(b + (255 - b) * (1 - f)).toString(16).padStart(2, '0')}`
-    const darken = (f: number) => `#${Math.round(r * f).toString(16).padStart(2, '0')}${Math.round(g * f).toString(16).padStart(2, '0')}${Math.round(b * f).toString(16).padStart(2, '0')}`
-    root.style.setProperty('--brand-50', lighten(0.1)); root.style.setProperty('--brand-100', lighten(0.2)); root.style.setProperty('--brand-200', lighten(0.4)); root.style.setProperty('--brand-300', lighten(0.6)); root.style.setProperty('--brand-400', lighten(0.8))
-    root.style.setProperty('--brand-500', hex); root.style.setProperty('--brand-600', hex); root.style.setProperty('--brand-700', darken(0.85)); root.style.setProperty('--brand-800', darken(0.65)); root.style.setProperty('--brand-900', darken(0.45)); root.style.setProperty('--brand-950', darken(0.28))
-    root.style.setProperty('--neon', hex)
-    root.style.setProperty('--neon-dim', hex + '33')
-    root.style.setProperty('--neon-glow', hex + '66')
-  }, [siteSettings.brandColor])
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault(); setIsSubmitting(true)
-    try {
-      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) })
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Something went wrong') }
-      toast.success('Message Sent Successfully!', { description: "Thank you for reaching out! We've received your message and will get back to you within 24 hours." })
-      setFormData({ name: '', email: '', phone: '', message: '' })
-    } catch (error: unknown) { toast.error('Error', { description: error instanceof Error ? error.message : 'Something went wrong' }) } finally { setIsSubmitting(false) }
-  }
-
-  const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }) }
-
-  // Ensure URLs have protocol prefix for social links
-  const ensureProtocol = (url: string) => { if (!url) return url; if (url.startsWith('http://') || url.startsWith('https://')) return url; return 'https://' + url }
-
-  // Portfolio filter logic
-  const categories = ['All', ...Array.from(new Set(portfolioItems.map(p => p.category)))]
-  const filteredPortfolio = portfolioFilter === 'All' ? portfolioItems : portfolioItems.filter(p => p.category === portfolioFilter)
-
-  // Stagger animation variants
-  const staggerContainer = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }
-  const staggerItem = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
-
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-
-      {/* ─── Header ─── */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-dark-surface/90 backdrop-blur-xl border-b border-border shadow-lg shadow-neon/5' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            <a href="#home" className="flex items-center gap-2 group">
-              <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain shadow-md shadow-neon/10 group-hover:shadow-neon/20 transition-shadow" />
-              <div className="flex flex-col">
-                <span className="font-bold text-base sm:text-lg leading-tight text-foreground">A-Star</span>
-                <span className="text-[10px] sm:text-xs leading-tight font-medium tracking-wider uppercase text-neon">Infotech</span>
-              </div>
-            </a>
-            <nav className="hidden md:flex items-center gap-1">
-              {NAV_LINKS.map(link => (
-                <a key={link.href} href={link.href} className="px-3 lg:px-4 py-2 rounded-md text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-neon/10 transition-colors">{link.label}</a>
-              ))}
-              <a href="#contact"><Button size="sm" className="ml-2 glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30">Get a Quote</Button></a>
-              {mounted && (
-                <button
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 rounded-lg hover:bg-neon/10 transition-colors ml-1"
-                  aria-label="Toggle theme"
-                >
-                  {theme === 'dark' ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
-                </button>
-              )}
-            </nav>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2.5 -mr-2 rounded-md text-foreground hover:bg-neon/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle menu">
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ type: 'tween', duration: 0.3 }} className="fixed inset-0 z-[60] md:hidden bg-background flex flex-col">
-              <div className="flex items-center justify-between px-4 sm:px-6 h-16 sm:h-20 border-b border-border">
-                <a href="#home" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
-                  <img src="/logo.png" alt="A-Star Infotech Logo" className="w-9 h-9 rounded-lg object-contain" />
-                  <div className="flex flex-col"><span className="font-bold text-base leading-tight text-foreground">A-Star</span><span className="text-[10px] leading-tight font-medium tracking-wider uppercase text-neon">Infotech</span></div>
-                </a>
-                <button onClick={() => setMobileMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-foreground hover:bg-neon/10 transition-colors" aria-label="Close menu">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <nav className="flex-1 flex flex-col justify-center px-6">
-                <div className="space-y-2">
-                  {NAV_LINKS.map(link => <a key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block px-5 py-3.5 rounded-lg text-foreground text-lg font-medium hover:bg-neon/10 hover:text-neon transition-colors min-h-[44px] flex items-center">{link.label}</a>)}
-                </div>
-                <div className="mt-8">
-                  <a href="#contact" onClick={() => setMobileMenuOpen(false)}><Button className="w-full glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 h-12 text-base">Get a Quote</Button></a>
-                  <div className="flex gap-3 mt-4">
-                    {mounted && (
-                      <button
-                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-neon/10 transition-colors text-foreground border border-border"
-                        aria-label="Toggle theme"
-                      >
-                        {theme === 'dark' ? <><Sun className="w-5 h-5" /><span className="text-sm font-medium">Light</span></> : <><Moon className="w-5 h-5" /><span className="text-sm font-medium">Dark</span></>}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
-
-      {/* ═══════════════════════════════════════
-          HERO SECTION — "Impact First"
-          ═══════════════════════════════════════ */}
-      <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-background">
-        {/* Background image with dark overlay */}
-        <div className="absolute inset-0">
-          <img src="/coding-bg.png" alt="" className="w-full h-full object-cover object-center hero-bg-image" aria-hidden="true" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70" />
-        </div>
-
-        {/* Grid overlay */}
-        <div className="absolute inset-0 hero-grid opacity-30" />
-        <div className="absolute inset-0 scanline-overlay opacity-30" />
-
-        {/* Floating decorative orbs */}
-        <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl animate-neon-pulse" />
-        <div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-neon/40 rounded-full animate-float" style={{ animationDelay: '0s' }} />
-        <div className="absolute top-1/4 right-1/3 w-2 h-2 bg-neon/30 rounded-full animate-float" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-4 h-4 bg-neon/20 rounded-full animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 right-20 w-2 h-2 bg-amber-400/30 rounded-full animate-float" style={{ animationDelay: '0.5s' }} />
-        <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-cyan-400/20 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
-
-        {/* Main content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-32 lg:py-40">
-          <div className="max-w-3xl">
-            {/* Hero badge */}
-            {siteSettings.heroBadge && siteSettings.heroBadge.trim() !== '' && (
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 hover:bg-neon/20 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm"><Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1.5" />{siteSettings.heroBadge}</Badge>
-              </motion.div>
-            )}
-
-            {/* Hero heading with animated gradient text */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
-            >
-              <span className="gradient-text animate-gradient-text">{siteSettings.heroHeading}</span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-5 sm:mt-6 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">
-              {siteSettings.heroSubtitle}
-            </motion.p>
-
-            {/* CTA Buttons - Glassmorphism style */}
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <a href="#contact" className="block">
-                <Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base shadow-lg shadow-amber-500/25 w-full sm:w-auto rounded-xl">
-                  Start Your Project <ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" />
-                </Button>
-              </a>
-              <a href="#portfolio" className="block">
-                <Button size="lg" className="glass-cta text-foreground font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base w-full sm:w-auto rounded-xl">
-                  View Our Work <ExternalLink className="ml-2 w-4 h-4" />
-                </Button>
-              </a>
-            </motion.div>
-
-            {/* Animated stat counters */}
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 sm:gap-8">
-              {statItems.map(stat => (
-                <StatCounter key={stat.label} value={stat.value} label={stat.label} />
-              ))}
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Scroll-down indicator */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2">
-          <span className="text-xs text-muted-foreground tracking-wider uppercase">Scroll</span>
-          <ChevronDown className="w-5 h-5 text-neon/60 animate-bounce-chevron" />
-        </motion.div>
-      </section>
-
-      <div className="section-divider" />
-
-      {/* ═══════════════════════════════════════
-          ABOUT SECTION — "Visual Story"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection id="about" className="py-16 sm:py-20 md:py-28 bg-background grid-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
-            {/* Left - Visual side with stacked cards */}
-            <div className="relative">
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="space-y-4"
-              >
-                {/* Main image */}
-                <div className="rounded-2xl overflow-hidden border border-neon/20 shadow-xl shadow-neon/5">
-                  <img src="/about-image.png" alt="A-Star Infotech team collaborating" className="w-full h-auto object-cover max-w-full" />
-                </div>
-
-                {/* Vision / Mission / Values mini cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="glass-card rounded-xl p-4 info-card-accent">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Eye className="w-4 h-4 text-neon" />
-                      <h3 className="font-semibold text-foreground text-sm">Our Vision</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{siteSettings.aboutVision}</p>
-                  </div>
-                  <div className="glass-card rounded-xl p-4 info-card-accent" style={{ borderLeftColor: '#f59e0b' }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Rocket className="w-4 h-4 text-amber-400" />
-                      <h3 className="font-semibold text-foreground text-sm">Our Mission</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{siteSettings.aboutMission}</p>
-                  </div>
-                  <div className="glass-card rounded-xl p-4 info-card-accent" style={{ borderLeftColor: '#06b6d4' }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Heart className="w-4 h-4 text-cyan-400" />
-                      <h3 className="font-semibold text-foreground text-sm">Our Values</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{siteSettings.aboutValues}</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Experience badge - in normal flow to prevent overlap */}
-              <div className="mt-4 glass-card rounded-xl p-3 sm:p-5 border-neon/30 inline-flex">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center"><Award className="w-5 h-5 sm:w-6 sm:h-6 text-neon" /></div>
-                  <div><div className="font-bold text-base sm:text-lg text-foreground">5+ Years</div><div className="text-xs sm:text-sm text-muted-foreground">Trusted Experience</div></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right - Text side */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">About Us</Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight section-title-underline">{siteSettings.aboutHeading}</h2>
-              <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription1}</p>
-              <p className="mt-3 sm:mt-4 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.aboutDescription2}</p>
-
-              {/* Value tag pills */}
-              <div className="mt-6 sm:mt-8 flex flex-wrap gap-2">
-                {siteSettings.aboutValues.split(',').map((v: string) => v.trim()).filter(Boolean).map((v: string) => (
-                  <span key={v} className="tech-pill">{v}</span>
-                ))}
-              </div>
-
-              <div className="mt-6 sm:mt-8">
-                <a href="#contact">
-                  <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-xl">
-                    Get In Touch <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-                </a>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <div className="section-divider" />
-
-      {/* ═══════════════════════════════════════
-          SERVICES SECTION — "Interactive Cards"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection id="services" className="py-16 sm:py-20 md:py-28 bg-dark-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section heading with gradient underline */}
-          <div className="text-center max-w-2xl mx-auto">
-            <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
-              Everything You Need to <span className="gradient-text">Succeed Online</span>
-            </h2>
-            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.</p>
-          </div>
-
-          {/* Staggered grid */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-          >
-            {services.map((service, idx) => {
-              const IconComp = ICON_MAP[service.icon] || Globe
-              return (
-                <motion.div key={service.title} variants={staggerItem}>
-                  <Card className="group h-full glass-card neon-border border-border card-hover-lift relative overflow-hidden">
-                    {/* Service number badge */}
-                    <span className="service-number">{String(idx + 1).padStart(2, '0')}</span>
-                    <CardContent className="p-4 sm:p-6 md:p-8 relative z-10">
-                      {/* Icon with rotating gradient ring */}
-                      <div className={`icon-ring w-12 h-12 sm:w-14 sm:h-14 rounded-full ${service.bg} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform border border-neon/20`}>
-                        <IconComp className={`w-5 h-5 sm:w-6 sm:h-6 ${service.color}`} />
-                      </div>
-                      <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">{service.title}</h3>
-                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{service.description}</p>
-                      {/* Learn More with animated arrow */}
-                      <a href="#contact" className="inline-flex items-center gap-1 mt-3 sm:mt-4 text-sm font-medium text-neon hover:text-neon/80 transition-colors min-h-[44px] group/link">
-                        Learn More
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                      </a>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-        </div>
-      </AnimatedSection>
-
-      <div className="section-divider" />
-
-      {/* ═══════════════════════════════════════
-          WHY CHOOSE US — "Feature Grid"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection className="py-16 sm:py-20 md:py-28 bg-background hex-pattern">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
-            <div>
-              <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Why Choose Us</Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight section-title-underline">
-                What Makes Us <span className="gradient-text">Stand Out</span>
-              </h2>
-              <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed">{siteSettings.whyChooseUsIntro}</p>
-              <div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4 sm:gap-5">
-                {WHY_CHOOSE_US.map((item, idx) => (
-                  <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.4 }} className="flex gap-3 sm:gap-4 group">
-                    <div className="icon-ring w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-neon/20 to-neon/5 border border-neon/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <item.icon className="w-5 h-5 text-neon" />
-                    </div>
-                    <div><h3 className="font-semibold text-foreground text-sm sm:text-base">{item.title}</h3><p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{item.description}</p></div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <div className="relative">
-              <div className="glass-card rounded-2xl p-5 sm:p-8 md:p-12 border-neon/20">
-                <div className="space-y-5 sm:space-y-6">
-                  {[
-                    { label: 'Client Satisfaction', value: 99 },
-                    { label: 'On-Time Delivery', value: 97 },
-                    { label: 'Code Quality', value: 95 },
-                    { label: 'Support Response', value: 98 },
-                  ].map((item, idx) => (
-                    <div key={item.label}>
-                      <div className="flex justify-between text-xs sm:text-sm mb-2"><span className="font-medium text-foreground">{item.label}</span><span className="text-neon font-semibold">{item.value}%</span></div>
-                      <div className="h-2 sm:h-2.5 bg-dark-card rounded-full overflow-hidden border border-border">
-                        <motion.div initial={{ width: 0 }} whileInView={{ width: `${item.value}%` }} viewport={{ once: true }} transition={{ delay: 0.3 + idx * 0.15, duration: 0.8, ease: 'easeOut' }} className="h-full bg-gradient-to-r from-neon to-cyan-400 rounded-full" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-3 mt-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-500/20 border border-amber-500/30 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/10 rotate-3"><Users className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /></div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Trusted by <span className="text-foreground font-semibold">120+ businesses</span> worldwide</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <div className="section-divider" />
-
-      {/* ═══════════════════════════════════════
-          PORTFOLIO SECTION — "Project Showcase"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection id="portfolio" className="py-16 sm:py-20 md:py-28 bg-dark-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto">
-            <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Portfolio</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
-              Projects That <span className="gradient-text">Speak for Themselves</span>
-            </h2>
-            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">Explore some of our recent work and see how we&apos;ve helped businesses across industries achieve their digital goals.</p>
-          </div>
-
-          {/* Filter tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mt-8 sm:mt-10">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setPortfolioFilter(cat)}
-                className={`filter-tab ${portfolioFilter === cat ? 'active' : ''}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Project cards */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={portfolioFilter}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-            >
-              {filteredPortfolio.map((project, idx) => (
-                <motion.div key={project.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 0.5 }}>
-                  <Card className="group overflow-hidden glass-card neon-border border-border h-full card-hover-lift">
-                    <div className="h-36 sm:h-48 relative overflow-hidden">
-                      <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent group-hover:via-background/20 transition-all duration-500" />
-                      {/* Category pill */}
-                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
-                        <span className="category-pill">{project.category}</span>
-                      </div>
-                      {/* Title */}
-                      <h3 className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 text-base sm:text-xl font-bold text-foreground z-10">{project.title}</h3>
-                    </div>
-                    <CardContent className="p-4 sm:p-6">
-                      <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{project.description}</p>
-                      {/* Tech stack pills */}
-                      <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5">
-                        {project.tech.split(',').map((t: string) => (
-                          <span key={t.trim()} className="tech-pill">{t.trim()}</span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-
-          <div className="mt-10 sm:mt-12 text-center">
-            <a href="#contact"><Button size="lg" variant="outline" className="border-neon/30 text-neon hover:bg-neon/10 min-h-[44px] rounded-xl">Discuss Your Project<ArrowRight className="ml-2 w-4 h-4" /></Button></a>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <div className="section-divider" />
-
-      {/* ═══════════════════════════════════════
-          TESTIMONIALS — "Social Proof Carousel"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection id="testimonials" className="py-16 sm:py-20 md:py-28 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto">
-            <Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Testimonials</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
-              What Our Clients <span className="gradient-text">Say About Us</span>
-            </h2>
-            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">Don&apos;t just take our word for it — hear from the businesses we&apos;ve helped succeed.</p>
-          </div>
-
-          <div className="mt-10 sm:mt-14">
-            <TestimonialCarousel items={testimonialItems} />
-          </div>
-        </div>
-      </AnimatedSection>
-
-      {/* ═══════════════════════════════════════
-          CTA SECTION — "Urgency Banner"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon" />
-        <div className="absolute inset-0 hero-grid opacity-50" />
-
-        {/* Particle dots */}
-        <div className="absolute inset-0 pointer-events-none">
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1.5 h-1.5 bg-white/20 rounded-full"
-              style={{
-                top: `${10 + Math.random() * 80}%`,
-                left: `${5 + Math.random() * 90}%`,
-                animation: `cta-particle ${3 + Math.random() * 4}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 3}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-48 sm:w-64 h-48 sm:h-64 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-36 sm:w-48 h-36 sm:h-48 bg-amber-500/10 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Ready to Take Your Business Online?</h2>
-          <p className="mt-3 sm:mt-4 text-white/80 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence.</p>
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-            <a href="#contact"><Button size="lg" className="bg-white hover:bg-white/90 text-neon font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base shadow-lg min-h-[44px] rounded-xl">Get Free Consultation<ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5" /></Button></a>
-            <a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" className="border-white/30 text-white bg-white/10 hover:bg-white/20 px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base backdrop-blur-sm min-h-[44px] rounded-xl"><MessageCircle className="mr-2 w-4 sm:w-5 h-4 sm:h-5" />Chat on WhatsApp</Button></a>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <div className="section-divider" />
-
-      {/* ═══════════════════════════════════════
-          CONTACT SECTION — "Dual Panel"
-          ═══════════════════════════════════════ */}
-      <AnimatedSection id="contact" className="py-16 sm:py-20 md:py-28 bg-background grid-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto">
-            <Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Contact Us</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground section-title-underline inline-block">
-              Let&apos;s Start <span className="gradient-text">Your Project</span>
-            </h2>
-            <p className="mt-6 sm:mt-8 text-muted-foreground text-sm sm:text-base md:text-lg">Have a project in mind? We&apos;d love to hear from you. Fill out the form below or reach us directly.</p>
-          </div>
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10 lg:gap-12">
-            {/* Left - Business info panel */}
-            <div className="lg:col-span-2 space-y-4">
-              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Get In Touch</h3>
-              {[
-                { icon: MapPin, label: 'Office Address', value: siteSettings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}` },
-                { icon: Phone, label: 'Phone Number', value: siteSettings.phone, href: `tel:${siteSettings.phone}` },
-                { icon: Mail, label: 'Email', value: siteSettings.email, href: `mailto:${siteSettings.email}` },
-                { icon: Clock, label: 'Business Hours', value: siteSettings.hours, href: '' },
-              ].map((item, i) => (
-                <a key={i} href={item.href || undefined} target={item.href && item.href.startsWith('http') ? '_blank' : undefined} rel={item.href && item.href.startsWith('http') ? 'noopener noreferrer' : undefined} className="flex items-start gap-3 sm:gap-4 glass-card rounded-xl p-3 sm:p-4 group min-h-[44px] card-hover-lift">
-                  <div className="w-11 h-11 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 group-hover:border-neon/30 transition-colors"><item.icon className="w-5 h-5 text-neon" /></div>
-                  <div className="pt-1"><div className="font-medium text-foreground text-xs sm:text-sm">{item.label}</div><div className="text-xs sm:text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors break-words">{item.value}</div></div>
-                </a>
-              ))}
-
-              {/* Map placeholder */}
-              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="block">
-                <Card className="glass-card border-neon/20 overflow-hidden hover:border-neon/40 transition-colors cursor-pointer group">
-                  <div className="h-36 sm:h-48 bg-dark-surface flex items-center justify-center border border-border group-hover:bg-neon/5 transition-colors relative">
-                    <div className="text-center"><MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-neon/40 mx-auto group-hover:text-neon group-hover:scale-110 transition-all" /><p className="text-xs sm:text-sm text-neon mt-2 font-medium">A-Star Infotech</p><p className="text-[11px] sm:text-xs text-muted-foreground">{siteSettings.address}</p><span className="inline-flex items-center gap-1 mt-2 text-[10px] sm:text-xs text-neon/60 group-hover:text-neon transition-colors">Open in Google Maps <ExternalLink className="w-3 h-3" /></span></div>
-                  </div>
-                </Card>
-              </a>
-
-              {/* Social links */}
-              <div className="glass-card rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-foreground mb-3">Follow Us</h4>
-                <div className="flex gap-3 flex-wrap">
-                  {siteSettings.facebook && <a href={ensureProtocol(siteSettings.facebook)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 flex items-center justify-center transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5 text-blue-400" /></a>}
-                  {siteSettings.instagram && <a href={ensureProtocol(siteSettings.instagram)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 flex items-center justify-center transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5 text-pink-400" /></a>}
-                  {siteSettings.linkedin && <a href={ensureProtocol(siteSettings.linkedin)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 flex items-center justify-center transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5 text-sky-400" /></a>}
-                  {siteSettings.youtube && <a href={ensureProtocol(siteSettings.youtube)} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 flex items-center justify-center transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5 text-red-400" /></a>}
-                </div>
-              </div>
-            </div>
-
-            {/* Right - Contact form */}
-            <div className="lg:col-span-3 lg:self-start">
-              <Card className="glass-card border-neon/20 shadow-lg shadow-neon/5">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">Send Us a Message</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                      <div className="space-y-2">
-                        <label htmlFor="name" className="text-sm font-medium text-foreground">Full Name <span className="text-red-400">*</span></label>
-                        <Input id="name" placeholder="John Doe" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="futuristic-input h-11 neon-focus" />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-medium text-foreground">Email Address <span className="text-red-400">*</span></label>
-                        <Input id="email" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="futuristic-input h-11 neon-focus" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</label>
-                      <Input id="phone" type="tel" placeholder="+91 0000000000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="futuristic-input h-11 neon-focus" />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="message" className="text-sm font-medium text-foreground">Your Message <span className="text-red-400">*</span></label>
-                      <Textarea id="message" placeholder="Tell us about your project..." rows={4} required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="futuristic-input neon-focus" />
-                    </div>
-                    <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 px-6 sm:px-8 min-h-[44px] rounded-xl">
-                      {isSubmitting ? <><span className="animate-spin mr-2">⏳</span>Sending...</> : <>Send Message<Send className="ml-2 w-4 h-4" /></>}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      {/* ═══════════════════════════════════════
-          FOOTER — "Complete & Professional"
-          ═══════════════════════════════════════ */}
-      <footer className="bg-dark-surface border-t border-border mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-10 sm:py-14 lg:py-16 grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
-            {/* Column 1: Company Info + Newsletter */}
-            <div className="col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2.5 mb-4">
-                <img src="/logo.png" alt="A-Star Infotech Logo" className="w-10 h-10 rounded-lg object-contain" />
-                <div>
-                  <div className="font-bold text-foreground text-lg leading-tight">A-Star</div>
-                  <div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div>
-                </div>
-              </div>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses. Your trusted partner for all digital solutions.</p>
-              {/* Social icons with glow */}
-              <div className="mt-5 flex gap-2.5">
-                {siteSettings.facebook && <a href={ensureProtocol(siteSettings.facebook)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Facebook"><Facebook className="w-4 h-4 text-muted-foreground" /></a>}
-                {siteSettings.instagram && <a href={ensureProtocol(siteSettings.instagram)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="Instagram"><Instagram className="w-4 h-4 text-muted-foreground" /></a>}
-                {siteSettings.linkedin && <a href={ensureProtocol(siteSettings.linkedin)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="LinkedIn"><Linkedin className="w-4 h-4 text-muted-foreground" /></a>}
-                {siteSettings.youtube && <a href={ensureProtocol(siteSettings.youtube)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label="YouTube"><Youtube className="w-4 h-4 text-muted-foreground" /></a>}
-              </div>
-            </div>
-
-            {/* Column 2: Quick Links */}
-            <div>
-              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-              <ul className="space-y-2">
-                {NAV_LINKS.map(link => (
-                  <li key={link.href}>
-                    <a href={link.href} className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[32px]">
-                      <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 3: Services */}
-            <div>
-              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm uppercase tracking-wider">Our Services</h4>
-              <ul className="space-y-2">
-                {services.slice(0, 6).map(s => (
-                  <li key={s.title}>
-                    <a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors inline-flex items-center gap-2 group min-h-[32px]">
-                      <ChevronRight className="w-3 h-3 text-neon/0 group-hover:text-neon/60 transition-colors" />
-                      {s.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 4: Contact Info */}
-            <div className="col-span-2 lg:col-span-1">
-              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2.5">
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2.5 group">
-                    <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-neon/10 group-hover:border-neon/20 transition-colors">
-                      <MapPin className="w-3.5 h-3.5 text-neon/60 group-hover:text-neon transition-colors" />
-                    </div>
-                    <span className="text-sm text-muted-foreground leading-relaxed pt-1 group-hover:text-neon transition-colors">{siteSettings.address}</span>
-                  </a>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
-                    <Phone className="w-3.5 h-3.5 text-neon/60" />
-                  </div>
-                  <a href={`tel:${siteSettings.phone}`} className="text-sm text-muted-foreground hover:text-neon transition-colors">{siteSettings.phone}</a>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-neon/5 border border-border flex items-center justify-center shrink-0">
-                    <Mail className="w-3.5 h-3.5 text-neon/60" />
-                  </div>
-                  <div className="flex flex-col">
-                    <a href={`mailto:${siteSettings.email}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.email}</a>
-                    {siteSettings.secondaryEmail && <a href={`mailto:${siteSettings.secondaryEmail}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{siteSettings.secondaryEmail}</a>}
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="border-t border-border py-4 sm:py-6 pb-20 sm:pb-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <p className="text-xs sm:text-sm text-muted-foreground/70 text-center sm:text-left">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p>
-            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground/70">
-              <button onClick={() => window.openLegal?.('privacy')} className="hover:text-neon transition-colors min-h-[36px] flex items-center">Privacy Policy</button>
-              <span className="text-foreground/10 hidden sm:inline">|</span>
-              <button onClick={() => window.openLegal?.('terms')} className="hover:text-neon transition-colors min-h-[36px] flex items-center">Terms of Service</button>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* WhatsApp Button */}
-      <a href="https://wa.me/918560074448?text=Hello%20A-Star%20Infotech!%20I%20am%20interested%20in%20your%20web%20development%20services." target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 whatsapp-pulse" aria-label="Chat on WhatsApp">
-        <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 transition-transform"><MessageCircle className="w-7 h-7 text-white" /></div>
-      </a>
-
-      <LegalModal contactInfo={{ address: siteSettings.address, phone: siteSettings.phone, email: siteSettings.email }} />
-
-      {/* Scroll to Top */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={scrollToTop} className="fixed bottom-6 left-6 z-50 w-12 h-12 bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-full flex items-center justify-center shadow-lg shadow-neon/10 transition-colors" aria-label="Scroll to top">
-            <ChevronUp className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
+import {useState, useEffect, FormEvent, useCallback} from 'react'
+import {Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search, ArrowRight, Star, MapPin, Phone, Mail, Clock, Users, Award, Zap, Heart, ChevronRight, Send, Facebook, Instagram, Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target, Shield, Rocket, Sun, Moon, Palette} from 'lucide-react'
+import {Button} from '@/components/ui/button'
+import {LegalModal} from '@/components/legal-modal'
+import {Input} from '@/components/ui/input'
+import {Textarea} from '@/components/ui/textarea'
+import {Card, CardContent} from '@/components/ui/card'
+import {Badge} from '@/components/ui/badge'
+import {toast} from 'sonner'
+import {useTheme} from 'next-themes'
+
+const NAV=[{l:'Home',h:'#home'},{l:'About',h:'#about'},{l:'Services',h:'#services'},{l:'Portfolio',h:'#portfolio'},{l:'Testimonials',h:'#testimonials'},{l:'Contact',h:'#contact'}]
+const IM:Record<string,React.ElementType>={Globe,Code2,ShoppingCart,Smartphone,Settings,Search,Award,Zap,Shield,Heart,Target,Rocket,Star,Users}
+const SV=[{i:'Globe',t:'Website Design',d:'Beautiful, modern designs that capture your brand identity.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Code2',t:'Website Development',d:'Robust, scalable web apps built with the latest technologies.',c:'text-cyan-400',bg:'bg-cyan-500/10'},{i:'ShoppingCart',t:'E-Commerce Development',d:'Feature-rich online stores with secure payments.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Smartphone',t:'Responsive Websites',d:'Websites that look stunning on every device.',c:'text-cyan-400',bg:'bg-cyan-500/10'},{i:'Settings',t:'Website Maintenance',d:'Ongoing support to keep your site running smoothly.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Search',t:'SEO Services',d:'Data-driven SEO strategies that boost visibility.',c:'text-cyan-400',bg:'bg-cyan-500/10'}]
+const WU=[{i:Award,t:'Experienced Team',d:'Skilled developers with years of expertise.'},{i:Zap,t:'Fast Delivery',d:'Deadlines met without compromising quality.'},{i:Shield,t:'Secure Solutions',d:'Latest security best practices built in.'},{i:Heart,t:'Client-Centric',d:'Your vision drives our work.'},{i:Target,t:'Result-Oriented',d:'Outcomes that grow your business.'},{i:Rocket,t:'Modern Technology',d:'Cutting-edge tools and frameworks.'}]
+const PF=[{t:'FreshMart Online Store',c:'E-Commerce',d:'Online grocery store with real-time inventory.',x:'Next.js, Stripe, PostgreSQL',i:'/portfolio-freshmart.png'},{t:'HealthPlus Clinic',c:'Healthcare',d:'Clinic website with appointment booking.',x:'React, Node.js, MongoDB',i:'/portfolio-healthplus.png'},{t:'UrbanBite Restaurant',c:'Restaurant',d:'Restaurant site with online ordering.',x:'Next.js, Prisma, Tailwind',i:'/portfolio-urbanbite.png'},{t:'EduSpark Academy',c:'Education',d:'E-learning platform with progress tracking.',x:'React, Firebase, TypeScript',i:'/portfolio-eduspark.png'},{t:'GreenLeaf Landscaping',c:'Local Business',d:'Lead-gen website with quote requests.',x:'Next.js, Sanity CMS, Vercel',i:'/portfolio-greenleaf.png'},{t:'TechVault IT Solutions',c:'IT Services',d:'Corporate website with case studies.',x:'React, GraphQL, AWS',i:'/portfolio-techvault.png'}]
+const TM=[{n:'Priya Sharma',c:'FreshMart Pvt. Ltd.',r:'A-Star Infotech transformed our online presence. Sales increased by 150%!',rt:5},{n:'Rajesh Patel',c:'HealthPlus Clinic',r:'Professional and fast. Patient appointments doubled since launch!',rt:5},{n:'Anita Desai',c:'UrbanBite Restaurant',r:'Exceeded all expectations. Flawless online ordering.',rt:5},{n:'Vikram Singh',c:'EduSpark Academy',r:'A game-changer. They understood our vision perfectly.',rt:5},{n:'Meera Joshi',c:'GreenLeaf Landscaping',r:'Our website generates leads every single day.',rt:5},{n:'Arun Kumar',c:'TechVault IT Solutions',r:'Professional, reliable, creative — the best web partner.',rt:5}]
+const ST=[{v:'150+',l:'Projects Delivered'},{v:'120+',l:'Happy Clients'},{v:'5+',l:'Years Experience'},{v:'99%',l:'Client Satisfaction'}]
+const DF={cn:'A-Star Infotech',ad:'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan',ph:'+91 8560074448',em:'contact@astarinfotech.in',hr:'Mon-Sat: 10AM-7PM',fb:'https://facebook.com/astarinfotech',ig:'https://instagram.com/astarinfotech',li:'https://linkedin.com/company/astarinfotech',yt:'https://youtube.com/@astarinfotech',bc:'#059669',hb:'',hh:'Transform Your Digital Presence With Us',hs:'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver results.',ah:'We Build Digital Experiences That Matter',a1:'A-Star Infotech is a forward-thinking web development agency combining creativity, technology, and strategy to deliver measurable results.',a2:'From startups to established brands, we partner with clients every step of the way.',av:'To be the most trusted digital partner for businesses seeking growth through innovation.',am:'Delivering high-quality, affordable web solutions for the digital age.',al:'Innovation, Integrity, Excellence, Collaboration, Transparency',wi:'We\'re your growth partners — delivering solutions that make a real difference.'}
+
+type TT='neon-cyberpunk'|'clean-minimal'|'bold-gradient'|'executive-corporate'
+const THM:Record<TT,{l:string;n:string;a:string;p:string}>={'neon-cyberpunk':{l:'Neon Cyberpunk',n:'#06d6a0',a:'Neon Green',p:'bg-[#06d6a0]'},'clean-minimal':{l:'Clean Minimal',n:'#059669',a:'Emerald',p:'bg-emerald-600'},'bold-gradient':{l:'Bold Gradient',n:'#10b981',a:'Emerald→Purple',p:'bg-gradient-to-r from-emerald-500 to-purple-500'},'executive-corporate':{l:'Executive Corporate',n:'#d97706',a:'Gold',p:'bg-amber-600'}}
+
+function aTT(t:TT){const r=document.documentElement,v=THM[t];r.style.setProperty('--neon',v.n);r.style.setProperty('--neon-dim',v.n+'33');r.style.setProperty('--neon-glow',v.n+'66');r.classList.remove('theme-neon-cyberpunk','theme-clean-minimal','theme-bold-gradient','theme-executive-corporate');r.classList.add('theme-'+t);const m:Record<string,string[]>={'clean-minimal':['#ffffff','#f8fafc','#ffffff','#e2e8f0'],'executive-corporate':['#0f172a','#1e293b','#1e3a5f','#334155'],'bold-gradient':['#0c0a1d','#151230','#1a1740','#2d2860']};const sv=m[t]||['#06060f','#0d0d1a','#111128','#1e1e3a'];r.style.setProperty('--dark-bg',sv[0]);r.style.setProperty('--dark-surface',sv[1]);r.style.setProperty('--dark-card',sv[2]);r.style.setProperty('--dark-border',sv[3])}
+
+export default function Home(){
+const[mO,sMO]=useState(false),[sc,sSC]=useState(false),[sT,sST]=useState(false),[sub,setSub]=useState(false)
+const[fm,setFm]=useState({name:'',email:'',phone:'',message:''})
+const[svs,setSvs]=useState(SV),[pf,setPf]=useState(PF),[tms,setTms]=useState(TM),[sts,setSts]=useState(ST),[s,setS]=useState(DF)
+const[pF,sPF]=useState('All'),[tt,sTT]=useState<TT>('neon-cyberpunk'),[tO,sTO]=useState(false)
+const{theme,setTheme}=useTheme(),[mnt,sMnt]=useState(false),[tI,sTI]=useState(0)
+const auto=useCallback(()=>setInterval(()=>sTI(p=>(p+1)%tms.length),5000),[tms.length])
+useEffect(()=>{const id=auto();return()=>clearInterval(id)},[auto])
+useEffect(()=>sMnt(true),[])
+useEffect(()=>{(async()=>{try{const[sR,pR,tR,stR,seR]=await Promise.allSettled([fetch('/api/services'),fetch('/api/portfolio'),fetch('/api/testimonials'),fetch('/api/stats'),fetch('/api/settings')])
+if(sR.status==='fulfilled'&&sR.value.ok){const d=await sR.value.json();if(d.services?.length)setSvs(d.services.map((x:any)=>({i:x.icon||'Globe',t:x.title,d:x.description,c:x.color||'text-emerald-400',bg:x.bgColor||'bg-emerald-500/10'})))}
+if(pR.status==='fulfilled'&&pR.value.ok){const d=await pR.value.json();if(d.portfolio?.length)setPf(d.portfolio.map((x:any)=>({t:x.title,c:x.category,d:x.description,x:x.tech||'',i:x.image||'/portfolio-freshmart.png'})))}
+if(tR.status==='fulfilled'&&tR.value.ok){const d=await tR.value.json();if(d.testimonials?.length)setTms(d.testimonials.map((x:any)=>({n:x.name,c:x.company,r:x.review,rt:x.rating||5})))}
+if(stR.status==='fulfilled'&&stR.value.ok){const d=await stR.value.json();if(d.stats?.length)setSts(d.stats.map((x:any)=>({v:x.value,l:x.label})))}
+if(seR.status==='fulfilled'&&seR.value.ok){const d=await seR.value.json();if(d.settings)setS({...DF,...d.settings})}
+}catch{}})()},[])
+useEffect(()=>{const h=()=>{sSC(window.scrollY>20);sST(window.scrollY>500)};window.addEventListener('scroll',h);return()=>window.removeEventListener('scroll',h)},[])
+useEffect(()=>{const h=s.bc||'#059669',r=document.documentElement,rv=parseInt(h.slice(1,3),16),gv=parseInt(h.slice(3,5),16),bv=parseInt(h.slice(5,7),16)
+const li=(f:number)=>`#${Math.round(rv+(255-rv)*(1-f)).toString(16).padStart(2,'0')}${Math.round(gv+(255-gv)*(1-f)).toString(16).padStart(2,'0')}${Math.round(bv+(255-bv)*(1-f)).toString(16).padStart(2,'0')}`
+const da=(f:number)=>`#${Math.round(rv*f).toString(16).padStart(2,'0')}${Math.round(gv*f).toString(16).padStart(2,'0')}${Math.round(bv*f).toString(16).padStart(2,'0')}`
+r.style.setProperty('--brand-50',li(.1));r.style.setProperty('--brand-100',li(.2));r.style.setProperty('--brand-200',li(.4));r.style.setProperty('--brand-300',li(.6));r.style.setProperty('--brand-400',li(.8));r.style.setProperty('--brand-500',h);r.style.setProperty('--brand-600',h);r.style.setProperty('--brand-700',da(.85));r.style.setProperty('--brand-800',da(.65));r.style.setProperty('--brand-900',da(.45));r.style.setProperty('--brand-950',da(.28))},[s.bc])
+useEffect(()=>{const v=localStorage.getItem('template-theme') as TT|null;if(v&&THM[v]){sTT(v);aTT(v)}},[])
+const swTT=(t:TT)=>{sTT(t);aTT(t);localStorage.setItem('template-theme',t);sTO(false)}
+const hSub=async(e:FormEvent)=>{e.preventDefault();setSub(true);try{const res=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fm)});if(!res.ok){const d=await res.json();throw new Error(d.error||'Error')};toast.success('Message Sent!',{description:"We'll get back to you within 24 hours."});setFm({name:'',email:'',phone:'',message:''})}catch(er:unknown){toast.error('Error',{description:er instanceof Error?er.message:'Something went wrong'})}finally{setSub(false)}}
+const ep=(u:string)=>!u?u:u.startsWith('http')?u:'https://'+u
+const cats=['All',...Array.from(new Set(pf.map(p=>p.c)))]
+const fP=pF==='All'?pf:pf.filter(p=>p.c===pF)
+const tc=tt==='clean-minimal'?'bg-white border border-gray-200 shadow-sm hover:shadow-md':'glass-card neon-border border-border'
+const tb=tt==='clean-minimal'?'bg-emerald-600 hover:bg-emerald-700 text-white':tt==='executive-corporate'?'bg-amber-600 hover:bg-amber-700 text-white':'bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30'
+const th=tt==='executive-corporate'?'font-serif':''
+const ts=tt==='clean-minimal'?'bg-gray-50':'bg-dark-surface'
+const tm=tms[tI]
+
+return(<div className="min-h-screen flex flex-col bg-background">
+
+{/* Header */}
+<header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${sc?'bg-dark-surface/90 backdrop-blur-xl border-b border-border shadow-lg':'bg-transparent'}`}>
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="flex items-center justify-between h-16 sm:h-20">
+<a href="#home" className="flex items-center gap-2"><img src="/logo.png" alt="Logo" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain"/><div className="flex flex-col"><span className={`font-bold text-base sm:text-lg text-foreground ${th}`}>A-Star</span><span className="text-[10px] sm:text-xs font-medium tracking-wider uppercase text-neon">Infotech</span></div></a>
+<nav className="hidden md:flex items-center gap-1">{NAV.map(n=><a key={n.h} href={n.h} className="px-3 lg:px-4 py-2 rounded-md text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-neon/10 transition-colors">{n.l}</a>)}<a href="#contact"><Button size="sm" className={`ml-2 glow-button ${tb}`}>Get a Quote</Button></a>{mnt&&<button onClick={()=>setTheme(theme==='dark'?'light':'dark')} className="p-2 rounded-lg hover:bg-neon/10 ml-1" aria-label="Toggle theme">{theme==='dark'?<Sun className="w-5 h-5 text-foreground"/>:<Moon className="w-5 h-5 text-foreground"/>}</button>}</nav>
+<button onClick={()=>sMO(!mO)} className="md:hidden p-2.5 -mr-2 rounded-md text-foreground hover:bg-neon/10 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Menu">{mO?<X className="w-6 h-6"/>:<Menu className="w-6 h-6"/>}</button>
+</div></div>
+<div className={`fixed inset-0 z-[60] md:hidden bg-background flex flex-col transition-all duration-300 ${mO?'opacity-100 translate-x-0 pointer-events-auto':'opacity-0 translate-x-full pointer-events-none'}`}>
+<div className="flex items-center justify-between px-4 h-16 border-b border-border"><a href="#home" onClick={()=>sMO(false)} className="flex items-center gap-2"><img src="/logo.png" alt="" className="w-9 h-9 rounded-lg object-contain"/><span className="font-bold text-foreground">A-Star</span></a><button onClick={()=>sMO(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-foreground" aria-label="Close"><X className="w-6 h-6"/></button></div>
+<nav className="flex-1 flex flex-col justify-center px-6"><div className="space-y-2">{NAV.map(n=><a key={n.h} href={n.h} onClick={()=>sMO(false)} className="block px-5 py-3 rounded-lg text-foreground text-lg font-medium hover:bg-neon/10 hover:text-neon transition-colors min-h-[44px]">{n.l}</a>)}</div><div className="mt-8"><a href="#contact" onClick={()=>sMO(false)}><Button className={`w-full glow-button ${tb} h-12 text-base`}>Get a Quote</Button></a>{mnt&&<button onClick={()=>setTheme(theme==='dark'?'light':'dark')} className="flex items-center justify-center gap-2 p-3 mt-4 rounded-lg hover:bg-neon/10 text-foreground border border-border w-full">{theme==='dark'?<><Sun className="w-5 h-5"/><span className="text-sm">Light</span></>:<><Moon className="w-5 h-5"/><span className="text-sm">Dark</span></>}</button>}</div></nav>
+</div></header>
+
+{/* Hero */}
+<section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-background">
+<div className="absolute inset-0"><img src="/coding-bg.png" alt="" className="w-full h-full object-cover hero-bg-image"/><div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40"/><div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70"/></div>
+<div className="absolute inset-0 hero-grid opacity-30"/>
+<div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl"/><div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl"/>
+<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 lg:py-40"><div className="max-w-3xl animate-fade-in-up">
+{s.hb&&s.hb.trim()&&<Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 px-3 py-1 text-xs sm:text-sm"><Sparkles className="w-3.5 h-3.5 mr-1.5"/>{s.hb}</Badge>}
+<h1 className={`text-3xl sm:text-5xl lg:text-7xl font-bold leading-tight ${th}`}><span className="gradient-text animate-gradient-text">{s.hh}</span></h1>
+<p className="mt-5 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">{s.hs}</p>
+<div className="mt-8 flex flex-col sm:flex-row gap-3">
+<a href="#contact" className="block"><Button size="lg" className="glow-button bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 h-12 sm:h-14 shadow-lg w-full sm:w-auto rounded-xl">Start Your Project<ArrowRight className="ml-2 w-4 h-4"/></Button></a>
+<a href="#portfolio" className="block"><Button size="lg" className="glass-cta text-foreground font-semibold px-6 h-12 sm:h-14 w-full sm:w-auto rounded-xl">View Our Work<ArrowRight className="ml-2 w-4 h-4"/></Button></a>
+</div>
+<div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">{sts.map(st=><div key={st.l} className="text-center sm:text-left"><div className="text-2xl sm:text-4xl font-bold text-neon counter-glow">{st.v}</div><div className="text-xs text-muted-foreground mt-1">{st.l}</div></div>)}</div>
+</div></div>
+
+</section>
+
+<div className="section-divider"/>
+
+{/* About */}
+<section id="about" className="py-16 md:py-28 bg-background grid-bg"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up"><div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
+<div className="space-y-4">
+<div className="rounded-2xl overflow-hidden border border-neon/20 shadow-xl shadow-neon/5"><img src="/about-image.png" alt="Team" className="w-full h-auto object-cover"/></div>
+</div>
+<div><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">About Us</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground leading-tight section-title-underline ${th}`}>{s.ah}</h2><p className="mt-6 sm:mt-8 text-muted-foreground text-sm md:text-lg leading-relaxed">{s.a1}</p><p className="mt-3 sm:mt-4 text-muted-foreground text-sm md:text-lg leading-relaxed">{s.a2}</p><div className="mt-6 sm:mt-8 flex flex-wrap gap-2">{s.al.split(',').map((v:string)=>v.trim()).filter(Boolean).map((v:string)=><span key={v} className="tech-pill">{v}</span>)}</div><div className="mt-6 sm:mt-8"><a href="#contact"><Button className={`glow-button ${tb} rounded-xl`}>Get In Touch<ArrowRight className="ml-2 w-4 h-4"/></Button></a></div></div>
+</div></div></section>
+
+<div className="section-divider"/>
+
+{/* Services */}
+<section id="services" className={`py-16 md:py-28 ${ts}`}><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+<div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>Everything You Need to <span className="gradient-text">Succeed Online</span></h2><p className="mt-6 sm:mt-8 text-muted-foreground text-sm md:text-lg">From concept to launch, we provide comprehensive web solutions tailored to your business.</p></div>
+<div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+{svs.map((svc,idx)=>{const Ic=IM[svc.i]||Globe;return<Card key={svc.t} className={`group h-full ${tc} card-hover-lift relative overflow-hidden`}><span className="service-number">{String(idx+1).padStart(2,'0')}</span><CardContent className="p-4 md:p-8 relative z-10"><div className={`icon-ring w-12 h-12 rounded-full ${svc.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-neon/20`}><Ic className={`w-5 h-5 ${svc.c}`}/></div><h3 className={`text-lg font-semibold text-foreground mb-2 ${th}`}>{svc.t}</h3><p className="text-sm text-muted-foreground leading-relaxed">{svc.d}</p><a href="#contact" className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-neon hover:text-neon/80 transition-colors min-h-[44px] group/l">Learn More<ArrowRight className="w-4 h-4 transition-transform group-hover/l:translate-x-1"/></a></CardContent></Card>})}
+</div></div></section>
+
+<div className="section-divider"/>
+
+{/* Why Choose Us */}
+<section className="py-16 md:py-28 bg-background hex-pattern"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up"><div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
+<div><Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Why Choose Us</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground leading-tight section-title-underline ${th}`}>What Makes Us <span className="gradient-text">Stand Out</span></h2><p className="mt-6 sm:mt-8 text-muted-foreground text-sm md:text-lg leading-relaxed">{s.wi}</p><div className="mt-6 sm:mt-8 grid sm:grid-cols-2 gap-4">{WU.map(it=><div key={it.t} className="flex gap-3 group"><div className="icon-ring w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-neon/20 to-neon/5 border border-neon/20 flex items-center justify-center group-hover:scale-110 transition-transform"><it.i className="w-5 h-5 text-neon"/></div><div><h3 className={`font-semibold text-foreground text-sm ${th}`}>{it.t}</h3><p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{it.d}</p></div></div>)}</div></div>
+<div className={`${tc} rounded-2xl p-6 md:p-10 border-neon/20`}><div className="space-y-4">{[{l:'Client Satisfaction',v:99},{l:'On-Time Delivery',v:97},{l:'Code Quality',v:95},{l:'Support Response',v:98}].map(it=><div key={it.l}><div className="flex justify-between text-xs sm:text-sm mb-1"><span className="font-medium text-foreground">{it.l}</span><span className="text-neon font-semibold">{it.v}%</span></div><div className="h-2 bg-dark-card rounded-full overflow-hidden border border-border"><div className="h-full bg-gradient-to-r from-neon to-cyan-400 rounded-full" style={{width:`${it.v}%`}}/></div></div>)}</div><div className="flex items-center gap-3 mt-5"><Users className="w-6 h-6 text-amber-400"/><div className="text-sm text-muted-foreground">Trusted by <span className="text-foreground font-semibold">120+ businesses</span></div></div></div>
+</div></div></section>
+
+<div className="section-divider"/>
+
+{/* Portfolio */}
+<section id="portfolio" className={`py-16 md:py-28 ${ts}`}><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+<div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Portfolio</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>Projects That <span className="gradient-text">Speak for Themselves</span></h2></div>
+<div className="flex flex-wrap justify-center gap-2 mt-8 sm:mt-10">{cats.map(c=><button key={c} onClick={()=>sPF(c)} className={`filter-tab ${pF===c?'active':''}`}>{c}</button>)}</div>
+<div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+{fP.map(p=><Card key={p.t} className={`group overflow-hidden ${tc} h-full card-hover-lift`}><div className="h-36 sm:h-48 relative overflow-hidden"><img src={p.i} alt={p.t} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/><div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent group-hover:via-background/20 transition-all duration-500"/><div className="absolute top-3 left-3"><span className="category-pill">{p.c}</span></div><h3 className={`absolute bottom-3 left-4 text-base sm:text-xl font-bold text-foreground z-10 ${th}`}>{p.t}</h3></div><CardContent className="p-4 sm:p-6"><p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{p.d}</p><div className="mt-3 flex flex-wrap gap-1.5">{p.x.split(',').map((t:string)=><span key={t.trim()} className="tech-pill">{t.trim()}</span>)}</div></CardContent></Card>)}
+</div><div className="mt-10 sm:mt-12 text-center"><a href="#contact"><Button size="lg" variant="outline" className="border-neon/30 text-neon hover:bg-neon/10 min-h-[44px] rounded-xl">Discuss Your Project<ArrowRight className="ml-2 w-4 h-4"/></Button></a></div>
+</div></section>
+
+<div className="section-divider"/>
+
+{/* Testimonials */}
+<section id="testimonials" className="py-16 md:py-28 bg-background"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+<div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-amber-500/10 text-amber-400 border-amber-500/20">Testimonials</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>What Our Clients <span className="gradient-text">Say About Us</span></h2></div>
+{tm&&<div className="mt-10 sm:mt-14 relative max-w-3xl mx-auto"><div className={`relative ${tc} rounded-2xl p-6 md:p-12 overflow-hidden min-h-[280px] flex flex-col justify-center`}><div className="quote-mark">&ldquo;</div><div className="relative z-10"><div className="flex gap-1 mb-4">{Array.from({length:5}).map((_,i)=><Star key={i} className={`w-5 h-5 ${i<tm.rt?'fill-amber-400 text-amber-400':'text-muted-foreground/30'}`}/>)}</div><p className="text-muted-foreground leading-relaxed text-sm md:text-lg italic mb-6">&ldquo;{tm.r}&rdquo;</p><div className="flex items-center gap-3"><div className="w-11 h-11 rounded-full bg-gradient-to-br from-neon/20 to-neon/5 border-2 border-neon/30 flex items-center justify-center text-neon font-bold">{tm.n.split(' ').map(n=>n[0]).join('')}</div><div><div className={`font-semibold text-foreground text-sm ${th}`}>{tm.n}</div><div className="text-xs text-muted-foreground">{tm.c}</div></div></div></div></div>
+<div className="flex items-center justify-center gap-4 mt-6"><button onClick={()=>sTI((tI-1+tms.length)%tms.length)} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Prev"><ChevronRight className="w-4 h-4 rotate-180"/></button><div className="flex items-center gap-2">{tms.map((_,i)=><button key={i} onClick={()=>sTI(i)} className={`testimonial-dot ${i===tI?'active':''}`} aria-label={`Testimonial ${i+1}`}/>)}</div><button onClick={()=>sTI((tI+1)%tms.length)} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Next"><ChevronRight className="w-4 h-4"/></button></div></div>}
+</div></section>
+
+{/* CTA */}
+<section className={`py-12 md:py-20 relative overflow-hidden ${tt==='bold-gradient'?'bg-gradient-to-r from-emerald-600 via-purple-600 to-emerald-600':tt==='executive-corporate'?'bg-gradient-to-r from-[#1e3a5f] via-amber-700 to-[#1e3a5f]':''}`}>
+{tt!=='bold-gradient'&&tt!=='executive-corporate'&&<div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon"/>}<div className="absolute inset-0 hero-grid opacity-50"/>
+<div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><h2 className={`text-2xl sm:text-4xl font-bold text-white ${th}`}>Ready to Take Your Business Online?</h2><p className="mt-3 text-white/80 text-sm md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation.</p><div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3"><a href="#contact"><Button size="lg" className="bg-white hover:bg-white/90 text-neon font-semibold px-6 h-12 sm:h-14 shadow-lg min-h-[44px] rounded-xl">Get Free Consultation<ArrowRight className="ml-2 w-4 h-4"/></Button></a><a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" className="border-white/30 text-white bg-white/10 hover:bg-white/20 px-6 h-12 sm:h-14 backdrop-blur-sm min-h-[44px] rounded-xl"><MessageCircle className="mr-2 w-4 h-4"/>WhatsApp</Button></a></div></div>
+</section>
+
+<div className="section-divider"/>
+
+{/* Contact */}
+<section id="contact" className="py-16 md:py-28 bg-background grid-bg"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+<div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Contact Us</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>Let&apos;s Start <span className="gradient-text">Your Project</span></h2><p className="mt-6 sm:mt-8 text-muted-foreground text-sm md:text-lg">Have a project in mind? Fill out the form or reach us directly.</p></div>
+<div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10 lg:gap-12">
+<div className="lg:col-span-2 space-y-4">
+<h3 className={`text-lg font-semibold text-foreground mb-2 ${th}`}>Get In Touch</h3>
+{[{i:MapPin,l:'Address',v:s.ad,h:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.ad)}`},{i:Phone,l:'Phone',v:s.ph,h:`tel:${s.ph}`},{i:Mail,l:'Email',v:s.em,h:`mailto:${s.em}`},{i:Clock,l:'Hours',v:s.hr,h:''}].map((it,idx)=><a key={idx} href={it.h||undefined} target={it.h&&it.h.startsWith('http')?'_blank':undefined} rel={it.h&&it.h.startsWith('http')?'noopener noreferrer':undefined} className={`flex items-start gap-3 ${tc} rounded-xl p-3 group min-h-[44px] card-hover-lift`}><div className="w-10 h-10 shrink-0 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors"><it.i className="w-4 h-4 text-neon"/></div><div className="pt-1"><div className="font-medium text-foreground text-sm">{it.l}</div><div className="text-sm text-muted-foreground mt-0.5 group-hover:text-neon transition-colors break-words">{it.v}</div></div></a>)}
+
+</div>
+<div className="lg:col-span-3 lg:self-start"><Card className={`${tc} border-neon/20 shadow-lg shadow-neon/5`}><CardContent className="p-4 md:p-8">
+<h3 className={`text-lg font-semibold text-foreground mb-4 ${th}`}>Send Us a Message</h3>
+<form onSubmit={hSub} className="space-y-4">
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4"><div className="space-y-2"><label htmlFor="name" className="text-sm font-medium text-foreground">Full Name *</label><Input id="name" placeholder="John Doe" required value={fm.name} onChange={e=>setFm({...fm,name:e.target.value})} className="futuristic-input neon-focus"/></div><div className="space-y-2"><label htmlFor="email" className="text-sm font-medium text-foreground">Email *</label><Input id="email" type="email" placeholder="john@example.com" required value={fm.email} onChange={e=>setFm({...fm,email:e.target.value})} className="futuristic-input neon-focus"/></div></div>
+<div className="space-y-2"><label htmlFor="phone" className="text-sm font-medium text-foreground">Phone</label><Input id="phone" type="tel" placeholder="+91 0000000000" value={fm.phone} onChange={e=>setFm({...fm,phone:e.target.value})} className="futuristic-input neon-focus"/></div>
+<div className="space-y-2"><label htmlFor="message" className="text-sm font-medium text-foreground">Message *</label><Textarea id="message" placeholder="Tell us about your project..." rows={4} required value={fm.message} onChange={e=>setFm({...fm,message:e.target.value})} className="futuristic-input neon-focus"/></div>
+<Button type="submit" size="lg" disabled={sub} className={`w-full sm:w-auto glow-button ${tb} px-6 min-h-[44px] rounded-xl`}>{sub?<><span className="animate-spin mr-2">⏳</span>Sending...</>:<>Send Message<Send className="ml-2 w-4 h-4"/></>}</Button>
+</form></CardContent></Card></div>
+</div></div></section>
+
+{/* Footer */}
+<footer className="bg-dark-surface border-t border-border mt-auto"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div className="py-10 sm:py-14 grid grid-cols-2 lg:grid-cols-3 gap-8">
+<div className="col-span-2 lg:col-span-1"><div className="flex items-center gap-2.5 mb-4"><img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-lg object-contain"/><div><div className={`font-bold text-foreground text-lg ${th}`}>A-Star</div><div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div></div></div><p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses.</p><div className="mt-5 flex gap-2.5">{[{h:s.fb,ic:Facebook,l:'FB'},{h:s.ig,ic:Instagram,l:'IG'},{h:s.li,ic:Linkedin,l:'IN'},{h:s.yt,ic:Youtube,l:'YT'}].filter(x=>x.h).map(x=><a key={x.l} href={ep(x.h)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label={x.l}><x.ic className="w-4 h-4 text-muted-foreground"/></a>)}</div></div>
+<div><h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Quick Links</h4><ul className="space-y-2">{NAV.map(n=><li key={n.h}><a href={n.h} className="text-sm text-muted-foreground hover:text-neon transition-colors min-h-[32px] flex items-center gap-2">{n.l}</a></li>)}</ul></div>
+<div><h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Contact</h4><ul className="space-y-2"><li><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.ad)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-neon transition-colors">{s.ad}</a></li><li><a href={`tel:${s.ph}`} className="text-sm text-muted-foreground hover:text-neon transition-colors">{s.ph}</a></li><li><a href={`mailto:${s.em}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all">{s.em}</a></li></ul></div>
+</div>
+<div className="border-t border-border py-4 pb-20 sm:pb-6 flex flex-col sm:flex-row justify-between items-center gap-3"><p className="text-xs sm:text-sm text-muted-foreground/70">&copy; {new Date().getFullYear()} A-Star Infotech. All rights reserved.</p><div className="flex gap-4 text-xs text-muted-foreground/70"><button onClick={()=>window.openLegal?.('privacy')} className="hover:text-neon transition-colors">Privacy Policy</button><button onClick={()=>window.openLegal?.('terms')} className="hover:text-neon transition-colors">Terms of Service</button></div></div>
+</div></footer>
+
+<a href="https://wa.me/918560074448?text=Hello%20A-Star!" target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 whatsapp-pulse" aria-label="Chat on WhatsApp"><div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"><MessageCircle className="w-7 h-7 text-white"/></div></a>
+<LegalModal contactInfo={{address:s.ad,phone:s.ph,email:s.em}}/>
+<button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className={`fixed bottom-6 left-6 z-50 w-12 h-12 bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${sT?'opacity-100 scale-100':'opacity-0 scale-75 pointer-events-none'}`} aria-label="Scroll to top"><ChevronUp className="w-5 h-5"/></button>
+
+{/* Theme Switcher */}
+<div className="fixed bottom-20 left-6 z-50">
+<button onClick={()=>sTO(!tO)} className="w-12 h-12 bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30 rounded-full flex items-center justify-center shadow-lg transition-colors" aria-label="Change theme"><Palette className="w-5 h-5"/></button>
+<div className={`absolute bottom-14 left-0 w-56 rounded-xl border border-border bg-dark-surface/95 backdrop-blur-xl shadow-2xl transition-all duration-300 origin-bottom-left ${tO?'opacity-100 scale-100 pointer-events-auto':'opacity-0 scale-90 pointer-events-none'}`}>
+<div className="p-3"><h4 className="text-xs font-semibold text-foreground mb-2 uppercase tracking-wider">Template Theme</h4><div className="space-y-1">
+{(Object.entries(THM) as [TT,{l:string;a:string;p:string}][]).map(([k,v])=><button key={k} onClick={()=>swTT(k)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${tt===k?'bg-neon/15 text-neon':'hover:bg-neon/5 text-foreground'}`}><div className={`w-4 h-4 rounded-full ${v.p} shrink-0`}/><div className="flex-1 min-w-0"><div className="text-sm font-medium truncate">{v.l}</div><div className="text-[10px] text-muted-foreground">{v.a}</div></div>{tt===k&&<div className="w-2 h-2 rounded-full bg-neon shrink-0"/>}</button>)}
+</div></div></div></div>
+</div>)}
