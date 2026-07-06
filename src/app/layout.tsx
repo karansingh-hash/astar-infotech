@@ -15,29 +15,69 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "A-Star Infotech | Web Development & Digital Solutions Agency",
+  title: "A-Star Infotech | Web Development & Digital Solutions Agency in Jaipur",
   description:
-    "A-Star Infotech offers professional website development, e-commerce solutions, responsive design, and SEO services for small businesses, startups, and enterprises. Build your digital presence with us.",
+    "A-Star Infotech is a Jaipur-based web development agency offering professional website design, e-commerce development, responsive websites, SEO services, and website maintenance for businesses across India. Get a free consultation today!",
   keywords: [
-    "web development",
-    "website design",
-    "e-commerce",
-    "SEO services",
-    "responsive websites",
+    "web development Jaipur",
+    "website design Jaipur",
+    "website development Rajasthan",
+    "e-commerce development India",
+    "SEO services Jaipur",
+    "responsive website design",
     "A-Star Infotech",
-    "digital agency",
+    "digital agency Jaipur",
     "website maintenance",
+    "web developer near me",
+    "best web development company Jaipur",
+    "small business website",
   ],
   authors: [{ name: "A-Star Infotech" }],
+  creator: "A-Star Infotech",
+  publisher: "A-Star Infotech",
+  metadataBase: new URL("https://astarinfotech.in"),
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/logo.png",
   },
   openGraph: {
     title: "A-Star Infotech | Web Development & Digital Solutions Agency",
     description:
-      "Professional website development, e-commerce solutions, and digital services for growing businesses.",
+      "Professional website design, e-commerce development, SEO services, and digital solutions for growing businesses in Jaipur & across India.",
     type: "website",
+    url: "https://astarinfotech.in",
+    siteName: "A-Star Infotech",
+    locale: "en_IN",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 600,
+        alt: "A-Star Infotech - Web Development Agency",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "A-Star Infotech | Web Development & Digital Solutions Agency",
+    description:
+      "Professional website design, e-commerce development, SEO services in Jaipur, India.",
+    images: ["/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  category: "technology",
 };
 
 export default function RootLayout({
