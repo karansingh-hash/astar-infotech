@@ -139,7 +139,7 @@ return(<div className="min-h-screen flex flex-col bg-background">
 {/* CTA */}
 <section className="py-12 md:py-20 relative overflow-hidden">
 <div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon"/><div className="absolute inset-0 hero-grid opacity-50"/>
-<div className="absolute right-0 top-0 bottom-0 w-1/2 md:w-2/5 opacity-20 md:opacity-30"><img src="/cta-animation.png" alt="" className="w-full h-full object-cover object-right"/></div>
+<div className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-40 sm:w-48 md:w-64 opacity-30 md:opacity-40 pointer-events-none"><img src="/cta-animation.png" alt="" className="w-full h-auto object-contain"/></div>
 <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><h2 className={`text-2xl sm:text-4xl font-bold text-white ${th}`}>Ready to Take Your Business Online?</h2><p className="mt-3 text-white/80 text-sm md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation.</p><div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3"><a href="#contact"><Button size="lg" className="bg-white hover:bg-white/90 text-neon font-semibold px-6 h-12 sm:h-14 shadow-lg min-h-[44px] rounded-xl">Get Free Consultation<ArrowRight className="ml-2 w-4 h-4"/></Button></a><a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" className="border-white/30 text-white bg-white/10 hover:bg-white/20 px-6 h-12 sm:h-14 backdrop-blur-sm min-h-[44px] rounded-xl"><MessageCircle className="mr-2 w-4 h-4"/>WhatsApp</Button></a></div></div>
 </section>
 
