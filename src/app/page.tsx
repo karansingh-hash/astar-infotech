@@ -76,7 +76,8 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <div className="absolute inset-0"><img src="/coding-bg.png" alt="" className="w-full h-full object-cover hero-bg-image"/><div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40"/><div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70"/></div>
 <div className="absolute inset-0 hero-grid opacity-30"/>
 <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl"/><div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl"/>
-<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 lg:py-40"><div className="max-w-3xl animate-fade-in-up">
+<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 lg:py-40 w-full"><div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+<div className="max-w-3xl animate-fade-in-up flex-1">
 {s.hb&&s.hb.trim()&&<Badge className="mb-4 sm:mb-6 bg-neon/10 text-neon border-neon/20 px-3 py-1 text-xs sm:text-sm"><Sparkles className="w-3.5 h-3.5 mr-1.5"/>{s.hb}</Badge>}
 <h1 className={`text-3xl sm:text-5xl lg:text-7xl font-bold leading-tight ${th}`}><span className="gradient-text animate-gradient-text">{s.hh}</span></h1>
 <p className="mt-5 text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-relaxed">{s.hs}</p>
@@ -85,6 +86,8 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <a href="#portfolio" className="block"><Button size="lg" className="glass-cta text-foreground font-semibold px-6 h-12 sm:h-14 w-full sm:w-auto rounded-xl">View Our Work<ArrowRight className="ml-2 w-4 h-4"/></Button></a>
 </div>
 <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">{sts.map(st=><div key={st.l} className="text-center sm:text-left"><div className="text-2xl sm:text-4xl font-bold text-neon counter-glow">{st.v}</div><div className="text-xs text-muted-foreground mt-1">{st.l}</div></div>)}</div>
+</div>
+<div className="flex-shrink-0 w-64 sm:w-80 lg:w-96 animate-fade-in-up"><img src="/hero-animation.png" alt="Transform your digital presence - website development and design illustration" className="w-full animate-[float_6s_ease-in-out_infinite] drop-shadow-2xl"/></div>
 </div></div>
 
 </section>
