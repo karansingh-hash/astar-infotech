@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider  = "sqlite"
   url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL")
 }
 
 model Contact {
@@ -70,6 +69,17 @@ model SiteSetting {
   id    String @id @default(cuid())
   key   String @unique
   value String
+}
+
+model Industry {
+  id        String   @id @default(cuid())
+  title     String
+  icon      String   @default("Globe")
+  color     String   @default("text-emerald-600")
+  bgColor   String   @default("bg-emerald-50")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AdminSession {
