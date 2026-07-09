@@ -117,7 +117,7 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <div className="mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
 {IND.map(ind=>{const Ic=ind.i;return<div key={ind.t} className={`group ${tc} rounded-xl p-4 sm:p-5 md:p-6 text-center card-hover-lift border border-border hover:border-neon/30 transition-all cursor-pointer`}><div className={`icon-ring w-12 h-12 sm:w-14 sm:h-14 rounded-full ${ind.bg} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform border border-neon/20`}><Ic className={`w-5 h-5 sm:w-6 sm:h-6 ${ind.c}`}/></div><h3 className={`text-xs sm:text-sm font-semibold text-foreground ${th}`}>{ind.t}</h3></div>})}
 </div>
-<div className="mt-10 sm:mt-12 text-center"><a href="#contact"><Button size="lg" className="glow-button border border-neon/30 text-neon hover:bg-neon/10 min-h-[44px] rounded-xl px-6">Get a Free Quote for My Industry<ArrowRight className="ml-2 w-4 h-4"/></Button></a></div>
+<div className="mt-10 sm:mt-12 text-center"><a href="#contact"><Button size="lg" className="glow-button bg-neon text-white font-semibold hover:bg-neon/90 min-h-[44px] rounded-xl px-6 shadow-lg shadow-neon/20">Get a Free Quote for My Industry<ArrowRight className="ml-2 w-4 h-4"/></Button></a></div>
 </div></section>
 
 <div className="section-divider"/>
