@@ -72,3 +72,9 @@ worklog.md
 screenshots/
 tool-results/
 agent-ctx/
+
+# Server infrastructure files
+keep-alive-server.cjs
+persistent-next.cjs
+prod-server.cjs
+static-server.cjs
