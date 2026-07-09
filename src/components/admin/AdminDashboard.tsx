@@ -9,6 +9,7 @@ import {
   Shield, Rocket, Eye, Trash2, Inbox, Lock, LayoutDashboard,
   BarChart3, LogOut, Calendar, MailCheck, PhoneCall, Briefcase,
   Plus, Pencil, Wrench, Save, Sun, Moon, EyeOff, KeyRound, ShieldCheck,
+  Building2, Stethoscope, Factory, Store, GraduationCap, UtensilsCrossed, Scale, Gem, HardHat,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,13 +25,14 @@ import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 
 /* ── Admin Types & Constants ── */
-type AdminTab = 'dashboard' | 'inquiries' | 'services' | 'portfolio' | 'testimonials' | 'statistics' | 'settings'
+type AdminTab = 'dashboard' | 'inquiries' | 'services' | 'portfolio' | 'testimonials' | 'industries' | 'statistics' | 'settings'
 
 interface ContactItem { id: string; name: string; email: string; phone: string | null; message: string; createdAt: string }
 interface ServiceItem { id: string; title: string; description: string; icon: string; color: string; bgColor: string; order: number }
 interface PortfolioItem { id: string; title: string; category: string; description: string; tech: string; color: string; image: string; order: number }
 interface TestimonialItem { id: string; name: string; company: string; review: string; rating: number; order: number }
 interface StatItem { id: string; value: string; label: string; order: number }
+interface IndustryItem { id: string; title: string; icon: string; color: string; bgColor: string; order: number }
 interface DashboardData { totalContacts: number; totalServices: number; totalPortfolio: number; totalTestimonials: number; todayContacts: number; weekContacts: number; monthContacts: number; recentContacts: ContactItem[] }
 interface SiteSettings { companyName: string; address: string; phone: string; email: string; secondaryEmail: string; hours: string; facebook: string; instagram: string; linkedin: string; youtube: string; brandColor: string; heroBadge: string; heroHeading: string; heroSubtitle: string; aboutHeading: string; aboutDescription1: string; aboutDescription2: string; aboutVision: string; aboutMission: string; aboutValues: string; whyChooseUsIntro: string }
 
@@ -58,12 +60,15 @@ const DEFAULT_SETTINGS = {
   whyChooseUsIntro: 'We\'re not just another web development agency. We\'re your growth partners — committed to delivering solutions that make a real difference for your business.',
 }
 
+const IM: Record<string, React.ElementType> = { Globe, Code2, ShoppingCart, Smartphone, Settings, Search, Award, Zap, Shield, Heart, Target, Rocket, Star, Users, Building2, Stethoscope, Factory, Store, GraduationCap, UtensilsCrossed, Scale, Briefcase, Wrench, Gem, HardHat }
+
 const TAB_CONFIG: { key: AdminTab; label: string; icon: React.ElementType }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { key: 'inquiries', label: 'Inquiries', icon: Inbox },
   { key: 'services', label: 'Services', icon: Globe },
   { key: 'portfolio', label: 'Portfolio', icon: Briefcase },
   { key: 'testimonials', label: 'Testimonials', icon: Star },
+  { key: 'industries', label: 'Industries', icon: Building2 },
   { key: 'statistics', label: 'Statistics', icon: BarChart3 },
   { key: 'settings', label: 'Site Settings', icon: Wrench },
 ]
@@ -94,6 +99,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
   const [services, setServices] = useState<ServiceItem[]>([])
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>([])
+  const [industries, setIndustries] = useState<IndustryItem[]>([])
   const [stats, setStats] = useState<StatItem[]>([])
   const [dashboard, setDashboard] = useState<DashboardData | null>(null)
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({ companyName: '', address: '', phone: '', email: '', secondaryEmail: '', hours: '', facebook: '', instagram: '', linkedin: '', youtube: '', brandColor: '', heroBadge: '', heroHeading: '', heroSubtitle: '', aboutHeading: '', aboutDescription1: '', aboutDescription2: '', aboutVision: '', aboutMission: '', aboutValues: '', whyChooseUsIntro: '' })
@@ -101,6 +107,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
   const [servicesLoading, setServicesLoading] = useState(false)
   const [portfolioLoading, setPortfolioLoading] = useState(false)
   const [testimonialsLoading, setTestimonialsLoading] = useState(false)
+  const [industriesLoading, setIndustriesLoading] = useState(false)
   const [statsLoading, setStatsLoading] = useState(false)
   const [dashboardLoading, setDashboardLoading] = useState(false)
   const [settingsLoading, setSettingsLoading] = useState(false)
@@ -109,10 +116,12 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
   const [serviceDialog, setServiceDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: ServiceItem | null }>({ open: false, mode: 'add', item: null })
   const [portfolioDialog, setPortfolioDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: PortfolioItem | null }>({ open: false, mode: 'add', item: null })
   const [testimonialDialog, setTestimonialDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: TestimonialItem | null }>({ open: false, mode: 'add', item: null })
+  const [industryDialog, setIndustryDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: IndustryItem | null }>({ open: false, mode: 'add', item: null })
   const [statDialog, setStatDialog] = useState<{ open: boolean; mode: 'add' | 'edit'; item: StatItem | null }>({ open: false, mode: 'add', item: null })
   const [serviceForm, setServiceForm] = useState({ title: '', description: '', icon: '', color: '', bgColor: '', order: 0 })
   const [portfolioForm, setPortfolioForm] = useState({ title: '', category: '', description: '', tech: '', color: '', image: '', order: 0 })
   const [testimonialForm, setTestimonialForm] = useState({ name: '', company: '', review: '', rating: 5, order: 0 })
+  const [industryForm, setIndustryForm] = useState({ title: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', order: 0 })
   const [statForm, setStatForm] = useState({ value: '', label: '', order: 0 })
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [passwordVis, setPasswordVis] = useState({ current: false, new: false, confirm: false })
@@ -140,6 +149,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
     if (activeTab === 'services') fetchServices()
     if (activeTab === 'portfolio') fetchPortfolio()
     if (activeTab === 'testimonials') fetchTestimonials()
+    if (activeTab === 'industries') fetchIndustries()
     if (activeTab === 'statistics') { fetchDashboard(); fetchStats() }
     if (activeTab === 'settings') { fetchSettings(); fetchTwoFactorStatus() }
   }, [isOpen, isAuthenticated, activeTab])
@@ -194,6 +204,11 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
   const openServiceDialog = (mode: 'add' | 'edit', item?: ServiceItem) => { if (mode === 'edit' && item) { setServiceForm({ title: item.title, description: item.description, icon: item.icon, color: item.color, bgColor: item.bgColor, order: item.order }); setServiceDialog({ open: true, mode: 'edit', item }) } else { setServiceForm({ title: '', description: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', order: services.length }); setServiceDialog({ open: true, mode: 'add', item: null }) } }
   const handleSaveService = async () => { setSaving(true); try { if (serviceDialog.mode === 'add') { await apiCall('/api/services', 'POST', serviceForm); toast.success('Service Added') } else { await apiCall('/api/services', 'PUT', { id: serviceDialog.item?.id, ...serviceForm }); toast.success('Service Updated') } setServiceDialog({ open: false, mode: 'add', item: null }); fetchServices() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save.' }) } finally { setSaving(false) } }
   const handleDeleteService = async (id: string) => { setDeletingId(id); try { await apiCall('/api/services', 'DELETE', { id }); setServices(p => p.filter(s => s.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
+
+  const fetchIndustries = async () => { setIndustriesLoading(true); try { const r = await fetch('/api/industries'); const d = await r.json(); setIndustries(d.industries || []) } catch { toast.error('Error', { description: 'Failed to fetch industries.' }) } finally { setIndustriesLoading(false) } }
+  const openIndustryDialog = (mode: 'add' | 'edit', item?: IndustryItem) => { if (mode === 'edit' && item) { setIndustryForm({ title: item.title, icon: item.icon, color: item.color, bgColor: item.bgColor, order: item.order }); setIndustryDialog({ open: true, mode: 'edit', item }) } else { setIndustryForm({ title: '', icon: 'Globe', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', order: industries.length }); setIndustryDialog({ open: true, mode: 'add', item: null }) } }
+  const handleSaveIndustry = async () => { setSaving(true); try { if (industryDialog.mode === 'add') { await apiCall('/api/admin/industries', 'POST', industryForm); toast.success('Industry Added') } else { await apiCall('/api/admin/industries', 'PUT', { id: industryDialog.item?.id, ...industryForm }); toast.success('Industry Updated') } setIndustryDialog({ open: false, mode: 'add', item: null }); fetchIndustries() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed to save.' }) } finally { setSaving(false) } }
+  const handleDeleteIndustry = async (id: string) => { setDeletingId(id); try { await apiCall('/api/admin/industries', 'DELETE', { id }); setIndustries(p => p.filter(s => s.id !== id)); toast.success('Deleted') } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setDeletingId(null) } }
 
   const openPortfolioDialog = (mode: 'add' | 'edit', item?: PortfolioItem) => { if (mode === 'edit' && item) { setPortfolioForm({ title: item.title, category: item.category, description: item.description, tech: item.tech, color: item.color, image: item.image, order: item.order }); setPortfolioDialog({ open: true, mode: 'edit', item }) } else { setPortfolioForm({ title: '', category: '', description: '', tech: '', color: 'from-emerald-500 to-emerald-700', image: '', order: portfolio.length }); setPortfolioDialog({ open: true, mode: 'add', item: null }) } }
   const handleSavePortfolio = async () => { setSaving(true); try { if (portfolioDialog.mode === 'add') { await apiCall('/api/portfolio', 'POST', portfolioForm); toast.success('Portfolio Item Added') } else { await apiCall('/api/portfolio', 'PUT', { id: portfolioDialog.item?.id, ...portfolioForm }); toast.success('Portfolio Updated') } setPortfolioDialog({ open: false, mode: 'add', item: null }); fetchPortfolio() } catch (e) { toast.error('Error', { description: e instanceof Error ? e.message : 'Failed.' }) } finally { setSaving(false) } }
@@ -593,6 +608,7 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
                           {[
                             { label: 'View Inquiries', icon: Inbox, tab: 'inquiries' as AdminTab },
                             { label: 'Manage Services', icon: Globe, tab: 'services' as AdminTab },
+                            { label: 'Manage Industries', icon: Building2, tab: 'industries' as AdminTab },
                             { label: 'Manage Portfolio', icon: Briefcase, tab: 'portfolio' as AdminTab },
                             { label: 'Edit Settings', icon: Wrench, tab: 'settings' as AdminTab },
                           ].map(a => (
@@ -802,6 +818,63 @@ export default function AdminDashboard({ mode = 'modal', externalOpen, onExterna
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setTestimonialDialog(p => ({ ...p, open: false }))} className="border-neon/20">Cancel</Button>
                       <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30" onClick={handleSaveTestimonial} disabled={saving || !testimonialForm.name.trim()}>{saving ? <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" /> : null}{testimonialDialog.mode === 'add' ? 'Add Testimonial' : 'Save Changes'}</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* Industries */}
+            {activeTab === 'industries' && (
+              <div>
+                <SectionHeader title="Industries" subtitle="Manage the Industries We Serve section" action={<Button size="sm" className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30" onClick={() => openIndustryDialog('add')}><Plus className="w-4 h-4 mr-1.5" />Add Industry</Button>} />
+                {industriesLoading ? <Spinner /> : industries.length === 0 ? (
+                  <div className="text-center py-20"><Building2 className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-medium text-muted-foreground">No industries yet</h3><p className="text-sm text-muted-foreground mt-1">Add industries to display in the &quot;Industries We Serve&quot; section</p></div>
+                ) : (
+                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                    {industries.sort((a, b) => a.order - b.order).map(ind => {
+                      const IconComp = IM[ind.icon] || Globe
+                      return (
+                        <Card key={ind.id} className="glass-card border-border hover:border-neon/20 transition-colors">
+                          <CardContent className="p-5">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-xl ${ind.bgColor || 'bg-neon/10'} flex items-center justify-center shrink-0`}><IconComp className={`w-5 h-5 ${ind.color || 'text-neon'}`} /></div>
+                                  <div><h3 className="font-semibold text-foreground">{ind.title}</h3></div>
+                                </div>
+                                <div className="flex items-center gap-3 mt-2 ml-13 text-xs text-muted-foreground">
+                                  <Badge variant="secondary" className="text-xs bg-neon/10 text-neon border-neon/20">Icon: {ind.icon}</Badge>
+                                  <Badge variant="secondary" className="text-xs bg-dark-card text-muted-foreground border-border">Order: {ind.order}</Badge>
+                                  <Badge variant="secondary" className="text-xs bg-dark-card text-muted-foreground border-border">Color: {ind.color}</Badge>
+                                  <Badge variant="secondary" className="text-xs bg-dark-card text-muted-foreground border-border">BG: {ind.bgColor}</Badge>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Button variant="ghost" size="sm" onClick={() => openIndustryDialog('edit', ind)} className="text-neon hover:text-neon/80 hover:bg-neon/10"><Pencil className="w-4 h-4" /></Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleDeleteIndustry(ind.id)} disabled={deletingId === ind.id} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">{deletingId === ind.id ? <span className="animate-spin inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <Trash2 className="w-4 h-4" />}</Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                )}
+                <Dialog open={industryDialog.open} onOpenChange={o => setIndustryDialog(p => ({ ...p, open: o }))}>
+                  <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-dark-surface border-neon/20">
+                    <DialogHeader><DialogTitle>{industryDialog.mode === 'add' ? 'Add Industry' : 'Edit Industry'}</DialogTitle><DialogDescription>{industryDialog.mode === 'add' ? 'Create a new industry for the Industries We Serve section.' : 'Update the industry details.'}</DialogDescription></DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="space-y-2"><Label htmlFor="ind-title">Industry Name</Label><Input id="ind-title" value={industryForm.title} onChange={e => setIndustryForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Healthcare & Clinics" className="futuristic-input" /></div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2"><Label htmlFor="ind-icon">Icon Name</Label><Input id="ind-icon" value={industryForm.icon} onChange={e => setIndustryForm(p => ({ ...p, icon: e.target.value }))} placeholder="Stethoscope" className="futuristic-input" /></div>
+                        <div className="space-y-2"><Label htmlFor="ind-bg">Background Class</Label><Input id="ind-bg" value={industryForm.bgColor} onChange={e => setIndustryForm(p => ({ ...p, bgColor: e.target.value }))} placeholder="bg-blue-500/10" className="futuristic-input" /></div>
+                      </div>
+                      <div className="space-y-2"><Label htmlFor="ind-order">Order</Label><Input id="ind-order" type="number" value={industryForm.order} onChange={e => setIndustryForm(p => ({ ...p, order: parseInt(e.target.value) || 0 }))} className="futuristic-input" /></div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIndustryDialog(p => ({ ...p, open: false }))} className="border-neon/20">Cancel</Button>
+                      <Button className="glow-button bg-neon/20 hover:bg-neon/30 text-neon border border-neon/30" onClick={handleSaveIndustry} disabled={saving || !industryForm.title.trim()}>{saving ? <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-neon border-t-transparent rounded-full" /> : null}{industryDialog.mode === 'add' ? 'Add Industry' : 'Save Changes'}</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>

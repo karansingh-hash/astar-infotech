@@ -66,6 +66,27 @@ export async function GET(request: Request) {
       })
     }
 
+    // Seed Industries
+    const existingIndustries = await db.industry.count()
+    if (existingIndustries === 0) {
+      await db.industry.createMany({
+        data: [
+          { title: 'Healthcare & Clinics', icon: 'Stethoscope', color: 'text-blue-400', bgColor: 'bg-blue-500/10', order: 1 },
+          { title: 'Real Estate', icon: 'Building2', color: 'text-orange-400', bgColor: 'bg-orange-500/10', order: 2 },
+          { title: 'Manufacturing & Export', icon: 'Factory', color: 'text-red-400', bgColor: 'bg-red-500/10', order: 3 },
+          { title: 'Retail & E-Commerce', icon: 'Store', color: 'text-pink-400', bgColor: 'bg-pink-500/10', order: 4 },
+          { title: 'Schools & Coaching', icon: 'GraduationCap', color: 'text-amber-400', bgColor: 'bg-amber-500/10', order: 5 },
+          { title: 'Restaurants & Hotels', icon: 'UtensilsCrossed', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', order: 6 },
+          { title: 'Legal & CA Firms', icon: 'Scale', color: 'text-blue-400', bgColor: 'bg-blue-500/10', order: 7 },
+          { title: 'Consultants & Coaches', icon: 'Briefcase', color: 'text-amber-400', bgColor: 'bg-amber-500/10', order: 8 },
+          { title: 'Service Businesses', icon: 'Wrench', color: 'text-gray-400', bgColor: 'bg-gray-500/10', order: 9 },
+          { title: 'Startups', icon: 'Rocket', color: 'text-red-400', bgColor: 'bg-red-500/10', order: 10 },
+          { title: 'Jewellery & Fashion', icon: 'Gem', color: 'text-purple-400', bgColor: 'bg-purple-500/10', order: 11 },
+          { title: 'Construction & Interior', icon: 'HardHat', color: 'text-orange-400', bgColor: 'bg-orange-500/10', order: 12 },
+        ],
+      })
+    }
+
     // Seed Site Settings
     const existingSettings = await db.siteSetting.count()
     if (existingSettings === 0) {

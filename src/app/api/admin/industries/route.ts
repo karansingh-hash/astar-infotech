@@ -3,15 +3,18 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { requireAdmin, sanitizeString, validateLength } from '@/lib/security'
 
-const INDUSTRY_STRING_FIELDS = ['title', 'icon', 'color', 'bgColor'] as const
-const INDUSTRY_MAX_LENGTHS: Record<string, number> = {
-  title: 200,
-  icon: 100,
-  color: 100,
-  bgColor: 100,
+export async function GET() {
+  try {
+    const industries = await db.industry.findMany({
+      orderBy: { order: 'asc' },
+    })
+    return NextResponse.json({ industries })
+  } catch (error) {
+    console.error('Fetch industries error:', error)
+    return NextResponse.json({ error: 'Failed to fetch industries.' }, { status: 500 })
+  }
 }
 
-// POST - Create industry
 export async function POST(request: Request) {
   const authError = await requireAdmin(request)
   if (authError) return authError
@@ -46,7 +49,6 @@ export async function POST(request: Request) {
   }
 }
 
-// PUT - Update industry
 export async function PUT(request: Request) {
   const authError = await requireAdmin(request)
   if (authError) return authError
@@ -83,7 +85,6 @@ export async function PUT(request: Request) {
   }
 }
 
-// DELETE - Delete industry
 export async function DELETE(request: Request) {
   const authError = await requireAdmin(request)
   if (authError) return authError
