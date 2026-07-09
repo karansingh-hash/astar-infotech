@@ -112,7 +112,7 @@ return(<div className="min-h-screen flex flex-col bg-background">
 
 <div className="section-divider"/>
 
-{/* Industries We Serve */}
+{/* Industries We Serve - Updated for India-wide reach */}
 <section className="py-16 md:py-28 bg-background"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
 <div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Industries We Serve</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>We Build Websites for <span className="gradient-text">Every India's Business</span></h2><p className="mt-6 sm:mt-8 text-muted-foreground text-sm md:text-lg">From clinics to coaching centres, real estate to restaurants — we create tailored websites for every industry.</p></div>
 <div className="mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
