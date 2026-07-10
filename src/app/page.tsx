@@ -37,7 +37,7 @@ if(sR.status==='fulfilled'&&sR.value.ok){const d=await sR.value.json();if(d.serv
 if(pR.status==='fulfilled'&&pR.value.ok){const d=await pR.value.json();if(d.portfolio?.length)setPf(d.portfolio.map((x:any)=>({t:x.title,c:x.category,d:x.description,x:x.tech||'',i:x.image||'/portfolio-freshmart.png'})))}
 if(tR.status==='fulfilled'&&tR.value.ok){const d=await tR.value.json();if(d.testimonials?.length)setTms(d.testimonials.map((x:any)=>({n:x.name,c:x.company,r:x.review,rt:x.rating||5})))}
 if(stR.status==='fulfilled'&&stR.value.ok){const d=await stR.value.json();if(d.stats?.length)setSts(d.stats.map((x:any)=>({v:x.value,l:x.label})))}
-if(seR.status==='fulfilled'&&seR.value.ok){const d=await seR.value.json();if(d.settings)setS({...DF,...d.settings})}
+if(seR.status==='fulfilled'&&seR.value.ok){const d=await seR.value.json();const g=d.settings||{};setS({...DF,cn:g.companyName??DF.cn,ad:g.address??DF.ad,ph:g.phone??DF.ph,em:g.email??DF.em,hr:g.hours??DF.hr,fb:g.facebook??DF.fb,ig:g.instagram??DF.ig,li:g.linkedin??DF.li,yt:g.youtube??DF.yt,bc:g.brandColor??DF.bc,hb:g.heroBadge??DF.hb,hh:g.heroHeading??DF.hh,hs:g.heroSubtitle??DF.hs,ah:g.aboutHeading??DF.ah,a1:g.aboutDescription1??DF.a1,a2:g.aboutDescription2??DF.a2,av:g.aboutVision??DF.av,am:g.aboutMission??DF.am,al:g.aboutValues??DF.al,wi:g.whyChooseUsIntro??DF.wi})}
 if(iR.status==='fulfilled'&&iR.value.ok){const d=await iR.value.json();if(d.industries?.length)setInds(d.industries.map((x:any)=>({i:x.icon||'Globe',t:x.title,c:x.color||'text-emerald-400',bg:x.bgColor||'bg-emerald-500/10'})))}
 }catch{}})()},[])
 useEffect(()=>{const h=()=>{sSC(window.scrollY>20);sST(window.scrollY>500)};window.addEventListener('scroll',h);return()=>window.removeEventListener('scroll',h)},[])

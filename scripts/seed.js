@@ -17,35 +17,47 @@ async function main() {
 
   console.log('🌱 Seeding database...')
 
-  // Seed Site Settings
+  // Seed Site Settings — camelCase keys must match ALLOWED_SETTINGS_KEYS in src/app/api/settings/route.ts
+  // and DEFAULT_SETTINGS in src/components/admin/AdminDashboard.tsx
   const settings = [
-    { key: 'hero_badge', value: '' },
-    { key: 'hero_title', value: 'Transform Your Digital Presence With Us' },
-    { key: 'hero_description', value: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.' },
-    { key: 'about_title', value: 'We Build Digital Experiences That Matter' },
-    { key: 'about_paragraph1', value: "A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don't just look great — they deliver measurable results." },
-    { key: 'about_paragraph2', value: 'From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.' },
-    { key: 'about_vision', value: 'To be the most trusted digital partner for businesses seeking growth through innovative web solutions.' },
-    { key: 'about_mission', value: 'To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.' },
-    { key: 'about_values', value: 'Innovation,Integrity,Excellence,Collaboration,Transparency' },
-    { key: 'about_years', value: '5+' },
-    { key: 'about_years_label', value: 'Trusted Experience' },
-    { key: 'services_title', value: 'Everything You Need to Succeed Online' },
-    { key: 'services_description', value: 'From concept to launch and beyond, we provide comprehensive web solutions tailored to your business goals.' },
-    { key: 'why_title', value: 'What Makes Us Stand Out' },
-    { key: 'why_description', value: "We're not just another web development agency. We're your growth partners — committed to delivering solutions that make a real difference for your business." },
-    { key: 'portfolio_title', value: 'Projects That Speak for Themselves' },
-    { key: 'portfolio_description', value: "Explore some of our recent work and see how we've helped businesses across industries achieve their digital goals." },
-    { key: 'testimonials_title', value: 'What Our Clients Say About Us' },
-    { key: 'testimonials_description', value: "Don't just take our word for it — hear from the businesses we've helped succeed." },
-    { key: 'cta_title', value: 'Ready to Take Your Business Online?' },
-    { key: 'cta_description', value: "Let's build something amazing together. Get in touch today for a free consultation and discover how we can transform your digital presence." },
-    { key: 'contact_phone', value: '+91 8560074448' },
-    { key: 'contact_email', value: 'contact@astarinfotech.in' },
-    { key: 'contact_address', value: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan' },
-    { key: 'contact_hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
-    { key: 'whatsapp_number', value: '918560074448' },
+    { key: 'companyName', value: 'A-Star Infotech' },
+    { key: 'address', value: 'D-49, Shiv Marg, Balaji Sagar-15, Jaipur, Rajasthan' },
+    { key: 'phone', value: '+91 8560074448' },
+    { key: 'email', value: 'contact@astarinfotech.in' },
+    { key: 'secondaryEmail', value: '' },
+    { key: 'hours', value: 'Mon – Sat: 10:00 AM – 7:00 PM' },
+    { key: 'facebook', value: 'https://facebook.com/astarinfotech' },
+    { key: 'instagram', value: 'https://instagram.com/astarinfotech' },
+    { key: 'linkedin', value: 'https://linkedin.com/company/astarinfotech' },
+    { key: 'youtube', value: 'https://youtube.com/@astarinfotech' },
+    { key: 'brandColor', value: '#059669' },
+    { key: 'heroBadge', value: '' },
+    { key: 'heroHeading', value: 'Transform Your Digital Presence With Us' },
+    { key: 'heroSubtitle', value: 'We craft stunning, high-performance websites that help businesses grow. From design to development, SEO to e-commerce — we deliver digital solutions that drive results.' },
+    { key: 'aboutHeading', value: 'We Build Digital Experiences That Matter' },
+    { key: 'aboutDescription1', value: "A-Star Infotech is a forward-thinking web development agency dedicated to empowering businesses with impactful digital solutions. We combine creativity, technology, and strategy to build websites that don't just look great — they deliver measurable results." },
+    { key: 'aboutDescription2', value: 'From startups finding their voice to established brands seeking digital transformation, we partner with our clients every step of the way. Our mission is simple: help you succeed online.' },
+    { key: 'aboutVision', value: 'To be the most trusted digital partner for businesses seeking growth through innovative web solutions.' },
+    { key: 'aboutMission', value: 'To deliver high-quality, affordable web solutions that help businesses thrive in the digital age.' },
+    { key: 'aboutValues', value: 'Innovation, Integrity, Excellence, Collaboration, Transparency' },
+    { key: 'whyChooseUsIntro', value: "We're not just another web development agency. We're your growth partners — committed to delivering solutions that make a real difference for your business." },
   ]
+
+  // Remove any legacy snake_case keys from earlier seed versions
+  const legacyKeys = [
+    'hero_badge', 'hero_title', 'hero_description',
+    'about_title', 'about_paragraph1', 'about_paragraph2', 'about_vision', 'about_mission', 'about_values', 'about_years', 'about_years_label',
+    'services_title', 'services_description',
+    'why_title', 'why_description',
+    'portfolio_title', 'portfolio_description',
+    'testimonials_title', 'testimonials_description',
+    'cta_title', 'cta_description',
+    'contact_phone', 'contact_email', 'contact_address', 'contact_hours',
+    'whatsapp_number',
+  ]
+  for (const legacyKey of legacyKeys) {
+    await prisma.siteSetting.deleteMany({ where: { key: legacyKey } })
+  }
 
   for (const setting of settings) {
     await prisma.siteSetting.upsert({
