@@ -366,6 +366,35 @@ html {
   box-shadow: 0 0 30px rgba(6, 214, 160, 0.08), inset 0 1px 0 rgba(6, 214, 160, 0.1);
 }
 
+/* ── Service Card Blend — transparent cards that blend with video background ── */
+.service-card-blend,
+[data-slot="card"].service-card-blend {
+  background: rgba(10, 10, 26, 0.18) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(6, 214, 160, 0.22) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none !important;
+}
+
+.service-card-blend:hover,
+[data-slot="card"].service-card-blend:hover {
+  background: rgba(10, 10, 26, 0.32) !important;
+  border-color: rgba(6, 214, 160, 0.5) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(6, 214, 160, 0.15) !important;
+  transform: translateY(-4px);
+}
+
+.service-card-blend:hover .service-number {
+  opacity: 0.18;
+  color: rgba(6, 214, 160, 1);
+}
+
+.service-card-blend .service-number {
+  opacity: 0.1;
+  transition: opacity 0.4s ease, color 0.4s ease;
+}
+
 /* ── Neon border glow ── */
 .neon-border {
   position: relative;
