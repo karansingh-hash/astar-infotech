@@ -108,11 +108,11 @@ return(<div className="min-h-screen flex flex-col bg-background">
 {/* Services */}
 <section id="services" className="py-16 md:py-28 relative overflow-hidden bg-dark-surface">
 {/* Background video — plays muted, looped, behind content */}
-<video autoPlay muted loop playsInline preload="metadata" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none">
+<video autoPlay muted loop playsInline preload="metadata" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-90 pointer-events-none">
 <source src="/services-bg.mp4" type="video/mp4"/>
 </video>
 {/* Dark overlay so text remains readable */}
-<div className="absolute inset-0 bg-dark-surface/75"/>
+<div className="absolute inset-0 bg-dark-surface/30"/>
 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
 <div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">Our Services</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>Everything You Need to <span className="gradient-text">Succeed Online</span></h2><p className="mt-6 sm:mt-8 text-muted-foreground text-sm md:text-lg">From concept to launch, we provide comprehensive web solutions tailored to your business.</p></div>
 <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
