@@ -35,9 +35,9 @@ export const metadata: Metadata = {
   authors: [{ name: "A-Star Infotech" }],
   creator: "A-Star Infotech",
   publisher: "A-Star Infotech",
-  metadataBase: new URL("https://astarinfotech.in"),
+  metadataBase: new URL("https://www.astarinfotech.in"),
   alternates: {
-    canonical: "/",
+    canonical: "https://www.astarinfotech.in/",
   },
   icons: {
     icon: [
@@ -57,15 +57,15 @@ export const metadata: Metadata = {
     description:
       "Professional website design, e-commerce development, SEO services, and digital solutions for growing businesses in Jaipur & across India.",
     type: "website",
-    url: "https://astarinfotech.in",
+    url: "https://www.astarinfotech.in/",
     siteName: "A-Star Infotech",
     locale: "en_IN",
     images: [
       {
-        url: "/logo.png",
-        width: 800,
-        height: 600,
-        alt: "A-Star Infotech - Web Development Agency",
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "A-Star Infotech - Web Development Agency in Jaipur",
       },
     ],
   },
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     title: "A-Star Infotech | Web Development & Digital Solutions Agency",
     description:
       "Professional website design, e-commerce development, SEO services in Jaipur, India.",
-    images: ["/logo.png"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
