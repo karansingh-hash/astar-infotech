@@ -135,7 +135,7 @@ export default function FAQPage() {
                 return (
                   <div
                     key={i}
-                    className={`glass-card neon-border border-border rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? 'border-neon/40 shadow-lg shadow-neon/5' : 'hover:border-neon/30'}`}
+                    className={`glass-card border-border rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? 'border-neon/40 shadow-lg shadow-neon/5' : 'hover:border-neon/30'}`}
                   >
                     <button
                       type="button"

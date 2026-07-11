@@ -384,6 +384,11 @@ html {
   mask-composite: exclude;
   opacity: 0;
   transition: opacity 0.4s ease;
+  /* CRITICAL: ::before is an invisible overlay covering the entire element.
+     Without pointer-events:none, it blocks all clicks on child elements
+     (buttons, links, etc). This was causing FAQ accordion buttons to be
+     unclickable on the live site. */
+  pointer-events: none;
 }
 
 .dark .neon-border::before {
