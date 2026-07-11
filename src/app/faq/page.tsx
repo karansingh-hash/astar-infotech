@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { ChevronDown, HelpCircle, ArrowRight, Phone, Mail, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,13 @@ import { FAQS, SITE } from '@/lib/seo-data'
 export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const [searchQuery, setSearchQuery] = useState('')
+  const [mounted, setMounted] = useState(false)
+  const answerRefs = useRef<(HTMLDivElement | null)[]>([])
+
+  // Fix hydration: set open state only after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const filteredFaqs = FAQS.filter(faq =>
     faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -18,7 +25,27 @@ export default function FAQPage() {
   )
 
   const toggleFaq = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index)
+    setOpenIndex(prev => prev === index ? null : index)
+  }
+
+  // Compute max-height for smooth CSS transition (reliable across all browsers)
+  const getAnswerStyle = (index: number): React.CSSProperties => {
+    const isOpen = mounted && openIndex === index
+    if (isOpen && answerRefs.current[index]) {
+      const scrollHeight = answerRefs.current[index]!.scrollHeight
+      return {
+        maxHeight: `${scrollHeight + 48}px`,
+        opacity: 1,
+        paddingTop: '0',
+        paddingBottom: '1.5rem',
+      }
+    }
+    return {
+      maxHeight: '0px',
+      opacity: 0,
+      paddingTop: '0',
+      paddingBottom: '0',
+    }
   }
 
   return (
@@ -94,6 +121,7 @@ export default function FAQPage() {
               <HelpCircle className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground text-lg">No questions found matching &ldquo;{searchQuery}&rdquo;</p>
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
                 className="mt-4 text-neon hover:underline text-sm"
               >
@@ -103,15 +131,16 @@ export default function FAQPage() {
           ) : (
             <div className="space-y-3">
               {filteredFaqs.map((faq, i) => {
-                const isOpen = openIndex === i
+                const isOpen = mounted && openIndex === i
                 return (
                   <div
                     key={i}
                     className={`glass-card neon-border border-border rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? 'border-neon/40 shadow-lg shadow-neon/5' : 'hover:border-neon/30'}`}
                   >
                     <button
+                      type="button"
                       onClick={() => toggleFaq(i)}
-                      className="w-full flex items-center justify-between gap-4 p-5 md:p-6 text-left min-h-[44px]"
+                      className="w-full flex items-center justify-between gap-4 p-5 md:p-6 text-left min-h-[44px] cursor-pointer bg-transparent border-0"
                       aria-expanded={isOpen}
                       aria-controls={`faq-answer-${i}`}
                     >
@@ -123,13 +152,16 @@ export default function FAQPage() {
                     </button>
                     <div
                       id={`faq-answer-${i}`}
-                      className={`grid transition-all duration-300 ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                      ref={(el) => { answerRefs.current[i] = el }}
+                      style={{
+                        ...getAnswerStyle(i),
+                        overflow: 'hidden',
+                        transition: 'max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease',
+                      }}
                     >
-                      <div className="overflow-hidden">
-                        <p className="px-5 md:px-6 pb-5 md:pb-6 pl-12 md:pl-14 text-sm md:text-base text-muted-foreground leading-relaxed">
-                          {faq.answer}
-                        </p>
-                      </div>
+                      <p className="px-5 md:px-6 pl-12 md:pl-14 text-sm md:text-base text-muted-foreground leading-relaxed">
+                        {faq.answer}
+                      </p>
                     </div>
                   </div>
                 )
