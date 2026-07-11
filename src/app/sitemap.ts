@@ -25,6 +25,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
+  // FAQ page (high priority for long-tail keyword traffic)
+  const faqUrl: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/faq`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+  ]
+
   // Individual service pages (high priority — each targets specific keywords)
   const serviceUrls: MetadataRoute.Sitemap = SERVICES.map(service => ({
     url: `${baseUrl}/services/${service.slug}`,
@@ -33,5 +43,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }))
 
-  return [...homeUrls, ...servicesIndex, ...serviceUrls]
+  return [...homeUrls, ...servicesIndex, ...faqUrl, ...serviceUrls]
 }

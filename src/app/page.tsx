@@ -13,7 +13,7 @@ import {useTheme} from 'next-themes'
 import {StructuredData} from '@/components/StructuredData'
 import {FAQS, SERVICES} from '@/lib/seo-data'
 
-const NAV=[{l:'Home',h:'#home'},{l:'About',h:'#about'},{l:'Services',h:'#services'},{l:'Portfolio',h:'#portfolio'},{l:'Testimonials',h:'#testimonials'},{l:'FAQ',h:'#faq'},{l:'Contact',h:'#contact'}]
+const NAV=[{l:'Home',h:'/#home'},{l:'About',h:'/#about'},{l:'Services',h:'/#services'},{l:'Portfolio',h:'/#portfolio'},{l:'Testimonials',h:'/#testimonials'},{l:'FAQ',h:'/faq'},{l:'Contact',h:'/#contact'}]
 const IM:Record<string,React.ElementType>={Globe,Code2,ShoppingCart,Smartphone,Settings,Search,Award,Zap,Shield,Heart,Target,Rocket,Star,Users,Stethoscope,Building2,Factory,Store,GraduationCap,UtensilsCrossed,Scale,Briefcase,Wrench,Gem,HardHat,Lightbulb}
 const SV=[{i:'Globe',t:'Website Design',d:'Beautiful, modern designs that capture your brand identity.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Code2',t:'Website Development',d:'Robust, scalable web apps built with the latest technologies.',c:'text-cyan-400',bg:'bg-cyan-500/10'},{i:'ShoppingCart',t:'E-Commerce Development',d:'Feature-rich online stores with secure payments.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Smartphone',t:'Responsive Websites',d:'Websites that look stunning on every device.',c:'text-cyan-400',bg:'bg-cyan-500/10'},{i:'Settings',t:'Website Maintenance',d:'Ongoing support to keep your site running smoothly.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Search',t:'SEO Services',d:'Data-driven SEO strategies that boost visibility.',c:'text-cyan-400',bg:'bg-cyan-500/10'}]
 type SvcDetail={desc:string;features:string[];tech:string[]}
@@ -158,21 +158,14 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <div className="flex items-center justify-center gap-4 mt-6"><button onClick={()=>sTI((tI-1+tms.length)%tms.length)} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Prev"><ChevronRight className="w-4 h-4 rotate-180"/></button><div className="flex items-center gap-2">{tms.map((_,i)=><button key={i} onClick={()=>sTI(i)} className={`testimonial-dot ${i===tI?'active':''}`} aria-label={`Testimonial ${i+1}`}/>)}</div><button onClick={()=>sTI((tI+1)%tms.length)} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Next"><ChevronRight className="w-4 h-4"/></button></div></div>}
 </div></section>
 
-{/* FAQ */}
-<section id="faq" className="py-16 md:py-28 bg-dark-surface"><div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
-<div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">FAQ</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>Frequently Asked <span className="gradient-text">Questions</span></h2><p className="mt-6 text-muted-foreground text-sm md:text-lg">Everything you need to know about our web development services in Jaipur, India.</p></div>
-<div className="mt-10 sm:mt-14 space-y-3">
-{FAQS.map((faq,i)=>{
-const FaqIcon=HelpCircle
-return(<details key={i} className={`group ${tc} rounded-xl border border-border hover:border-neon/30 transition-colors overflow-hidden`}>
-<summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none font-medium text-foreground text-sm md:text-base">
-<span className="flex items-start gap-3"><FaqIcon className="w-5 h-5 text-neon shrink-0 mt-0.5"/>{faq.question}</span>
-<ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 transition-transform group-open:rotate-180"/>
-</summary>
-<div className="px-5 pb-5 pt-0 text-sm md:text-base text-muted-foreground leading-relaxed pl-12">{faq.answer}</div>
-</details>)})}
+{/* FAQ CTA — links to dedicated /faq page */}
+<section className="py-16 md:py-24 bg-dark-surface"><div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+<div className={`${tc} rounded-2xl p-8 md:p-12 text-center border border-neon/20`}>
+<Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">FAQ</Badge>
+<h2 className={`text-2xl sm:text-4xl font-bold text-foreground mb-4 ${th}`}>Frequently Asked <span className="gradient-text">Questions</span></h2>
+<p className="mt-3 text-muted-foreground text-sm md:text-lg max-w-2xl mx-auto">Get answers to common questions about our web development services, pricing, timelines, and more.</p>
+<a href="/faq"><Button size="lg" className={`mt-6 glow-button ${tb} rounded-xl px-6 h-12 min-h-[44px]`}>View All FAQs<ArrowRight className="ml-2 w-4 h-4"/></Button></a>
 </div>
-<div className="mt-10 text-center"><p className="text-sm text-muted-foreground mb-4">Still have questions? We&apos;re here to help.</p><a href="#contact"><Button className={`glow-button ${tb} rounded-xl px-6`}>Get in Touch<ArrowRight className="ml-2 w-4 h-4"/></Button></a></div>
 </div></section>
 
 {/* CTA */}
@@ -208,7 +201,7 @@ return(<details key={i} className={`group ${tc} rounded-xl border border-border 
 <footer className="bg-dark-surface border-t border-border mt-auto"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div className="py-10 sm:py-14 grid grid-cols-2 lg:grid-cols-4 gap-8">
 <div className="col-span-2 lg:col-span-1"><div className="flex items-center gap-2.5 mb-4"><img src="/logo.png" alt="A-Star Infotech logo" className="w-10 h-10 rounded-lg object-contain"/><div><div className={`font-bold text-foreground text-lg ${th}`}>A-Star</div><div className="text-xs text-neon font-medium tracking-wider uppercase">Infotech</div></div></div><p className="text-muted-foreground text-sm leading-relaxed max-w-xs">Building smart websites for growing businesses.</p><div className="mt-5 flex gap-2.5">{[{h:s.fb,ic:Facebook,l:'FB'},{h:s.ig,ic:Instagram,l:'IG'},{h:s.li,ic:Linkedin,l:'IN'},{h:s.yt,ic:Youtube,l:'YT'}].filter(x=>x.h).map(x=><a key={x.l} href={ep(x.h)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg bg-dark-card border border-border flex items-center justify-center social-glow" aria-label={x.l}><x.ic className="w-4 h-4 text-muted-foreground"/></a>)}</div></div>
-<div><h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Quick Links</h4><ul className="space-y-2">{NAV.map(n=>{const QI:Record<string,React.ElementType>={'#home':HomeIcon,'#about':Users,'#services':Globe,'#portfolio':Award,'#testimonials':Star,'#contact':Mail};const Ic=QI[n.h]||ChevronRight;return<li key={n.h}><a href={n.h} className="text-sm text-muted-foreground hover:text-neon transition-colors min-h-[32px] flex items-center gap-2"><Ic className="w-4 h-4 shrink-0 text-neon/70"/>{n.l}</a></li>})}</ul></div>
+<div><h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Quick Links</h4><ul className="space-y-2">{NAV.map(n=>{const QI:Record<string,React.ElementType>={'/#home':HomeIcon,'/#about':Users,'/#services':Globe,'/#portfolio':Award,'/#testimonials':Star,'/faq':HelpCircle,'/#contact':Mail};const Ic=QI[n.h]||ChevronRight;return<li key={n.h}><a href={n.h} className="text-sm text-muted-foreground hover:text-neon transition-colors min-h-[32px] flex items-center gap-2"><Ic className="w-4 h-4 shrink-0 text-neon/70"/>{n.l}</a></li>})}</ul></div>
 <div><h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Our Services</h4><ul className="space-y-2">{svs.map(sv=>{const Ic=IM[sv.i]||Globe;return<li key={sv.t}><a href="#services" className="text-sm text-muted-foreground hover:text-neon transition-colors min-h-[32px] flex items-center gap-2"><Ic className={`w-4 h-4 shrink-0 ${sv.c}`}/>{sv.t}</a></li>})}</ul></div>
 <div><h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Contact</h4><ul className="space-y-3"><li><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.ad)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-neon transition-colors flex items-start gap-2"><MapPin className="w-4 h-4 shrink-0 mt-0.5 text-neon/70"/>{s.ad}</a></li><li><a href={`tel:${s.ph}`} className="text-sm text-muted-foreground hover:text-neon transition-colors flex items-center gap-2"><Phone className="w-4 h-4 shrink-0 text-neon/70"/>{s.ph}</a></li><li><a href={`mailto:${s.em}`} className="text-sm text-muted-foreground hover:text-neon transition-colors break-all flex items-center gap-2"><Mail className="w-4 h-4 shrink-0 text-neon/70"/>{s.em}</a></li></ul></div>
 </div>
