@@ -369,19 +369,19 @@ html {
 /* ── Service Card Blend — transparent cards that blend with video background ── */
 .service-card-blend,
 [data-slot="card"].service-card-blend {
-  background: rgba(10, 10, 26, 0.18) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(6, 214, 160, 0.22) !important;
+  background: transparent !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid transparent !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: none !important;
 }
 
 .service-card-blend:hover,
 [data-slot="card"].service-card-blend:hover {
-  background: rgba(10, 10, 26, 0.32) !important;
-  border-color: rgba(6, 214, 160, 0.5) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(6, 214, 160, 0.15) !important;
+  background: rgba(6, 214, 160, 0.08) !important;
+  border-color: rgba(6, 214, 160, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 24px rgba(6, 214, 160, 0.15) !important;
   transform: translateY(-4px);
 }
 
@@ -391,7 +391,7 @@ html {
 }
 
 .service-card-blend .service-number {
-  opacity: 0.1;
+  opacity: 0.08;
   transition: opacity 0.4s ease, color 0.4s ease;
 }
 
