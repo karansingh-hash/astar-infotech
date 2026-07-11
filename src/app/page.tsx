@@ -1,6 +1,6 @@
 'use client'
 import {useState, useEffect, FormEvent, useCallback} from 'react'
-import {Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search, ArrowRight, Star, MapPin, Phone, Mail, Clock, Users, Award, Zap, Heart, ChevronRight, Send, Facebook, Instagram, Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target, Shield, Rocket, Sun, Moon, Home as HomeIcon, Stethoscope, Building2, Factory, Store, GraduationCap, UtensilsCrossed, Scale, Briefcase, Wrench, Lightbulb, Gem, HardHat} from 'lucide-react'
+import {Menu, X, Code2, Globe, ShoppingCart, Smartphone, Settings, Search, ArrowRight, Star, MapPin, Phone, Mail, Clock, Users, Award, Zap, Heart, ChevronRight, Send, Facebook, Instagram, Linkedin, Youtube, MessageCircle, ChevronUp, Sparkles, Target, Shield, Rocket, Sun, Moon, Home as HomeIcon, Stethoscope, Building2, Factory, Store, GraduationCap, UtensilsCrossed, Scale, Briefcase, Wrench, Lightbulb, Gem, HardHat, ChevronDown, HelpCircle} from 'lucide-react'
 import {Button} from '@/components/ui/button'
 import {LegalModal} from '@/components/legal-modal'
 import {Input} from '@/components/ui/input'
@@ -10,8 +10,10 @@ import {Badge} from '@/components/ui/badge'
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter} from '@/components/ui/dialog'
 import {toast} from 'sonner'
 import {useTheme} from 'next-themes'
+import {StructuredData} from '@/components/StructuredData'
+import {FAQS, SERVICES} from '@/lib/seo-data'
 
-const NAV=[{l:'Home',h:'#home'},{l:'About',h:'#about'},{l:'Services',h:'#services'},{l:'Portfolio',h:'#portfolio'},{l:'Testimonials',h:'#testimonials'},{l:'Contact',h:'#contact'}]
+const NAV=[{l:'Home',h:'#home'},{l:'About',h:'#about'},{l:'Services',h:'#services'},{l:'Portfolio',h:'#portfolio'},{l:'Testimonials',h:'#testimonials'},{l:'FAQ',h:'#faq'},{l:'Contact',h:'#contact'}]
 const IM:Record<string,React.ElementType>={Globe,Code2,ShoppingCart,Smartphone,Settings,Search,Award,Zap,Shield,Heart,Target,Rocket,Star,Users,Stethoscope,Building2,Factory,Store,GraduationCap,UtensilsCrossed,Scale,Briefcase,Wrench,Gem,HardHat,Lightbulb}
 const SV=[{i:'Globe',t:'Website Design',d:'Beautiful, modern designs that capture your brand identity.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Code2',t:'Website Development',d:'Robust, scalable web apps built with the latest technologies.',c:'text-cyan-400',bg:'bg-cyan-500/10'},{i:'ShoppingCart',t:'E-Commerce Development',d:'Feature-rich online stores with secure payments.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Smartphone',t:'Responsive Websites',d:'Websites that look stunning on every device.',c:'text-cyan-400',bg:'bg-cyan-500/10'},{i:'Settings',t:'Website Maintenance',d:'Ongoing support to keep your site running smoothly.',c:'text-emerald-400',bg:'bg-emerald-500/10'},{i:'Search',t:'SEO Services',d:'Data-driven SEO strategies that boost visibility.',c:'text-cyan-400',bg:'bg-cyan-500/10'}]
 type SvcDetail={desc:string;features:string[];tech:string[]}
@@ -58,8 +60,8 @@ const tm=tms[tI]
 
 return(<div className="min-h-screen flex flex-col bg-background">
 
-{/* JSON-LD Structured Data for SEO */}
-<script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.astarinfotech.in","name":"A-Star Infotech","description":"Professional website development, e-commerce solutions, responsive design, and SEO services for businesses in Jaipur and across India.","url":"https://www.astarinfotech.in","logo":"https://www.astarinfotech.in/logo.png","image":"https://www.astarinfotech.in/og-image.png","telephone":"+918560074448","email":"contact@astarinfotech.in","address":{"@type":"PostalAddress","streetAddress":"D-49, Shiv Marg, Balaji Sagar-15","addressLocality":"Jaipur","addressRegion":"Rajasthan","postalCode":"302006","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":"26.9124","longitude":"75.7873"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"10:00","closes":"19:00"},"priceRange":"₹₹","sameAs":[s.fb,s.ig,s.li,s.yt].filter(Boolean).map((u:string)=>ep(u)),"hasOfferCatalog":{"@type":"OfferCatalog","name":"Web Development Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Website Design"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Website Development"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"E-Commerce Development"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Responsive Websites"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Website Maintenance"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"SEO Services"}}]}})}} />
+{/* Comprehensive Structured Data (JSON-LD) for SEO */}
+<StructuredData/>
 
 {/* Header */}
 <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${sc?'bg-dark-surface/90 backdrop-blur-xl border-b border-border shadow-lg':'bg-transparent'}`}>
@@ -69,13 +71,13 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <button onClick={()=>sMO(!mO)} className="md:hidden p-2.5 -mr-2 rounded-md text-foreground hover:bg-neon/10 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Menu">{mO?<X className="w-6 h-6"/>:<Menu className="w-6 h-6"/>}</button>
 </div></div>
 <div className={`fixed inset-0 z-[60] md:hidden bg-background flex flex-col transition-all duration-300 ${mO?'opacity-100 translate-x-0 pointer-events-auto':'opacity-0 translate-x-full pointer-events-none'}`}>
-<div className="flex items-center justify-between px-4 h-16 border-b border-border"><a href="#home" onClick={()=>sMO(false)} className="flex items-center gap-2"><img src="/logo.png" alt="" className="w-9 h-9 rounded-lg object-contain"/><span className="font-bold text-foreground">A-Star</span></a><button onClick={()=>sMO(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-foreground" aria-label="Close"><X className="w-6 h-6"/></button></div>
+<div className="flex items-center justify-between px-4 h-16 border-b border-border"><a href="#home" onClick={()=>sMO(false)} className="flex items-center gap-2"><img src="/logo.png" alt="A-Star Infotech logo" className="w-9 h-9 rounded-lg object-contain"/><span className="font-bold text-foreground">A-Star</span></a><button onClick={()=>sMO(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-foreground" aria-label="Close"><X className="w-6 h-6"/></button></div>
 <nav className="flex-1 flex flex-col justify-center px-6"><div className="space-y-2">{NAV.map(n=><a key={n.h} href={n.h} onClick={()=>sMO(false)} className="block px-5 py-3 rounded-lg text-foreground text-lg font-medium hover:bg-neon/10 hover:text-neon transition-colors min-h-[44px]">{n.l}</a>)}</div><div className="mt-8"><a href="#contact" onClick={()=>sMO(false)}><Button className={`w-full glow-button ${tb} h-12 text-base`}>Get a Quote</Button></a>{mnt&&<button onClick={()=>setTheme(theme==='dark'?'light':'dark')} className="flex items-center justify-center gap-2 p-3 mt-4 rounded-lg hover:bg-neon/10 text-foreground border border-border w-full">{theme==='dark'?<><Sun className="w-5 h-5"/><span className="text-sm">Light</span></>:<><Moon className="w-5 h-5"/><span className="text-sm">Dark</span></>}</button>}</div></nav>
 </div></header>
 
 {/* Hero */}
 <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-background">
-<div className="absolute inset-0"><img src="/coding-bg.png" alt="" className="w-full h-full object-cover hero-bg-image"/><div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40"/><div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70"/></div>
+<div className="absolute inset-0"><img src="/coding-bg.png" alt="Coding workspace background" aria-hidden="true" className="w-full h-full object-cover hero-bg-image"/><div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40"/><div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70"/></div>
 <div className="absolute inset-0 hero-grid opacity-30"/>
 <div className="absolute top-20 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-neon/5 rounded-full blur-3xl"/><div className="absolute bottom-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500/5 rounded-full blur-3xl"/>
 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 lg:py-40"><div className="max-w-3xl animate-fade-in-up">
@@ -149,10 +151,27 @@ return(<div className="min-h-screen flex flex-col bg-background">
 <div className="flex items-center justify-center gap-4 mt-6"><button onClick={()=>sTI((tI-1+tms.length)%tms.length)} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Prev"><ChevronRight className="w-4 h-4 rotate-180"/></button><div className="flex items-center gap-2">{tms.map((_,i)=><button key={i} onClick={()=>sTI(i)} className={`testimonial-dot ${i===tI?'active':''}`} aria-label={`Testimonial ${i+1}`}/>)}</div><button onClick={()=>sTI((tI+1)%tms.length)} className="w-10 h-10 rounded-full border border-border hover:border-neon/40 flex items-center justify-center text-muted-foreground hover:text-neon transition-colors" aria-label="Next"><ChevronRight className="w-4 h-4"/></button></div></div>}
 </div></section>
 
+{/* FAQ */}
+<section id="faq" className="py-16 md:py-28 bg-dark-surface"><div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in-up">
+<div className="text-center max-w-2xl mx-auto"><Badge variant="secondary" className="mb-4 bg-neon/10 text-neon border-neon/20">FAQ</Badge><h2 className={`text-2xl sm:text-4xl font-bold text-foreground section-title-underline inline-block ${th}`}>Frequently Asked <span className="gradient-text">Questions</span></h2><p className="mt-6 text-muted-foreground text-sm md:text-lg">Everything you need to know about our web development services in Jaipur, India.</p></div>
+<div className="mt-10 sm:mt-14 space-y-3">
+{FAQS.map((faq,i)=>{
+const FaqIcon=HelpCircle
+return(<details key={i} className={`group ${tc} rounded-xl border border-border hover:border-neon/30 transition-colors overflow-hidden`}>
+<summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none font-medium text-foreground text-sm md:text-base">
+<span className="flex items-start gap-3"><FaqIcon className="w-5 h-5 text-neon shrink-0 mt-0.5"/>{faq.question}</span>
+<ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 transition-transform group-open:rotate-180"/>
+</summary>
+<div className="px-5 pb-5 pt-0 text-sm md:text-base text-muted-foreground leading-relaxed pl-12">{faq.answer}</div>
+</details>)})}
+</div>
+<div className="mt-10 text-center"><p className="text-sm text-muted-foreground mb-4">Still have questions? We&apos;re here to help.</p><a href="#contact"><Button className={`glow-button ${tb} rounded-xl px-6`}>Get in Touch<ArrowRight className="ml-2 w-4 h-4"/></Button></a></div>
+</div></section>
+
 {/* CTA */}
 <section className="py-12 md:py-20 relative overflow-hidden">
 <div className="absolute inset-0 bg-gradient-to-r from-neon via-brand-600 to-neon"/>
-<div className="absolute inset-0 opacity-30"><img src="/cta-animation.png" alt="" className="w-full h-full object-cover"/></div>
+<div className="absolute inset-0 opacity-30"><img src="/cta-animation.png" alt="" aria-hidden="true" className="w-full h-full object-cover"/></div>
 <div className="absolute inset-0 hero-grid opacity-50"/>
 <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><h2 className={`text-2xl sm:text-4xl font-bold text-white ${th}`}>Ready to Take Your Business Online?</h2><p className="mt-3 text-white/80 text-sm md:text-lg max-w-2xl mx-auto">Let&apos;s build something amazing together. Get in touch today for a free consultation.</p><div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center gap-3"><a href="#contact"><Button size="lg" className="bg-white hover:bg-white/90 text-neon font-semibold px-6 h-12 sm:h-14 shadow-lg min-h-[44px] rounded-xl">Get Free Consultation<ArrowRight className="ml-2 w-4 h-4"/></Button></a><a href="https://wa.me/918560074448" target="_blank" rel="noopener noreferrer"><Button size="lg" className="border-white/30 text-white bg-white/10 hover:bg-white/20 px-6 h-12 sm:h-14 backdrop-blur-sm min-h-[44px] rounded-xl"><MessageCircle className="mr-2 w-4 h-4"/>WhatsApp</Button></a></div></div>
 </section>

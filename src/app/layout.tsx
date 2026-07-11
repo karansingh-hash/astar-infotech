@@ -88,6 +88,30 @@ export const metadata: Metadata = {
     },
   },
   category: "technology",
+  other: {
+    // Geo / location SEO tags (critical for local SEO)
+    "geo.region": "IN-RJ",
+    "geo.placename": "Jaipur, Rajasthan, India",
+    "geo.position": "26.9124;75.7873",
+    ICBM: "26.9124, 75.7873",
+    // Mobile / PWA
+    "theme-color": "#059669",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "format-detection": "telephone=yes, email=yes, address=yes",
+    // Crawler hints
+    language: "en-IN",
+    "revisit-after": "7 days",
+    rating: "general",
+    distribution: "global",
+    // Dublin Core metadata (improves semantic discovery)
+    "DC.title": "A-Star Infotech | Web Development Agency in Jaipur",
+    "DC.creator": "A-Star Infotech",
+    "DC.subject": "Web Development, Website Design, E-Commerce, SEO Services in Jaipur India",
+    "DC.description": "Professional web development agency in Jaipur offering website design, e-commerce development, SEO services, and website maintenance across India.",
+    "DC.language": "en-IN",
+    "DC.coverage": "Jaipur, Rajasthan, India",
+  },
 };
 
 export default function RootLayout({

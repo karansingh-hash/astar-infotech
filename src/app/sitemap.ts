@@ -1,44 +1,37 @@
-import type { MetadataRoute } from "next";
+import type { MetadataRoute } from "next"
+import { SERVICES, SITE } from "@/lib/seo-data"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.astarinfotech.in";
+  const baseUrl = SITE.url
+  const now = new Date()
 
-  return [
+  // Homepage + section anchors (high priority, weekly updates)
+  const homeUrls: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
-      lastModified: new Date(),
+      url: `${baseUrl}/`,
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
     },
+  ]
+
+  // Services index page (high priority for keyword targeting)
+  const servicesIndex: MetadataRoute.Sitemap = [
     {
-      url: `${baseUrl}/#about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#services`,
-      lastModified: new Date(),
+      url: `${baseUrl}/services`,
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/#portfolio`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#testimonials`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/#contact`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-  ];
+  ]
+
+  // Individual service pages (high priority — each targets specific keywords)
+  const serviceUrls: MetadataRoute.Sitemap = SERVICES.map(service => ({
+    url: `${baseUrl}/services/${service.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.9,
+  }))
+
+  return [...homeUrls, ...servicesIndex, ...serviceUrls]
 }
