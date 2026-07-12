@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, HelpCircle, ArrowRight, Phone, Mail, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -11,13 +11,6 @@ import { FAQS, SITE } from '@/lib/seo-data'
 export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const [searchQuery, setSearchQuery] = useState('')
-  const [mounted, setMounted] = useState(false)
-  const answerRefs = useRef<(HTMLDivElement | null)[]>([])
-
-  // Fix hydration: set open state only after mount
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const filteredFaqs = FAQS.filter(faq =>
     faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,13 +21,14 @@ export default function FAQPage() {
     setOpenIndex(prev => prev === index ? null : index)
   }
 
-  // Compute max-height for smooth CSS transition (reliable across all browsers)
-  const getAnswerStyle = (index: number): React.CSSProperties => {
-    const isOpen = mounted && openIndex === index
-    if (isOpen && answerRefs.current[index]) {
-      const scrollHeight = answerRefs.current[index]!.scrollHeight
+  // Compute inline style for answer container.
+  // Use a large max-height value when open (instead of measuring scrollHeight
+  // via refs, which violates React's rules of hooks — refs cannot be read
+  // during render). 500px comfortably fits all FAQ answers in this dataset.
+  const getAnswerStyle = (isOpen: boolean): React.CSSProperties => {
+    if (isOpen) {
       return {
-        maxHeight: `${scrollHeight + 48}px`,
+        maxHeight: '500px',
         opacity: 1,
         paddingTop: '0',
         paddingBottom: '1.5rem',
@@ -131,7 +125,7 @@ export default function FAQPage() {
           ) : (
             <div className="space-y-3">
               {filteredFaqs.map((faq, i) => {
-                const isOpen = mounted && openIndex === i
+                const isOpen = openIndex === i
                 return (
                   <div
                     key={i}
@@ -152,9 +146,8 @@ export default function FAQPage() {
                     </button>
                     <div
                       id={`faq-answer-${i}`}
-                      ref={(el) => { answerRefs.current[i] = el }}
                       style={{
-                        ...getAnswerStyle(i),
+                        ...getAnswerStyle(isOpen),
                         overflow: 'hidden',
                         transition: 'max-height 0.35s ease, opacity 0.3s ease, padding 0.3s ease',
                       }}
