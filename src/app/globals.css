@@ -1193,8 +1193,18 @@ html, body {
 }
 .edu-btn-secondary:hover {
   background: #A855F7 !important;
+  color: #FFFFFF !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(168,85,247,0.4) !important;
+}
+/* Light mode: secondary button text dark, hover stays white-on-purple */
+html.light .edu-btn-secondary {
+  color: #7C3AED !important;
+  border-color: #A855F7 !important;
+}
+html.light .edu-btn-secondary:hover {
+  background: #A855F7 !important;
+  color: #FFFFFF !important;
 }
 
 .edu-btn-green {
