@@ -1496,3 +1496,204 @@ html.light .text-white\/50 {
 html.light .text-white\/40 {
   color: #8A8A8A !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE FIXES — additional text visibility
+   Force dark text on all elements that use Tailwind's text-white
+   classes with opacity modifiers (text-white/50, /60, /70, /80)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* The edu-squiggle span inherits white from h2.text-white — force dark in light mode */
+html.light .edu-squiggle {
+  color: #0A0A0A !important;
+}
+
+/* All h2 with text-white class — force dark in light mode */
+html.light h2.text-white,
+html.light h2[class*="text-white"] {
+  color: #0A0A0A !important;
+}
+
+/* Why-choose-us feature titles */
+html.light .edu-section-dark h3.text-white,
+html.light .edu-section-dark h3[class*="text-white"] {
+  color: #0A0A0A !important;
+}
+
+/* Badge labels (About Us, Our Services, etc.) — keep their vibrant colors */
+
+/* All paragraphs with text-white opacity variants */
+html.light p.text-white\/40,
+html.light p.text-white\/50,
+html.light p.text-white\/60,
+html.light p.text-white\/70,
+html.light p.text-white\/80,
+html.light p.text-white\/90 {
+  color: #4A4A4A !important;
+}
+
+/* All spans with text-white opacity variants (stats labels, etc.) */
+html.light span.text-white\/40,
+html.light span.text-white\/50,
+html.light span.text-white\/60,
+html.light span.text-white\/70,
+html.light span.text-white\/80,
+html.light span.text-white\/90 {
+  color: #6A6A6A !important;
+}
+
+/* Hero stats labels (text-white/50) */
+html.light section[id="home"] .text-white\/50 {
+  color: #6A6A6A !important;
+}
+
+/* Hero subtitle (text-white/60) */
+html.light section[id="home"] p[style],
+html.light section[id="home"] .text-white\/60 {
+  color: #4A4A4A !important;
+}
+
+/* Hero h1 — already handled but reinforce */
+html.light section[id="home"] h1 {
+  color: #0A0A0A !important;
+}
+
+/* Section badges: keep their colored backgrounds but ensure text contrast */
+html.light span[style*="rgba(168,85,247"] {
+  /* purple badges — keep as is, color is already #C084FC which is readable on light */
+}
+html.light span[style*="rgba(255,107,53"] {
+  /* orange badges — keep as is, color is #FF6B35 which is readable */
+}
+html.light span[style*="rgba(74,222,128"] {
+  /* green badges — make darker for readability */
+  color: #16A34A !important;
+}
+
+/* Footer social icons — dark in light mode */
+html.light footer a[aria-label] svg {
+  color: #6A6A6A !important;
+}
+html.light footer a[aria-label]:hover svg {
+  color: #FF6B35 !important;
+}
+
+/* All anchor links in footer with text-white/50 */
+html.light footer a {
+  color: #6A6A6A !important;
+}
+html.light footer a:hover {
+  color: #FF6B35 !important;
+}
+
+/* Header nav links with text-white/70 */
+html.light header nav a {
+  color: #4A4A4A !important;
+}
+html.light header nav a:hover {
+  color: #0A0A0A !important;
+  background: rgba(0,0,0,0.05) !important;
+}
+
+/* All buttons with edu-btn-* classes: keep their vibrant styles */
+
+/* Mobile menu close button */
+html.light button[aria-label="Close"] svg,
+html.light button[aria-label="Menu"] svg {
+  color: #0A0A0A !important;
+}
+
+/* Toggle theme icon */
+html.light button[aria-label="Toggle theme"] svg {
+  color: #0A0A0A !important;
+}
+
+/* Section dividers (if any) */
+html.light .section-divider {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Filter tabs */
+html.light .filter-tab {
+  color: #4A4A4A !important;
+  background: transparent !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+html.light .filter-tab:hover {
+  border-color: #FF6B35 !important;
+  color: #FF6B35 !important;
+}
+html.light .filter-tab.active {
+  background: #FF6B35 !important;
+  color: #FFFFFF !important;
+  border-color: #FF6B35 !important;
+}
+
+/* Testimonial carousel dots */
+html.light .testimonial-dot {
+  background: rgba(0,0,0,0.2) !important;
+}
+html.light .testimonial-dot.active {
+  background: #FF6B35 !important;
+}
+
+/* Header logo "A-Star" text */
+html.light header span.font-bold {
+  color: #0A0A0A !important;
+}
+
+/* Header "Infotech" subtitle — keep orange (already readable) */
+
+/* CTA section — keep gradient, white text on gradient is fine */
+
+/* All p with text-muted-foreground */
+html.light p.text-muted-foreground {
+  color: #4A4A4A !important;
+}
+html.light .text-muted-foreground {
+  color: #4A4A4A !important;
+}
+
+/* All text-foreground */
+html.light .text-foreground {
+  color: #0A0A0A !important;
+}
+
+/* Service card "Learn More" link — keep orange (readable) */
+
+/* Industry card titles */
+html.light section h3.font-semibold {
+  color: #0A0A0A !important;
+}
+
+/* Portfolio card titles (white on dark image gradient — keep white) */
+html.light .edu-card h3.text-white {
+  /* These are on dark image overlays — keep white */
+  color: #FFFFFF !important;
+}
+
+/* Tech pills (purple) — keep readable */
+html.light span[style*="rgba(168,85,247,0.08"] {
+  color: #9333EA !important;
+  background: rgba(168,85,247,0.1) !important;
+  border-color: rgba(168,85,247,0.2) !important;
+}
+
+/* Value pills (orange) in About section */
+html.light span[style*="rgba(255,107,53,0.08"] {
+  color: #C2410C !important;
+  background: rgba(255,107,53,0.1) !important;
+  border-color: rgba(255,107,53,0.2) !important;
+}
+
+/* Service card number watermark */
+html.light .edu-card .text-white\/5 {
+  color: rgba(0,0,0,0.05) !important;
+}
+
+/* Hero badge with purple bg */
+html.light section[id="home"] span[style*="rgba(168,85,247"] {
+  color: #9333EA !important;
+  background: rgba(168,85,247,0.1) !important;
+  border-color: rgba(168,85,247,0.2) !important;
+}
