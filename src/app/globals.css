@@ -1697,3 +1697,56 @@ html.light section[id="home"] span[style*="rgba(168,85,247"] {
   background: rgba(168,85,247,0.1) !important;
   border-color: rgba(168,85,247,0.2) !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE FIX — Services section (has video bg, text must stay white)
+   The Services section has a dark video background with dark overlay,
+   so all text inside it must remain white in BOTH dark and light modes.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Services section heading + squiggle: keep white (on dark video bg) */
+html.light section[id="services"] h2,
+html.light section[id="services"] h2.text-white,
+html.light section[id="services"] h2 .edu-squiggle {
+  color: #FFFFFF !important;
+}
+
+/* Services section subtitle: keep white */
+html.light section[id="services"] p,
+html.light section[id="services"] p.text-white\/70,
+html.light section[id="services"] p.text-white\/60,
+html.light section[id="services"] p.text-white\/80,
+html.light section[id="services"] p.text-white\/90 {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Services section badge: keep orange (already readable on dark) */
+html.light section[id="services"] span[style*="rgba(255,107,53"] {
+  color: #FF6B35 !important;
+  background: rgba(255,107,53,0.15) !important;
+  border-color: rgba(255,107,53,0.3) !important;
+}
+
+/* Services section card text: keep white (cards on dark video bg) */
+html.light section[id="services"] .edu-card h3,
+html.light section[id="services"] .edu-card h3.text-white {
+  color: #FFFFFF !important;
+}
+
+html.light section[id="services"] .edu-card p,
+html.light section[id="services"] .edu-card p.text-white\/70,
+html.light section[id="services"] .edu-card p.text-white\/60 {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+/* Service card "Learn More" link: keep orange (readable on dark) */
+html.light section[id="services"] .edu-card button[style*="color"],
+html.light section[id="services"] .edu-card a[style*="color"] {
+  color: #FF6B35 !important;
+}
+
+/* Service card number watermark: keep white low-opacity (on dark) */
+html.light section[id="services"] .edu-card .text-white\/5,
+html.light section[id="services"] .edu-card span[class*="text-white"] {
+  color: rgba(255,255,255,0.08) !important;
+}
