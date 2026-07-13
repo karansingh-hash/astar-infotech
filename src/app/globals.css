@@ -1272,3 +1272,227 @@ html, body {
   position: relative;
   overflow: hidden;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   EDUWERKS LIGHT MODE — proper light theme support
+   When html has class="light", override the dark backgrounds
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Light mode root container */
+html.light body {
+  background: #FAFAF7 !important;
+  color: #0A0A0A !important;
+}
+
+/* Hero in light mode */
+html.light section[id="home"] {
+  background: #FAFAF7 !important;
+}
+html.light section[id="home"] h1,
+html.light section[id="home"] .text-white {
+  color: #0A0A0A !important;
+}
+html.light section[id="home"] p {
+  color: #4A4A4A !important;
+}
+
+/* All section headings: dark text in light mode */
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4 {
+  color: #0A0A0A !important;
+}
+
+/* Body text: gray in light mode */
+html.light p,
+html.light li,
+html.light span {
+  color: #4A4A4A;
+}
+
+/* Eduwerks sections in light mode */
+html.light .edu-section {
+  background: #FFFFFF !important;
+}
+html.light .edu-section-dark {
+  background: #F5F5F0 !important;
+}
+
+/* Hero background override */
+html.light section[id="home"][style*="0A0A0A"] {
+  background: #FAFAF7 !important;
+}
+html.light section[id="services"][style*="050505"] {
+  background: #F5F5F0 !important;
+}
+
+/* Root div with inline black bg */
+html.light div[style*="0A0A0A"] {
+  background: #FAFAF7 !important;
+}
+
+/* Header in light mode */
+html.light header.bg-black\/80,
+html.light header[class*="bg-black"] {
+  background: rgba(255,255,255,0.85) !important;
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+html.light header[class*="bg-black"] nav a,
+html.light header[class*="bg-black"] button[aria-label="Toggle theme"] svg,
+html.light header[class*="bg-black"] span {
+  color: #0A0A0A !important;
+}
+html.light header[class*="bg-black"] nav a:hover {
+  background: rgba(0,0,0,0.05) !important;
+}
+
+/* Mobile menu in light mode */
+html.light .bg-black {
+  background: #FFFFFF !important;
+}
+html.light .bg-black a,
+html.light .bg-black span,
+html.light .bg-black button {
+  color: #0A0A0A !important;
+}
+html.light .border-white\/5 {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+html.light .border-white\/10 {
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+/* Cards in light mode */
+html.light .edu-card {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+}
+html.light .edu-card:hover {
+  border-color: rgba(255,107,53,0.3) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 0 16px rgba(255,107,53,0.06) !important;
+}
+
+/* Service card number watermark in light mode */
+html.light .edu-card .text-white\/5 {
+  color: rgba(0,0,0,0.05) !important;
+}
+
+/* Portfolio card gradient overlay in light mode */
+html.light .edu-card .bg-gradient-to-t.from-black {
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent) !important;
+}
+
+/* Stats numbers in light mode (keep orange) */
+html.light .text-3xl,
+html.light .text-5xl {
+  color: #FF6B35 !important;
+}
+
+/* Footer in light mode */
+html.light footer[style*="050505"] {
+  background: #F5F5F0 !important;
+}
+html.light footer h4 {
+  color: #0A0A0A !important;
+}
+html.light footer a,
+html.light footer p {
+  color: #6A6A6A !important;
+}
+html.light footer a:hover {
+  color: #FF6B35 !important;
+}
+
+/* Contact form inputs in light mode */
+html.light input,
+html.light textarea {
+  background: #F5F5F0 !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #0A0A0A !important;
+}
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: rgba(0,0,0,0.3) !important;
+}
+html.light input:focus,
+html.light textarea:focus {
+  border-color: #FF6B35 !important;
+}
+html.light label {
+  color: #0A0A0A !important;
+}
+
+/* Testimonial quote text in light mode */
+html.light .edu-card p {
+  color: #2A2A2A !important;
+}
+
+/* Floating thumbnails stay dark-bordered for contrast in light mode */
+html.light .edu-float-thumb {
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* Squiggle color stays purple in both modes */
+/* (already defined above) */
+
+/* Buttons stay vibrant in both modes */
+/* (edu-btn-primary, edu-btn-secondary, edu-btn-green unchanged) */
+
+/* Portfolio filter tabs in light mode */
+html.light .filter-tab {
+  color: #4A4A4A !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+html.light .filter-tab.active {
+  background: #FF6B35 !important;
+  color: #FFFFFF !important;
+  border-color: #FF6B35 !important;
+}
+
+/* Progress bars in light mode */
+html.light .bg-white\/5 {
+  background: rgba(0,0,0,0.05) !important;
+}
+html.light .border-white\/5 {
+  border-color: rgba(0,0,0,0.05) !important;
+}
+
+/* About image border in light mode */
+html.light .border-white\/5 {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* WhatsApp button + scroll-to-top stay colored in both modes */
+
+/* Header logo text in light mode */
+html.light header span {
+  color: #0A0A0A !important;
+}
+
+/* Hero subtitle text in light mode */
+html.light section[id="home"] p[style],
+html.light section[id="home"] .text-white\/60 {
+  color: #4A4A4A !important;
+}
+html.light section[id="home"] .text-white\/50 {
+  color: #6A6A6A !important;
+}
+
+/* Service description text in light mode */
+html.light .text-white\/70 {
+  color: #4A4A4A !important;
+}
+html.light .text-white\/80 {
+  color: #2A2A2A !important;
+}
+html.light .text-white\/60 {
+  color: #4A4A4A !important;
+}
+html.light .text-white\/50 {
+  color: #6A6A6A !important;
+}
+html.light .text-white\/40 {
+  color: #8A8A8A !important;
+}
