@@ -1750,3 +1750,25 @@ html.light section[id="services"] .edu-card .text-white\/5,
 html.light section[id="services"] .edu-card span[class*="text-white"] {
   color: rgba(255,255,255,0.08) !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ADAPTIVE TEXT — text that adapts to theme (dark text in light mode,
+   white text in dark mode) for cards on light/dark section backgrounds
+   ═══════════════════════════════════════════════════════════════ */
+.edu-text-adaptive {
+  color: #FFFFFF;
+}
+html.light .edu-text-adaptive {
+  color: #0A0A0A !important;
+}
+
+/* Industry card heading fix — cards are white in light mode, so text must be dark */
+html.light .edu-card h3.edu-text-adaptive,
+html.light .edu-card h3 {
+  color: #0A0A0A !important;
+}
+
+/* Industry card icon circles — keep border visible in light mode */
+html.light .edu-card .border-white\/10 {
+  border-color: rgba(0,0,0,0.1) !important;
+}
