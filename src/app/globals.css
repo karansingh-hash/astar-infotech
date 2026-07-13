@@ -1737,16 +1737,13 @@ html.light section[id="services"] span[style*="rgba(255,107,53"] {
   border-color: rgba(255,107,53,0.3) !important;
 }
 
-/* Services section card text: keep white (cards on dark video bg) */
-html.light section[id="services"] .edu-card h3,
-html.light section[id="services"] .edu-card h3.text-white {
-  color: #FFFFFF !important;
+/* Services section card text: use adaptive classes (edu-text-adaptive, edu-text-muted-adaptive) */
+/* In light mode, cards are white, so text must be dark. In dark mode, cards are dark, so text is white. */
+html.light section[id="services"] .edu-card h3 {
+  color: #0A0A0A !important;
 }
-
-html.light section[id="services"] .edu-card p,
-html.light section[id="services"] .edu-card p.text-white\/70,
-html.light section[id="services"] .edu-card p.text-white\/60 {
-  color: rgba(255,255,255,0.8) !important;
+html.light section[id="services"] .edu-card p {
+  color: #4A4A4A !important;
 }
 
 /* Service card "Learn More" link: keep orange (readable on dark) */
@@ -1781,4 +1778,12 @@ html.light .edu-card h3 {
 /* Industry card icon circles — keep border visible in light mode */
 html.light .edu-card .border-white\/10 {
   border-color: rgba(0,0,0,0.1) !important;
+}
+
+/* ── Adaptive muted text (for card descriptions) ── */
+.edu-text-muted-adaptive {
+  color: rgba(255,255,255,0.8);
+}
+html.light .edu-text-muted-adaptive {
+  color: #4A4A4A !important;
 }
