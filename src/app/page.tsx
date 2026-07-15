@@ -75,8 +75,10 @@ return(<div className="min-h-screen flex flex-col" style={{background:'#0A0A0A'}
 <nav className="flex-1 flex flex-col justify-center px-6"><div className="space-y-2">{NAV.map(n=><a key={n.h} href={n.h} onClick={()=>sMO(false)} className="block px-5 py-3 rounded-lg text-white text-lg font-medium hover:bg-white/5 transition-colors min-h-[44px]">{n.l}</a>)}</div><div className="mt-8"><a href="#contact" onClick={()=>sMO(false)}><Button className="edu-btn-primary w-full h-12 text-base">Get a Quote</Button></a>{mnt&&<button onClick={()=>setTheme(theme==='dark'?'light':'dark')} className="flex items-center justify-center gap-2 p-3 mt-4 rounded-lg hover:bg-white/5 text-white border border-white/10 w-full">{theme==='dark'?<><Sun className="w-5 h-5"/><span className="text-sm">Light</span></>:<><Moon className="w-5 h-5"/><span className="text-sm">Dark</span></>}</button>}</div></nav>
 </div></header>
 
-{/* Hero — Eduwerks style: black bg + 3D glossy floating shapes + squiggle underline + floating circular portfolio thumbnails */}
+{/* Hero — Eduwerks style: black bg + coding bg image + 3D glossy floating shapes + squiggle underline */}
 <section id="home" className="relative min-h-screen flex items-center overflow-hidden" style={{background:'#0A0A0A'}}>
+{/* Coding background image — code running on laptop */}
+<div className="absolute inset-0 z-0"><img src="/coding-bg.png" alt="" aria-hidden="true" className="w-full h-full object-cover opacity-20"/><div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/50"/><div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"/></div>
 {/* 3D Glossy Floating Shapes */}
 <div className="edu-shape edu-shape-orange" style={{top:'12%',right:'8%'}}/>
 <div className="edu-shape edu-shape-purple" style={{top:'60%',right:'18%'}}/>
