@@ -1476,9 +1476,14 @@ html.light .border-white\/5 {
 
 /* WhatsApp button + scroll-to-top stay colored in both modes */
 
-/* Header logo text in light mode */
+/* Header logo text in light mode — but preserve 'Infotech' orange brand color */
 html.light header span {
   color: #0A0A0A !important;
+}
+/* 'Infotech' subtitle keeps its orange brand color (#FF6B35) in both modes */
+html.light header span[style*="FF6B35"],
+html.light header span[style*="255,107,53"] {
+  color: #FF6B35 !important;
 }
 
 /* Hero subtitle text in light mode */
