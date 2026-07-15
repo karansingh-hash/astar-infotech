@@ -1798,11 +1798,23 @@ html.light .edu-text-muted-adaptive {
    MOBILE RESPONSIVE FIXES
    ═══════════════════════════════════════════════════════════════ */
 
-/* Hide 3D floating shapes on mobile/tablet — they overlap text */
+/* Mobile: show 3D floating shapes but smaller and repositioned to avoid text overlap */
 @media (max-width: 1023px) {
   .edu-shape {
-    display: none !important;
+    opacity: 0.5 !important;
   }
+  .edu-shape-orange { width: 70px !important; height: 70px !important; top: 8% !important; right: 5% !important; }
+  .edu-shape-purple { width: 55px !important; height: 55px !important; top: 75% !important; right: 10% !important; }
+  .edu-shape-green { width: 50px !important; height: 50px !important; bottom: 10% !important; left: 5% !important; }
+  .edu-shape-pink { width: 40px !important; height: 40px !important; top: 15% !important; left: 8% !important; }
+}
+
+/* Tablet: medium shapes */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .edu-shape-orange { width: 100px; height: 100px; }
+  .edu-shape-purple { width: 80px; height: 80px; }
+  .edu-shape-green { width: 70px; height: 70px; }
+  .edu-shape-pink { width: 55px; height: 55px; }
 }
 
 /* Reduce shape sizes on smaller desktops */
@@ -1988,4 +2000,49 @@ body {
 html {
   overflow-x: hidden;
   max-width: 100vw;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE HERO FIX — coding bg should be subtle/light, not dark
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Light mode: hero background should be light, not dark */
+html.light section[id="home"] {
+  background: #FAFAF7 !important;
+}
+
+/* Light mode: hide the dark coding background image, use light gradient */
+html.light section[id="home"] > div:first-child img {
+  opacity: 0.08 !important;
+  filter: invert(1) brightness(2) !important;
+}
+
+/* Light mode: replace dark overlays with light ones */
+html.light section[id="home"] > div:first-child > div[class*="from-black"] {
+  background: linear-gradient(to right, #FAFAF7, rgba(250,250,247,0.8), rgba(250,250,247,0.5)) !important;
+}
+html.light section[id="home"] > div:first-child > div[class*="from-black"][class*="via-transparent"] {
+  background: linear-gradient(to top, #FAFAF7, transparent, rgba(250,250,247,0.6)) !important;
+}
+
+/* Light mode: hero text should be dark */
+html.light section[id="home"] h1 {
+  color: #0A0A0A !important;
+}
+html.light section[id="home"] h1 .edu-squiggle {
+  color: #0A0A0A !important;
+}
+html.light section[id="home"] p {
+  color: #4A4A4A !important;
+}
+html.light section[id="home"] .text-white\/50 {
+  color: #6A6A6A !important;
+}
+html.light section[id="home"] .text-white\/60 {
+  color: #4A4A4A !important;
+}
+
+/* Light mode: 3D shapes still visible but slightly more subtle */
+html.light .edu-shape {
+  opacity: 0.7 !important;
 }
