@@ -2348,3 +2348,78 @@ html.light .uplinq-glow-teal {
 html.light .uplinq-glow-gold {
   background: rgba(212, 175, 55, 0.04);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE 3D ANIMATION — make shapes visible on light background
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Light mode: make 3D shapes more visible */
+html.light .uplinq-cube-face {
+  border-color: rgba(0, 168, 138, 0.5) !important;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.25), rgba(0, 212, 170, 0.08)) !important;
+}
+
+html.light .uplinq-cube-2 .uplinq-cube-face {
+  border-color: rgba(212, 175, 55, 0.5) !important;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0.08)) !important;
+}
+
+/* Light mode: spheres more vibrant */
+html.light .uplinq-sphere-teal {
+  background: radial-gradient(circle at 30% 30%, #00D4AA, #00A88A 50%, #006B5C) !important;
+  box-shadow: inset -8px -8px 20px rgba(0,0,0,0.2), inset 5px 5px 15px rgba(255,255,255,0.3), 0 0 40px rgba(0, 212, 170, 0.3) !important;
+  opacity: 0.85 !important;
+}
+
+html.light .uplinq-sphere-gold {
+  background: radial-gradient(circle at 35% 35%, #F4D03F, #D4AF37 50%, #8B6914) !important;
+  box-shadow: inset -6px -6px 15px rgba(0,0,0,0.2), inset 4px 4px 12px rgba(255,255,255,0.3), 0 0 35px rgba(212, 175, 55, 0.25) !important;
+  opacity: 0.85 !important;
+}
+
+html.light .uplinq-sphere-white {
+  background: radial-gradient(circle at 30% 30%, #555555, #333333 50%, #1A1A1A) !important;
+  box-shadow: inset -4px -4px 10px rgba(0,0,0,0.3), inset 3px 3px 8px rgba(255,255,255,0.1), 0 0 25px rgba(0, 0, 0, 0.15) !important;
+  opacity: 0.7 !important;
+}
+
+/* Light mode: glass bowl more visible */
+html.light .uplinq-glass-bowl {
+  border-color: rgba(0, 168, 138, 0.3) !important;
+  background: radial-gradient(circle at 50% 60%, rgba(0, 212, 170, 0.1), transparent 70%) !important;
+  box-shadow: 0 0 30px rgba(0, 168, 138, 0.1) !important;
+}
+
+/* Light mode: LED indicators brighter */
+html.light .uplinq-led {
+  box-shadow: 0 0 12px currentColor, 0 0 24px rgba(0, 212, 170, 0.5) !important;
+}
+
+html.light .uplinq-led-3 {
+  box-shadow: 0 0 12px #D4AF37, 0 0 24px rgba(212, 175, 55, 0.5) !important;
+}
+
+/* Light mode: data lines more visible */
+html.light .uplinq-data-line {
+  opacity: 0.3 !important;
+  stroke-width: 1.5 !important;
+}
+
+/* Light mode: glow orbs more visible */
+html.light .uplinq-glow-teal {
+  background: rgba(0, 168, 138, 0.12) !important;
+  opacity: 0.7 !important;
+}
+
+html.light .uplinq-glow-gold {
+  background: rgba(212, 175, 55, 0.08) !important;
+  opacity: 0.6 !important;
+}
+
+/* Light mode: grid more visible */
+html.light .uplinq-grid {
+  background-image:
+    linear-gradient(rgba(0, 168, 138, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 168, 138, 0.08) 1px, transparent 1px) !important;
+  opacity: 0.6 !important;
+}
