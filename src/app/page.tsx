@@ -113,7 +113,7 @@ Transform Your <span className="edu-squiggle" style={{color:'#FFFFFF'}}>Digital 
 
 {/* Services — keep video bg, restyle cards to Eduwerks dark glass */}
 <section id="services" className="py-16 md:py-28 relative overflow-hidden" style={{background:'#050505'}}>
-<video autoPlay muted loop playsInline preload="metadata" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none">
+<video autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" title="A-Star Infotech — Web Development Services Background">
 <source src="/services-bg.mp4" type="video/mp4"/>
 </video>
 <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black"/>

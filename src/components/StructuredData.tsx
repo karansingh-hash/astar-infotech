@@ -195,6 +195,30 @@ function BreadcrumbSchema() {
   }
 }
 
+function VideoSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: 'A-Star Infotech — Web Development Services',
+    description: 'Background video showcasing A-Star Infotech web development services in Jaipur, India. Features modern web design, e-commerce, SEO, and responsive website development.',
+    thumbnailUrl: `${SITE.url}/og-image.png`,
+    uploadDate: '2026-07-11',
+    contentUrl: `${SITE.url}/services-bg.mp4`,
+    embedUrl: `${SITE.url}/#services`,
+    duration: 'PT30S',
+    contentSize: '3360942',
+    encodingFormat: 'video/mp4',
+    width: 1280,
+    height: 720,
+    isFamilyFriendly: true,
+    potentialAction: {
+      '@type': 'WatchAction',
+      target: `${SITE.url}/#services`,
+    },
+    publisher: { '@id': `${SITE.url}/#organization` },
+  }
+}
+
 function GraphSchema() {
   // Use @graph to combine all schemas into a single structured data block
   // This is Google's recommended approach for multiple entities on one page
@@ -207,6 +231,7 @@ function GraphSchema() {
       ...ServiceSchemas(),
       FAQSchema(),
       BreadcrumbSchema(),
+      VideoSchema(),
     ],
   }
 }
