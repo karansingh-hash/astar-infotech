@@ -83,12 +83,12 @@ async function main() {
 
   // Seed Portfolio
   const portfolio = [
-    { title: 'FreshMart Online Store', category: 'E-Commerce', description: 'A fully-featured online grocery store with real-time inventory, secure checkout, and delivery tracking.', tech: '["Next.js","Stripe","PostgreSQL"]', color: 'from-emerald-500 to-emerald-700', image: '/portfolio-freshmart.png', order: 1 },
-    { title: 'HealthPlus Clinic', category: 'Healthcare', description: 'A responsive website for a multi-specialty clinic with appointment booking and patient portal.', tech: '["React","Node.js","MongoDB"]', color: 'from-amber-500 to-amber-700', image: '/portfolio-healthplus.png', order: 2 },
-    { title: 'UrbanBite Restaurant', category: 'Restaurant', description: 'A beautiful restaurant website with online ordering, table reservations, and menu management.', tech: '["Next.js","Prisma","Tailwind"]', color: 'from-emerald-600 to-teal-700', image: '/portfolio-urbanbite.png', order: 3 },
-    { title: 'EduSpark Academy', category: 'Education', description: 'An e-learning platform with course management, video streaming, and student progress tracking.', tech: '["React","Firebase","TypeScript"]', color: 'from-orange-500 to-amber-700', image: '/portfolio-eduspark.png', order: 4 },
-    { title: 'GreenLeaf Landscaping', category: 'Local Business', description: 'A lead-generating website for a landscaping company with gallery, quote requests, and service pages.', tech: '["Next.js","Sanity CMS","Vercel"]', color: 'from-teal-500 to-emerald-700', image: '/portfolio-greenleaf.png', order: 5 },
-    { title: 'TechVault IT Solutions', category: 'IT Services', description: 'A corporate website for an IT firm with service pages, case studies, and a knowledge base.', tech: '["React","GraphQL","AWS"]', color: 'from-amber-600 to-orange-700', image: '/portfolio-techvault.png', order: 6 },
+    { title: 'FreshMart Online Store', category: 'E-Commerce', description: 'A fully-featured online grocery store with real-time inventory, secure checkout, and delivery tracking.', tech: '["Next.js","Stripe","PostgreSQL"]', color: 'from-emerald-500 to-emerald-700', image: '/portfolio-freshmart.jpg', order: 1 },
+    { title: 'HealthPlus Clinic', category: 'Healthcare', description: 'A responsive website for a multi-specialty clinic with appointment booking and patient portal.', tech: '["React","Node.js","MongoDB"]', color: 'from-amber-500 to-amber-700', image: '/portfolio-healthplus.jpg', order: 2 },
+    { title: 'UrbanBite Restaurant', category: 'Restaurant', description: 'A beautiful restaurant website with online ordering, table reservations, and menu management.', tech: '["Next.js","Prisma","Tailwind"]', color: 'from-emerald-600 to-teal-700', image: '/portfolio-urbanbite.jpg', order: 3 },
+    { title: 'EduSpark Academy', category: 'Education', description: 'An e-learning platform with course management, video streaming, and student progress tracking.', tech: '["React","Firebase","TypeScript"]', color: 'from-orange-500 to-amber-700', image: '/portfolio-eduspark.jpg', order: 4 },
+    { title: 'GreenLeaf Landscaping', category: 'Local Business', description: 'A lead-generating website for a landscaping company with gallery, quote requests, and service pages.', tech: '["Next.js","Sanity CMS","Vercel"]', color: 'from-teal-500 to-emerald-700', image: '/portfolio-greenleaf.jpg', order: 5 },
+    { title: 'TechVault IT Solutions', category: 'IT Services', description: 'A corporate website for an IT firm with service pages, case studies, and a knowledge base.', tech: '["React","GraphQL","AWS"]', color: 'from-amber-600 to-orange-700', image: '/portfolio-techvault.jpg', order: 6 },
   ]
 
   for (const project of portfolio) {
